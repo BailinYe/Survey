@@ -1,24 +1,24 @@
-# Survey 项目
+# Survey Project
 
-一个问卷调查系统，包含前后端分离架构。
+A survey application system with separated frontend and backend architecture.
 
-## 项目结构
+## Project Structure
 
 ```
 Survey/
-├── backend/          # 后端服务 (Node.js + Express + TypeScript)
-├── frontend/         # 前端应用 (React + Vite + TypeScript)
+├── backend/          # Backend service (Node.js + Express + TypeScript)
+├── frontend/         # Frontend application (React + Vite + TypeScript)
 └── README.md
 ```
 
-## 技术栈
+## Tech Stack
 
 ### Backend
 
 - Node.js
 - Express.js
 - TypeScript
-- tsx (开发运行时)
+- tsx (Development runtime)
 
 ### Frontend
 
@@ -26,43 +26,43 @@ Survey/
 - Vite
 - TypeScript
 
-## 快速开始
+## Getting Started
 
-### 安装依赖
+### Install Dependencies
 
 ```bash
-# 安装后端依赖
+# Install backend dependencies
 cd backend
 npm install
 
-# 安装前端依赖
+# Install frontend dependencies
 cd ../frontend
 npm install
 ```
 
-### 开发模式
+### Development Mode
 
-**启动后端服务：**
+**Start backend server:**
 
 ```bash
 cd backend
 npm run dev
 ```
 
-默认运行在 http://localhost:3000
+Server runs on http://localhost:3000 by default
 
-**启动前端服务：**
+**Start frontend server:**
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-默认运行在 http://localhost:5173
+Server runs on http://localhost:5173 by default
 
-### 生产构建
+### Production Build
 
-**构建后端：**
+**Build backend:**
 
 ```bash
 cd backend
@@ -70,24 +70,24 @@ npm run build
 npm start
 ```
 
-**构建前端：**
+**Build frontend:**
 
 ```bash
 cd frontend
 npm run build
 ```
 
-## API 接口
+## API Endpoints
 
-- `GET /` - 服务信息
-- `GET /health` - 健康检查
+- `GET /` - Service information
+- `GET /health` - Health check
 
-## 开发指南
+## Development Guide
 
-1. 克隆仓库后先安装依赖
-2. 后端和前端需要分别启动
-3. 确保后端服务先启动
-4. 代码提交前请确保类型检查通过
+1. Install dependencies after cloning the repository
+2. Backend and frontend need to be started separately
+3. Ensure backend service is started first
+4. Make sure type checking passes before committing code
 
 ## License
 
