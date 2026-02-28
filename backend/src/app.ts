@@ -1,5 +1,7 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
+import surveyRoutes from "./routes/surveys.js";
+import responseRoutes from "./routes/responses.js";
 
 export const app = express();
 
@@ -17,3 +19,7 @@ app.get("/", (req: Request, res: Response) => {
 app.get("/health", (req: Request, res: Response) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
+
+// API routes
+app.use("/api/surveys", surveyRoutes);
+app.use("/api/responses", responseRoutes);

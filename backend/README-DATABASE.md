@@ -1,101 +1,232 @@
-# Database Configuration Guide
+# Firebase Firestore Configuration Guide
 
-## Development Environment Setup
+## Quick Setup
 
-### Option 1: Local MongoDB (Recommended for Development)
+### Step 1: Create Firebase Project
 
-Each developer installs MongoDB locally:
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Click "Add Project" or select existing project
+3. Enter project name (e.g., "Survey App")
+4. Follow the setup wizard
 
-```bash
-# Install MongoDB (Windows)
-# Download installer: https://www.mongodb.com/try/download/community
+### Step 2: Enable Firestore
 
-# Start MongoDB service
-mongod
+1. In Firebase Console, go to "Firestore Database"
+2. Click "Create Database"
+3. Choose "Start in test mode" (for development)
+4. Select a location (closest to your users)
 
-# .env configuration
-MONGODB_URI=mongodb://localhost:27017/survey_dev
-```
+### Step 3: Get Service Account Key
 
-**Advantages:**
+1. Go to Project Settings (gear icon) → Service Accounts
+2. Click "Generate New Private Key"
+3. Download the JSON file
+4. **Rename it to `serviceAccountKey.json`**
+5. **Place it in the `backend/` directory**
 
-- Work completely offline
-- Fastest performance
-- Full control over data
-
-### Option 2: MongoDB Atlas Personal Free Database
-
-Each developer creates their own free Atlas cluster:
-
-1. Sign up: https://www.mongodb.com/cloud/atlas/register
-2. Create free cluster (512MB)
-3. Create database user
-4. Get connection string
-
-```env
-MONGODB_URI=mongodb+srv://your-username:your-password@cluster0.xxxxx.mongodb.net/survey_dev
-```
-
-**Advantages:**
-
-- No local installation required
-- Cloud backup
-- Easy to share test data
-
-## Environment Separation Strategy
-
-### Development Environment
-
-- Each developer has independent database
-- Database name: `survey_dev` or `survey_dev_<name>`
-- Can freely modify and clear data
-
-### Staging Environment
-
-- Team shared testing database
-- Database name: `survey_staging`
-- Used for integration testing and QA
-
-### Production Environment
-
-- Live production database
-- Database name: `survey_prod`
-- Strict access control and backup policies
-
-## Configuration File Examples
+### Step 4: Start Development
 
 ```bash
-# Developer A's .env
-MONGODB_URI=mongodb://localhost:27017/survey_dev
-NODE_ENV=development
-
-# Developer B's .env
-MONGODB_URI=mongodb://localhost:27017/survey_dev
-NODE_ENV=development
-
-# Staging server's .env
-MONGODB_URI=mongodb+srv://...../survey_staging
-NODE_ENV=staging
-
-# Production server's .env
-MONGODB_URI=mongodb+srv://...../survey_prod
-NODE_ENV=production
+npm run dev
 ```
+
+## API Endpoints
+
+### Surveys
+
+#### Create Survey
+
+```bash
+POST /api/surveys
+Content-Type: application/json
+
+{
+  "title": "Customer Satisfaction Survey",
+  "description": "Help us improve our service",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "multiple-choice",
+      "question": "How satisfied are you?",
+      "options": ["Very Satisfied", "Satisfied", "Neutral", "Dissatisfied"]
+    }
+  ]
+}
+```
+
+#### Get All Surveys
+
+```bash
+GET /api/surveys
+```
+
+#### Get Single Survey
+
+```bash
+GET /api/surveys/:id
+```
+
+#### Update Survey
+
+```bash
+PUT /api/surveys/:id
+Content-Type: application/json
+
+{
+  "title": "Updated Title"
+}
+```
+
+#### Delete Survey
+
+```bash
+DELETE /api/surveys/:id
+```
+
+### Responses
+
+#### Submit Response
+
+```bash
+POST /api/responses
+Content-Type: application/json
+
+{
+  "surveyId": "survey123",
+  "answers": {
+    "q1": "Very Satisfied",
+    "q2": "Great service!"
+  },
+  "respondentEmail": "user@example.com"
+}
+```
+
+#### Get Survey Responses
+
+```bash
+GET /api/responses/survey/:surveyId
+```
+
+#### Get Single Response
+
+```bash
+GET /api/responses/:id
+```
+
+## Data Structure
+
+### Survey Document
+
+```typescript
+{
+  id: string,              // Auto-generated
+  title: string,
+  description: string,
+  questions: Array<{
+    id: string,
+    type: string,
+    question: string,
+    options?: string[]
+  }>,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Response Document
+
+```typescript
+{
+  id: string,              // Auto-generated
+  surveyId: string,
+  answers: Record<string, any>,
+  respondentEmail?: string,
+  submittedAt: Date
+}
+```
+
+## Firestore vs MongoDB
+
+| Feature       | Firestore                | MongoDB                     |
+| ------------- | ------------------------ | --------------------------- |
+| **Setup**     | Instant, no installation | Requires installation/Atlas |
+| **Scaling**   | Automatic                | Manual configuration        |
+| **Real-time** | Built-in                 | Requires extra setup        |
+| **Pricing**   | Free tier: 1GB storage   | Free tier: 512MB            |
+| **Query**     | Limited complex queries  | Powerful aggregation        |
+| **Best For**  | Rapid development        | Complex queries             |
+
+## Security Rules (Production)
+
+For production, update Firestore rules in Firebase Console:
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Surveys - anyone can read, only admin can write
+    match /surveys/{surveyId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+
+    // Responses - anyone can create, only admin can read
+    match /responses/{responseId} {
+      allow create: if true;
+      allow read: if request.auth != null && request.auth.token.admin == true;
+    }
+  }
+}
+```
+
+## Troubleshooting
+
+### Error: serviceAccountKey.json not found
+
+- Make sure you downloaded the key from Firebase Console
+- Rename it exactly to `serviceAccountKey.json`
+- Place it in the `backend/` directory (same level as `package.json`)
+
+### Error: Permission denied
+
+- Check Firestore security rules in Firebase Console
+- For development, use "test mode"
+- For production, set proper authentication rules
+
+### Error: Cannot connect to Firestore
+
+- Check your internet connection
+- Verify the service account key is valid
+- Ensure Firebase project is active
 
 ## Best Practices
 
-1. **Never share development databases** - Avoid data conflicts
-2. **Use .env files** - Don't commit to git
-3. **Provide seed data scripts** - Easy to initialize test data quickly
-4. **Regularly sync database schema** - Use migration tools
-5. **Separate production configuration** - Strict access control
+1. **Never commit serviceAccountKey.json** - Already in `.gitignore`
+2. **Use environment variables** - For sensitive data
+3. **Implement validation** - Validate data before saving
+4. **Add indexes** - For frequently queried fields
+5. **Monitor usage** - Check Firebase Console for quota limits
 
-## Database Initialization
+## Development Tips
 
-You can create a seed data script:
+### Test Data
+
+Use Firebase Console to manually add test data:
+
+1. Go to Firestore Database
+2. Start Collection → Name: "surveys"
+3. Add Document with sample data
+
+### Emulator (Advanced)
+
+For offline development:
 
 ```bash
-npm run seed
+npm install -g firebase-tools
+firebase init emulators
+firebase emulators:start
 ```
+
+Then update connection to use emulator in development.
 
 这样每个开发者都能快速获得一致的测试数据。

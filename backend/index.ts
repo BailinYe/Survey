@@ -1,13 +1,13 @@
-import { connectToDatabase, closeDatabase } from "./src/db/database.js";
-import dotenv from 'dotenv';
+import { connectToFirestore, closeFirestore } from "./src/db/firestore.js";
+import dotenv from "dotenv";
 import { configuration } from "./src/config.js";
-import http from 'http';
+import http from "http";
 import { app } from "./src/app.js";
 
 dotenv.config();
 
-// Connect to database
-await connectToDatabase();
+// Connect to Firestore
+await connectToFirestore();
 
 const { port } = configuration.server;
 const server = http.createServer(app);
@@ -19,13 +19,13 @@ server.listen(port, () => {
 
 // Graceful shutdown
 const shutdown = async () => {
-  console.log('\nShutting down gracefully...');
+  console.log("\nShutting down gracefully...");
   server.close(() => {
-    console.log('HTTP server closed');
+    console.log("HTTP server closed");
   });
-  await closeDatabase();
+  await closeFirestore();
   process.exit(0);
 };
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
