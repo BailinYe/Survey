@@ -1,3 +1,5 @@
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../firebase/firebase";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
@@ -9,9 +11,14 @@ export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    function handleGoogle() {
-        // Later: Firebase Google Auth
-        navigate("/admin-daasboard");
+    async function handleGoogle() {
+        try {
+            const provider = new GoogleAuthProvider();
+            await signInWithPopup(auth, provider);
+            navigate("/admin-dashboard");
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     function handleSubmit(e: React.FormEvent) {
