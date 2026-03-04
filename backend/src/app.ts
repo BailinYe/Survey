@@ -20,6 +20,11 @@ app.get("/health", (req: Request, res: Response) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// OTP verification
+app.post("/verify-otp", (req: Request, res: Response) => {
+
+});
+
 // API routes
 app.use("/api/surveys", surveyRoutes);
 app.use("/api/responses", responseRoutes);

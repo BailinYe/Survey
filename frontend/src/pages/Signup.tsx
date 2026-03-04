@@ -1,3 +1,7 @@
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { sendEmailVerification } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "../firebase/firebase";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
@@ -8,15 +12,17 @@ export default function Signup() {
 
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [dob, setDob] = useState(""); // yyyy-mm-dd
+    const [dob, setDob] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
+    const [successMsg, setSuccessMsg] = useState("");
 
-    function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setError("");
+        setSuccessMsg("");
 
         if (!firstName || !lastName || !dob || !email || !password || !confirmPassword) {
             setError("Please fill in all fields.");
@@ -28,7 +34,31 @@ export default function Signup() {
             return;
         }
 
-        navigate("/home");
+        try {
+            const account = await createUserWithEmailAndPassword(auth, email, password);
+            await sendEmailVerification(account.user);
+
+            await setDoc(doc(db, "accounts", account.user.uid), {
+                uid: account.user.uid,
+                firstName,
+                lastName,
+                dob,
+                email,
+                createdAt: serverTimestamp(),
+            });
+
+            setSuccessMsg(
+                "New account created successfully. \n " +
+                "Check your email and click the verification link to authenticate your account. \n" +
+                "You will be directed to Login page shortly..."
+            );
+
+            setTimeout(() => {
+                navigate("/auth/login");
+            }, 5000);
+        } catch (err: any) {
+            setError(err?.message ?? "Signup failed.");
+        }
     }
 
     return (
@@ -89,16 +119,16 @@ export default function Signup() {
                     />
                 </div>
 
+                {successMsg && <p>{successMsg}</p>}
                 {error && <p>{error}</p>}
 
+                {/* clicking this triggers onSubmit automatically */}
                 <Button name="Sign up" type="submit" onClick={() => {}} />
             </form>
 
             <Button name="Return to Homepage" type="button" onClick={() => navigate("/")} />
 
             <LinkButton text="Already have an account?" onClick={() => navigate("/auth/login")} />
-
-
         </div>
     );
 }
