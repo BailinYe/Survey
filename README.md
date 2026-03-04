@@ -89,6 +89,28 @@ npm run build
 3. Ensure backend service is started first
 4. Make sure type checking passes before committing code
 
+## Shared DTOs
+
+We use a shared TypeScript DTO contract to maintain consistency between front and backend
+
+- **Enums**
+    - `QuestionType` → `multipleChoice` | `checkBox` | `shortAnswer` | `rating`
+    - `SurveyStatus` → `new` | `active` | `past`
+
+- **DTOs**
+    - `SurveyDTO` → metadata 
+    - `QuestionDTO` → defines all unique data per question type
+      
+      - `MultipleChoiceDTO`
+        
+      - `CheckBoxDTO`
+
+      - `ShortAnswerDTO`
+
+      - `RatingDTO`
+      
+    - `ResponseDTO` → response payloads
+
 ## License
 
 ISC
