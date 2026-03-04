@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchSignInMethodsForEmail, sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../firebase/firebase";
+import { collection, getDocs, limit, query, where } from "firebase/firestore";
+import { auth, db } from "../firebase/firebase";
 import Button from "../components/Button";
 
 export default function ForgotPassword() {
@@ -16,30 +17,61 @@ export default function ForgotPassword() {
         setError("");
         setSuccessMsg("");
 
-        if (!email) {
+        const normalizedEmail = email.trim().toLowerCase();
+        if (!normalizedEmail) {
             setError("Please enter your email.");
             return;
         }
 
-        try {
-            const methods = await fetchSignInMethodsForEmail(auth, email);
+        // Where the user should land after completing reset
+        // Make sure the domain is in Firebase Auth -> Authorized domains
+        const actionCodeSettings = {
+            url: `${window.location.origin}/auth/login`,
+            handleCodeInApp: false,
+        };
 
-            if (methods.length === 0) {
-                setError("No account found with this email.");
-                return;
+        try {
+            // 1) Check Firestore `accounts` collection (as you requested)
+            try {
+                const q = query(
+                    collection(db, "accounts"),
+                    where("email", "==", normalizedEmail),
+                    limit(1)
+                );
+                const snap = await getDocs(q);
+
+                if (snap.empty) {
+                    setError("No account found with this email.");
+                    return;
+                }
+            } catch (firestoreErr: any) {
+                // If Firestore rules block this (permission-denied), fallback to Auth check
+                // This keeps your feature working even with secure Firestore rules.
+                const code = firestoreErr?.code ?? "";
+                if (code !== "permission-denied") throw firestoreErr;
+
+                const methods = await fetchSignInMethodsForEmail(auth, normalizedEmail);
+                if (methods.length === 0) {
+                    setError("No account found with this email.");
+                    return;
+                }
             }
 
-            await sendPasswordResetEmail(auth, email);
+            // 2) Send reset email (Firebase handles the email + reset page)
+            await sendPasswordResetEmail(auth, normalizedEmail, actionCodeSettings);
 
             setSuccessMsg(
-                "Password reset email sent. Please check your inbox. You will be redirected to Login shortly..."
+                "Password reset email sent. Please check your inbox (and spam). Redirecting to Login..."
             );
 
-            setTimeout(() => {
-                navigate("/auth/login");
-            }, 3000);
+            setTimeout(() => navigate("/auth/login"), 3000);
         } catch (err: any) {
-            setError(err?.message ?? "Failed to send password reset email.");
+            const code = err?.code ?? "";
+
+            if (code === "auth/invalid-email") setError("Invalid email format.");
+            else if (code === "auth/too-many-requests")
+                setError("Too many requests. Please try again later.");
+            else setError(err?.message ?? "Failed to send password reset email.");
         }
     }
 
