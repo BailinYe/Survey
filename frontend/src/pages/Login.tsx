@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import {
+    GoogleAuthProvider,
+    signInWithPopup,
+    signInWithEmailAndPassword,
+    signOut,
+} from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import Button from "../components/Button";
 import LinkButton from "../components/LinkButton";
@@ -38,11 +43,31 @@ export default function Login() {
             // Block unverified accounts
             if (!auth.currentUser?.emailVerified) {
                 await signOut(auth);
-                setError("Please verify your email before logging in. Check you email and click the verification link.");
+                setError("Please verify your email before logging in. Check your email and click the verification link.");
                 return;
             }
 
-            // Verified => continue to OTP step
+            // Send OTP email from backend
+            const res = await fetch("http://localhost:3000/api/auth/send-otp", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                await signOut(auth);
+                setError(data.message || "Failed to send verification code.");
+                return;
+            }
+
+            // Save email for OTP page
+            localStorage.setItem("otpEmail", email);
+
+            // Go to OTP page
             navigate("/auth/otp");
         } catch (err: any) {
             setError(err?.message ?? "Login failed.");
@@ -60,7 +85,6 @@ export default function Login() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         type="email"
-                        placeholder="email@example.com"
                     />
                 </div>
 
@@ -70,7 +94,6 @@ export default function Login() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         type="password"
-                        placeholder="password"
                     />
                 </div>
 

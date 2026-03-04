@@ -2,6 +2,7 @@ import express, { type Request, type Response } from "express";
 import cors from "cors";
 import surveyRoutes from "./routes/surveys.js";
 import responseRoutes from "./routes/responses.js";
+import authRoutes from "./routes/auth.js";
 
 export const app = express();
 
@@ -28,3 +29,4 @@ app.post("/verify-otp", (req: Request, res: Response) => {
 // API routes
 app.use("/api/surveys", surveyRoutes);
 app.use("/api/responses", responseRoutes);
+app.use("/api/auth", authRoutes);
