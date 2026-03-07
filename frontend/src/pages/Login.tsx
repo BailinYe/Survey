@@ -1,14 +1,26 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-    GoogleAuthProvider,
-    signInWithPopup,
-    signInWithEmailAndPassword,
-    signOut,
-} from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import Button from "../components/Button";
 import LinkButton from "../components/LinkButton";
+
+function getErrorMessage(error: unknown, fallback = "Something went wrong."): string {
+    if (error instanceof Error && error.message) {
+        return error.message;
+    }
+
+    if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error &&
+        typeof (error as { message: unknown }).message === "string"
+    ) {
+        return (error as { message: string }).message;
+    }
+
+    return fallback;
+}
 
 export default function Login() {
     const navigate = useNavigate();
@@ -19,17 +31,48 @@ export default function Login() {
 
     async function handleGoogle() {
         setError("");
+
         try {
             const provider = new GoogleAuthProvider();
-            await signInWithPopup(auth, provider);
-            navigate("/admin-dashboard");
-        } catch (err: any) {
-            setError(err?.message ?? "Google login failed.");
+            const result = await signInWithPopup(auth, provider);
+
+            const googleEmail = result.user.email;
+
+            if (!googleEmail) {
+                await signOut(auth);
+                setError("No email found for this Google account.");
+                return;
+            }
+
+            const res = await fetch("http://localhost:3000/api/auth/send-otp", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email: googleEmail }),
+            });
+
+            const data: { message?: string } = await res.json();
+
+            if (!res.ok) {
+                await signOut(auth);
+                setError(data.message || "Failed to send verification code.");
+                return;
+            }
+
+            localStorage.setItem("otpEmail", googleEmail);
+            navigate("/auth/otp");
+        } catch (err: unknown) {
+            setError(getErrorMessage(err, "Google login failed."));
         }
     }
 
-    async function handleSubmit(e: React.FormEvent) {
+    function handleSubmit(e: React.SyntheticEvent) {
         e.preventDefault();
+        void submitLogin();
+    }
+
+    async function submitLogin() {
         setError("");
 
         if (!email || !password) {
@@ -40,14 +83,12 @@ export default function Login() {
         try {
             await signInWithEmailAndPassword(auth, email, password);
 
-            // Block unverified accounts
             if (!auth.currentUser?.emailVerified) {
                 await signOut(auth);
                 setError("Please verify your email before logging in. Check your email and click the verification link.");
                 return;
             }
 
-            // Send OTP email from backend
             const res = await fetch("http://localhost:3000/api/auth/send-otp", {
                 method: "POST",
                 headers: {
@@ -56,7 +97,7 @@ export default function Login() {
                 body: JSON.stringify({ email }),
             });
 
-            const data = await res.json();
+            const data: { message?: string } = await res.json();
 
             if (!res.ok) {
                 await signOut(auth);
@@ -64,13 +105,10 @@ export default function Login() {
                 return;
             }
 
-            // Save email for OTP page
             localStorage.setItem("otpEmail", email);
-
-            // Go to OTP page
             navigate("/auth/otp");
-        } catch (err: any) {
-            setError(err?.message ?? "Login failed.");
+        } catch (err: unknown) {
+            setError(getErrorMessage(err, "Login failed."));
         }
     }
 
@@ -80,8 +118,9 @@ export default function Login() {
 
             <form onSubmit={handleSubmit}>
                 <div>
-                    <label>Email</label>
+                    <label htmlFor="email">Email</label>
                     <input
+                        id="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         type="email"
@@ -89,8 +128,9 @@ export default function Login() {
                 </div>
 
                 <div>
-                    <label>Password</label>
+                    <label htmlFor="password">Password</label>
                     <input
+                        id="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         type="password"
@@ -108,12 +148,16 @@ export default function Login() {
 
             <LinkButton
                 text="Forgot your password?"
-                onClick={() => navigate("/auth/forgot-password")}
+                onClick={() => {
+                    navigate("/auth/forgot-password");
+                }}
             />
 
             <LinkButton
                 text="Don't have an account yet?"
-                onClick={() => navigate("/auth/signup")}
+                onClick={() => {
+                    navigate("/auth/signup");
+                }}
             />
         </div>
     );
