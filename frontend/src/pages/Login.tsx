@@ -4,6 +4,7 @@ import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, signOu
 import { auth } from "../firebase/firebase";
 import Button from "../components/Button";
 import LinkButton from "../components/LinkButton";
+import * as React from "react";
 
 function getErrorMessage(error: unknown, fallback = "Something went wrong."): string {
     if (error instanceof Error && error.message) {

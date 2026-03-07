@@ -1,6 +1,24 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
+import * as React from "react";
+
+function getErrorMessage(error: unknown, fallback = "Something went wrong."): string {
+    if (error instanceof Error && error.message) {
+        return error.message;
+    }
+
+    if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error &&
+        typeof (error as { message: unknown }).message === "string"
+    ) {
+        return (error as { message: string }).message;
+    }
+
+    return fallback;
+}
 
 export default function OTPVerification() {
     const navigate = useNavigate();
@@ -11,8 +29,12 @@ export default function OTPVerification() {
     const [loading, setLoading] = useState(false);
     const [resending, setResending] = useState(false);
 
-    async function handleVerify(e: React.FormEvent) {
+    function handleVerifySubmit(e: React.SyntheticEvent) {
         e.preventDefault();
+        void verifyOtp();
+    }
+
+    async function verifyOtp() {
         setError("");
         setMessage("");
 
@@ -23,7 +45,7 @@ export default function OTPVerification() {
             return;
         }
 
-        if (!code || code.length !== 6) {
+        if (code.length !== 6) {
             setError("Please enter the 6-digit verification code.");
             return;
         }
@@ -39,7 +61,7 @@ export default function OTPVerification() {
                 body: JSON.stringify({ email, code }),
             });
 
-            const data = await res.json();
+            const data: { message?: string } = await res.json();
 
             if (!res.ok) {
                 setError(data.message || "Invalid verification code.");
@@ -48,8 +70,8 @@ export default function OTPVerification() {
 
             localStorage.removeItem("otpEmail");
             navigate("/admin-dashboard");
-        } catch (err: any) {
-            setError(err?.message ?? "OTP verification failed.");
+        } catch (err: unknown) {
+            setError(getErrorMessage(err, "OTP verification failed."));
         } finally {
             setLoading(false);
         }
@@ -77,7 +99,7 @@ export default function OTPVerification() {
                 body: JSON.stringify({ email }),
             });
 
-            const data = await res.json();
+            const data: { message?: string } = await res.json();
 
             if (!res.ok) {
                 setError(data.message || "Failed to resend code.");
@@ -85,8 +107,8 @@ export default function OTPVerification() {
             }
 
             setMessage("A new verification code has been sent to your email.");
-        } catch (err: any) {
-            setError(err?.message ?? "Failed to resend code.");
+        } catch (err: unknown) {
+            setError(getErrorMessage(err, "Failed to resend code."));
         } finally {
             setResending(false);
         }
@@ -97,12 +119,13 @@ export default function OTPVerification() {
             <h1>OTP Verification</h1>
             <p>Enter the 6-digit code sent to your email.</p>
 
-            <form onSubmit={handleVerify}>
+            <form onSubmit={handleVerifySubmit}>
                 <div>
-                    <label>Verification Code</label>
+                    <label htmlFor="otp-code">Verification Code</label>
                     <input
+                        id="otp-code"
                         value={code}
-                        onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        onChange={(e) => setCode(e.target.value.replaceAll(/\D/g, "").slice(0, 6))}
                         type="text"
                         inputMode="numeric"
                         maxLength={6}
