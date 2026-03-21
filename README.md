@@ -8,6 +8,7 @@ A survey application system with separated frontend and backend architecture.
 Survey/
 ├── backend/          # Backend service (Node.js + Express + TypeScript)
 ├── frontend/         # Frontend application (React + Vite + TypeScript)
+├── shared/           # Shared TypeScript DTOs/contracts
 └── README.md
 ```
 
@@ -25,6 +26,10 @@ Survey/
 - React
 - Vite
 - TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Lucide React
+- tw-animate-css
 
 ## Getting Started
 
@@ -88,10 +93,14 @@ npm run build
 2. Backend and frontend need to be started separately
 3. Ensure backend service is started first
 4. Make sure type checking passes before committing code
+5. The frontend uses Tailwind CSS and shadcn/ui for styling and reusable UI components
+6. Shared theme variables are defined in `frontend/src/index.css`
+7. Prefer Lucide icons for consistent icon usage
+8. Reuse shared DTOs from the root `shared/` directory to maintain consistency between frontend and backend
 
 ## Shared DTOs
 
-We use a shared TypeScript DTO contract to maintain consistency between frontend and backend.
+We use a shared TypeScript DTO contract in the root `shared/` directory to maintain consistency between frontend and backend.
 
 <img src="./docs/shared-dtos.jpg" width="600">
 
