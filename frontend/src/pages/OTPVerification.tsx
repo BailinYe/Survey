@@ -125,7 +125,7 @@ export default function OTPVerification() {
                     <input
                         id="otp-code"
                         value={code}
-                        onChange={(e) => setCode(e.target.value.replaceAll(/\D/g, "").slice(0, 6))}
+                        onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                         type="text"
                         inputMode="numeric"
                         maxLength={6}

@@ -1,7 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase/firebase";
-import Button from "../components/Button";
+import { Button } from "../components/ui/button";
+
+import { LogOut, Plus, Settings } from "lucide-react";
+
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
@@ -18,8 +21,13 @@ export default function AdminDashboard() {
 
     return (
         <div>
-            <h1> Welcome to the Admin Dashboard page </h1>
-            <Button name="Logout" onClick={handleLogout} />
+            <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0  mb-7">
+                Admin Dashboard
+            </h2>
+            <Button variant="destructive" onClick={handleLogout}>
+                <LogOut/> Logout
+            </Button>
         </div>
+
     );
 }
