@@ -17,8 +17,8 @@ export type AnswerValue =
 
 export interface ResponseDTO {
     surveyId: string;   // References a survey using the surveyId
-    submittedAt: string;
-    answers: Record<string, AnswerValue>; // questionId -> AnswerValue
+    submittedAt: Date;
+    answers: Record<string, AnswerValue>; // questionId -> AnswerValue   ( Q1, AnswerValue Object )
 }
 
 // Example of Response Object (1 object for the whole Survey)

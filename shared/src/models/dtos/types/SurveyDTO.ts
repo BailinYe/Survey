@@ -4,8 +4,8 @@ import {SurveyStatus} from "../enums/SurveyStatus";
 export interface SurveyDTO {
     id: string;
     authorId: string;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: Date;
+    updatedAt: Date;
     title: string;
     description: string;
     status: SurveyStatus;

@@ -1,15 +1,14 @@
 import {QuestionType} from "../enums/QuestionType";
 
-
 // Defines the base interface for every question type
 export interface QuestionBaseDTO {
     surveyId: string;   // References a survey using the surveyId
-    questionId: string;
+    questionId: string;  // Q# -> q1, q2, eq3, etc....
     position: number;   // from 0, 1, 2, ..., n-1
     type: QuestionType;
-    prompt: string;
-    description?: string;
-    required: boolean;
+    prompt: string;  // Actual question prompt
+    description?: string;  // Optional, can be used to give extra details for each question
+    required: boolean;  // true for required, false for optional
 }
 
 // Example collection of Question Objects
@@ -21,7 +20,7 @@ export interface QuestionBaseDTO {
     //         position: 0,
     //         type: QuestionType.MultipleChoice,
     //         prompt: "How did you hear about this event?",
-    //         description: "Choose one option.",
+    //         description: "Choose one option",
     //         required: true,
     //         options: ["Instagram", "Facebook", "Friend", "Other"]
     //     },
@@ -76,7 +75,7 @@ export interface MultipleChoiceDTO extends QuestionBaseDTO {
     //     position: 0,
     //     type: QuestionType.MultipleChoice,
     //     prompt: "How did you hear about this event?",
-    //     description: "Choose one option.",
+    //     description: "Choose one option",
     //     required: true,
     //     options: ["Instagram", "Facebook", "Friend", "Other"]
     // };
@@ -98,7 +97,7 @@ export interface CheckBoxDTO extends QuestionBaseDTO {
     //     position: 1,
     //     type: QuestionType.CheckBox,
     //     prompt: "What did you like about the event?",
-    //     description: "You may select more than one option.",
+    //     description: "You may select between 1 and 3 options",
     //     required: false,
     //     options: ["Organization", "Food", "Music", "Venue"],
     //     minSelect: 1,
@@ -150,7 +149,6 @@ export interface RatingDTO extends QuestionBaseDTO {
     //     labelMin: "Poor",
     //     labelMax: "Excellent"
     // };
-
 
 
 export type QuestionDTO = | MultipleChoiceDTO | CheckBoxDTO | ShortAnswerDTO | RatingDTO;
