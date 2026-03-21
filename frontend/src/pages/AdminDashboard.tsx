@@ -18,7 +18,7 @@ export default function AdminDashboard() {
 
     return (
         <div>
-            <h1>Welcome to the Admin Dashboard page</h1>
+            <h1> Welcome to the Admin Dashboard page </h1>
             <Button name="Logout" onClick={handleLogout} />
         </div>
     );
