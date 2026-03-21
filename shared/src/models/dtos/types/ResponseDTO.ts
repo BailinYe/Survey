@@ -1,32 +1,49 @@
-import {BaseDTO} from "./BaseDTO";
 import {QuestionType} from "../enums/QuestionType";
 
-
-// answers: {
-//   "Q1": { type: "short_answer", value: "Hello" },
-//   "Q2": { type: "rating", value: 4 },
-//   "Q3": { type: "checkbox", value: ["A", "C"] }
-// }
-
-export type AnswerValue = | {
-        type: QuestionType.MultipleChoice,
-        value?: QuestionType
+export type AnswerValue =
+    | {
+        type: QuestionType.MultipleChoice;
+        value: string;
     } | {
-        type: QuestionType.CheckBox,
-        value?: QuestionType
+        type: QuestionType.CheckBox;
+        value: string[];
     } | {
-        type: QuestionType.ShortAnswer,
-        value?: QuestionType
+        type: QuestionType.ShortAnswer;
+        value: string;
     } | {
-        type: QuestionType.Rating,
-        value?: QuestionType
-    }
-;
+        type: QuestionType.Rating;
+        value: number;
+    };
 
-export interface ResponseDTO extends BaseDTO {
-    surveyId: string;
+export interface ResponseDTO {
+    surveyId: string;   // References a survey using the surveyId
     submittedAt: string;
-    // questionId -> AnswerValue
-    answers: Record<string, AnswerValue>;
+    answers: Record<string, AnswerValue>; // questionId -> AnswerValue
 }
+
+// Example of Response Object (1 object for the whole Survey)
+
+    // const response: ResponseDTO = {
+    //     surveyId: "survey_001",
+    //     submittedAt: "2026-03-20T19:30:00Z",
+    //     answers: {
+    //         q1: {
+    //             type: QuestionType.MultipleChoice,
+    //             value: "Instagram"
+    //         },
+    //         q2: {
+    //             type: QuestionType.CheckBox,
+    //             value: ["Organization", "Music"]
+    //         },
+    //         q3: {
+    //             type: QuestionType.ShortAnswer,
+    //             value: "Everything was well organized."
+    //         },
+    //         q4: {
+    //             type: QuestionType.Rating,
+    //             value: 5
+    //         }
+    //     }
+    // };
+
 
