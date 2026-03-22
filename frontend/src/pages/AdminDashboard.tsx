@@ -76,9 +76,20 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="flex items-start">
-      {/* Left Sidebar */}
-      <div className="flex flex-col w-64 h-screen items-center gap-64">
+    <div className="flex flex-col lg:flex-row min-h-screen">
+      {/* Top Navbar - Mobile Only */}
+      <div className="w-full lg:hidden flex items-center justify-between px-6 py-4 border-b-2 border-gray-200 bg-white">
+        <Logo className="h-10" />
+        <div className="flex items-center gap-4">
+          <Avatar className="w-10 h-10" />
+          <Button variant="destructive" size="sm" onClick={handleLogout}>
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Left Sidebar - Desktop Only */}
+      <div className="hidden lg:flex flex-col w-64 h-screen items-center gap-64">
         <Logo className="self-center ml-12 mt-6" />
         <div className="flex flex-col items-center gap-14 mt-16 border-t-gray-200 border-t-2">
           <h1 className="scroll-m-20 border-b text-3xl font-semibold tracking-tight first:mt-0">
@@ -92,7 +103,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Right Content */}
-      <div className="flex flex-col px-10 py-6 gap-2 border-l-2 border-gray-200">
+      <div className="flex flex-col w-full lg:flex-1 px-6 lg:px-10 py-6 gap-2 lg:border-l-2 lg:border-gray-200">
         <h1 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 mb-7">
           Survey Overview
         </h1>
@@ -128,7 +139,7 @@ export default function AdminDashboard() {
           </div>
         ) : (
           /* Surveys Grid */
-          <div>
+          <div className="self-center">
             {/* Create New Survey Card + Survey Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               <Card
