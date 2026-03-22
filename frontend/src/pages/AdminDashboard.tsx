@@ -76,11 +76,11 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="flex items-start gap-3">
+    <div className="flex items-start">
       {/* Left Sidebar */}
-      <div className="flex flex-col w-64 h-screen items-center gap-64 border-r-2 border-gray-200">
-        <Logo className="self-center" />
-        <div className="flex flex-col items-center gap-14 mt-6 border-t-gray-200 border-t-2">
+      <div className="flex flex-col w-64 h-screen items-center gap-64">
+        <Logo className="self-center ml-12 mt-6" />
+        <div className="flex flex-col items-center gap-14 mt-16 border-t-gray-200 border-t-2">
           <h1 className="scroll-m-20 border-b text-3xl font-semibold tracking-tight first:mt-0">
             Hi User!
           </h1>
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Right Content */}
-      <div className="flex flex-col px-8 py-6 gap-2">
+      <div className="flex flex-col px-10 py-6 gap-2 border-l-2 border-gray-200">
         <h1 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 mb-7">
           Survey Overview
         </h1>

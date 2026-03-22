@@ -58,7 +58,6 @@ async function accountExists(normalizedEmail: string): Promise<boolean> {
         return methods.length > 0;
     }
 }
->>>>>>> 1379ca4f1dd1d381adc3534264f0bbc7ad535322
 
 export default function ForgotPassword() {
     const navigate = useNavigate();
