@@ -1,5 +1,7 @@
 
 export enum SurveyStatus {
-    Active = "active",
-    Closed = "closed"
+    Active = "Active",
+    Closed = "Closed"
 }
+
+// draft status

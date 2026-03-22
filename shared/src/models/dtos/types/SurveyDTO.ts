@@ -10,6 +10,8 @@ export interface SurveyDTO {
     description: string;
     status: SurveyStatus;
     questionCount: number;
+    sharedCount?: number;
+    answerCount?: number;
 }
 
 // Sample Survey Object:

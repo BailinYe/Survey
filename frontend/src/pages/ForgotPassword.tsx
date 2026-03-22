@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchSignInMethodsForEmail, sendPasswordResetEmail } from "firebase/auth";
 import { collection, getDocs, limit, query, where } from "firebase/firestore";
 import { auth, db } from "../firebase/firebase";
-import Button from "../components/Button";
+import Button from "../components/common/Button";
 
 export default function ForgotPassword() {
     const navigate = useNavigate();

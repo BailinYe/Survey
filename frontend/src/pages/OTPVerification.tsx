@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/Button";
+import Button from "../components/common/Button";
 import * as React from "react";
 
 function getErrorMessage(error: unknown, fallback = "Something went wrong."): string {
