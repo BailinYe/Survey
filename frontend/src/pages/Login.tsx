@@ -92,13 +92,14 @@ export default function Login() {
         }
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-            if (!auth.currentUser?.emailVerified) {
+            await user.reload();
+
+            if (!user.emailVerified) {
                 await signOut(auth);
-                setError(
-                    "Please verify your email before logging in. Check your email and click the verification link."
-                );
+                setError("Account not authenticated. Please check your email for the authentication link.");
                 return;
             }
 
@@ -123,9 +124,13 @@ export default function Login() {
         } catch (err: unknown) {
             const message = getErrorMessage(err, "Login failed.");
 
+            if (message.includes("auth/user-not-found")) {
+                setError("User not found. Please create a new account.");
+                return;
+            }
+
             if (
                 message.includes("auth/invalid-credential") ||
-                message.includes("auth/user-not-found") ||
                 message.includes("auth/wrong-password") ||
                 message.includes("auth/invalid-email")
             ) {
