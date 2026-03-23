@@ -6,6 +6,7 @@ import { Button } from "../components/ui/button";
 import { LogOut, Plus } from "lucide-react";
 import Logo from "@/components/common/Logo";
 import Card from "@/components/common/Card";
+import PopupWindow from "@/components/PopupWindow";
 import { useEffect, useState } from "react";
 import { SurveyStatus } from "@shared/models/dtos/enums/SurveyStatus";
 import { SurveyDTO as Survey } from "@shared/models/dtos/types/SurveyDTO";
@@ -17,15 +18,22 @@ export default function AdminDashboard() {
   const [filteredSurveys, setFilteredSurveys] = useState<Survey[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>("");
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
 
   async function handleLogout() {
+    setShowLogoutConfirm(true);
+  }
+
+  async function confirmLogout() {
     try {
       await signOut(auth);
       localStorage.removeItem("otpEmail");
+      setShowLogoutConfirm(false);
       navigate("/auth/login");
     } catch (err) {
       console.error("Logout failed:", err);
+      setShowLogoutConfirm(false);
     }
   }
 
@@ -135,7 +143,9 @@ export default function AdminDashboard() {
           </div>
         ) : filteredSurveys.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No surveys match your filters.</p>
+            <p className="text-muted-foreground">
+              No surveys match your filters.
+            </p>
           </div>
         ) : (
           /* Surveys Grid */
@@ -201,6 +211,24 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+
+      {/* Logout Confirmation Popup */}
+      {showLogoutConfirm && (
+        <PopupWindow
+          text={
+            <div>
+              <p className="text-lg font-semibold mb-2">Confirm Logout</p>
+              <p className="text-sm text-muted-foreground">
+                Are you sure you want to logout?
+              </p>
+            </div>
+          }
+          firstButtonText="Confirm"
+          onFirstClick={confirmLogout}
+          secondButtonText="Cancel"
+          onSecondClick={() => setShowLogoutConfirm(false)}
+        />
+      )}
     </div>
   );
 }
