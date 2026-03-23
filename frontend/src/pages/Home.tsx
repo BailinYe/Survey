@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import surveyImage from "@/assets/Survey.png";
 
 export default function Home() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
     return (
         <main className="h-screen overflow-hidden bg-background text-foreground px-6 py-4 md:px-10 md:py-6 lg:px-14">

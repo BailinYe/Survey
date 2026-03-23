@@ -20,40 +20,40 @@ function getErrorMessage(
         return error.message;
     }
 
-    if (
-        typeof error === "object" &&
-        error !== null &&
-        "message" in error &&
-        typeof (error as { message: unknown }).message === "string"
-    ) {
-        return (error as { message: string }).message;
-    }
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { message: unknown }).message === "string"
+  ) {
+    return (error as { message: string }).message;
+  }
 
-    return fallback;
+  return fallback;
 }
 
 export default function Login() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
 
-    async function handleGoogle() {
-        setError("");
+  async function handleGoogle() {
+    setError("");
 
-        try {
-            const provider = new GoogleAuthProvider();
-            const result = await signInWithPopup(auth, provider);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
 
-            const googleEmail = result.user.email;
+      const googleEmail = result.user.email;
 
-            if (!googleEmail) {
-                await signOut(auth);
-                setError("No email found for this Google account.");
-                return;
-            }
+      if (!googleEmail) {
+        await signOut(auth);
+        setError("No email found for this Google account.");
+        return;
+      }
 
             // const res = await fetch("http://localhost:3000/api/auth/send-otp", {
             //     method: "POST",
@@ -83,13 +83,13 @@ export default function Login() {
         void submitLogin();
     }
 
-    async function submitLogin() {
-        setError("");
+  async function submitLogin() {
+    setError("");
 
-        if (!email || !password) {
-            setError("Please enter your email and password.");
-            return;
-        }
+    if (!email || !password) {
+      setError("Please enter your email and password.");
+      return;
+    }
 
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);

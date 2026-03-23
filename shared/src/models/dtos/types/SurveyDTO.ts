@@ -10,6 +10,8 @@ export interface SurveyDTO {
     description: string;
     status: SurveyStatus;
     questionCount: number;
+    answerCount: number;      // Total number of responses/answers submitted for this survey
+    // sharedCount?: number;      // Count of unique people the survey has been shared with
 }
 
 // Sample Survey Object:
@@ -22,5 +24,7 @@ export interface SurveyDTO {
     //     title: "Customer Satisfaction Survey",
     //     description: "A survey to collect feedback about the event experience.",
     //     status: SurveyStatus.Active,
-    //     questionCount: 4
+    //     questionCount: 4,
+    //     sharedCount: 25,        // 25 people invited
+    //     answerCount: 18         // 18 responses received
     // };

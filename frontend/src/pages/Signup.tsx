@@ -29,7 +29,7 @@ function getErrorMessage(
 }
 
 export default function Signup() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -50,28 +50,39 @@ export default function Signup() {
         setError("");
         setShowSuccessPopup(false);
 
-        if (!firstName || !lastName || !dob || !email || !password || !confirmPassword) {
-            setError("Please fill in all fields.");
-            return;
-        }
+    if (
+      !firstName ||
+      !lastName ||
+      !dob ||
+      !email ||
+      !password ||
+      !confirmPassword
+    ) {
+      setError("Please fill in all fields.");
+      return;
+    }
 
-        if (password !== confirmPassword) {
-            setError("Passwords do not match.");
-            return;
-        }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
 
-        try {
-            const account = await createUserWithEmailAndPassword(auth, email, password);
-            await sendEmailVerification(account.user);
+    try {
+      const account = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      await sendEmailVerification(account.user);
 
-            await setDoc(doc(db, "accounts", account.user.uid), {
-                uid: account.user.uid,
-                firstName,
-                lastName,
-                dob,
-                email,
-                createdAt: serverTimestamp(),
-            });
+      await setDoc(doc(db, "accounts", account.user.uid), {
+        uid: account.user.uid,
+        firstName,
+        lastName,
+        dob,
+        email,
+        createdAt: serverTimestamp(),
+      });
 
             setShowSuccessPopup(true);
         } catch (err: unknown) {
