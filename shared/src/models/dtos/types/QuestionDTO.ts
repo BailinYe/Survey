@@ -2,8 +2,7 @@ import {QuestionType} from "../enums/QuestionType";
 
 // Defines the base interface for every question type
 export interface QuestionBaseDTO {
-    surveyId: string;   // References a survey using the surveyId
-    questionId: string;  // Q# -> q1, q2, eq3, etc....
+    questionId: string;
     position: number;   // from 0, 1, 2, ..., n-1
     type: QuestionType;
     prompt: string;  // Actual question prompt

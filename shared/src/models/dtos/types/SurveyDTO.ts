@@ -1,5 +1,6 @@
 
 import {SurveyStatus} from "../enums/SurveyStatus";
+import {QuestionDTO} from "./QuestionDTO";
 
 export interface SurveyDTO {
     id: string;
@@ -10,8 +11,9 @@ export interface SurveyDTO {
     description: string;
     status: SurveyStatus;
     questionCount: number;
-    answerCount: number;      // Total number of responses/answers submitted for this survey
-    // sharedCount?: number;      // Count of unique people the survey has been shared with
+    answerCount: number;
+    sharedCount?: number;
+    questions: QuestionDTO[];
 }
 
 // Sample Survey Object:
