@@ -8,6 +8,8 @@ type RatingResultsProps = {
 
 export default function RatingResults({question, answers}: RatingResultsProps) {
 
+    // todo: Add shadcn graph for rating results
+
     // Retrieves all ratings
     const ratings: number[] = answers
         .filter((answer) => answer.type === QuestionType.Rating)

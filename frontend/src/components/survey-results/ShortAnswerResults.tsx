@@ -2,6 +2,8 @@ import {AnswerValue, QuestionType} from "@shared/models/dtos";
 
 export default function ShortAnswerResults({ answers }: { answers: AnswerValue[] }) {
 
+    // todo: Add pagination for short answers results
+
     const shortAnswers: string[] = answers
         .filter((answer: AnswerValue) => answer.type === QuestionType.ShortAnswer)
         .map((answer): string => answer.value);

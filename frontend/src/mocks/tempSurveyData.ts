@@ -13,6 +13,8 @@ export const Survey: SurveyDTO = {
     status: SurveyStatus.Active,
     questionCount: 4,
     answerCount: 18,
+    sharedCount: 4,
+    emails: ["email1@test.com", "email2@test.com", "email3@test.com"],
     questions: [
         {
             questionId: "q1",
@@ -31,6 +33,8 @@ export const Survey: SurveyDTO = {
             description: "Select all that apply",
             required: false,
             options: ["Speakers", "Food", "Networking", "Venue"],
+            minSelect: 1,
+            maxSelect: 2,
         },
         {
             questionId: "q3",
@@ -45,11 +49,13 @@ export const Survey: SurveyDTO = {
             position: 4,
             type: QuestionType.Rating,
             prompt: "Rate the organization of the event",
-            description: "1 = very poor, 5 = excellent",
+            description: "select one option",
             required: true,
             scaleMin: 1,
             scaleMax: 5,
-        },
+            labelMin: "very poor",
+            labelMax: "excellent",
+        }
     ],
 };
 

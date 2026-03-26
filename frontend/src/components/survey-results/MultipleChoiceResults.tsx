@@ -7,6 +7,7 @@ type MultipleChoiceResultsProps = {
 
 export default function  MultipleChoiceResults({question, answers}: MultipleChoiceResultsProps) {
 
+    // todo: Add shadcn graph for MCQ results
 
     const counts: Record<string, number> = question.options.reduce<Record<string, number>>((acc, option: string) => {
         acc[option] = 0;

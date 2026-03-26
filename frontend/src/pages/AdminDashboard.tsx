@@ -14,7 +14,7 @@ import { FilterSort } from "@/components/utils/FilterSort";
 
 export default function AdminDashboard() {
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [filteredSurveys, setFilteredSurveys] = useState<Survey[]>([]);
@@ -26,7 +26,7 @@ export default function AdminDashboard() {
       try {
         setIsLoading(true);
         setError("");
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+          const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
         const res = await fetch(`${apiUrl}/api/surveys`, {
           headers: {
             Authorization: `Bearer ${await auth.currentUser?.getIdToken()}`,
@@ -54,6 +54,7 @@ export default function AdminDashboard() {
   const getStatusBadge = (status?: SurveyStatus) => {
     const statusValue = status || SurveyStatus.Active;
     const statusMap: Record<SurveyStatus, { bg: string; text: string }> = {
+      [SurveyStatus.New]: { bg: "bg-blue-100", text: "text-blue-800" },
       [SurveyStatus.Active]: { bg: "bg-green-100", text: "text-green-800" },
       [SurveyStatus.Closed]: { bg: "bg-yellow-100", text: "text-yellow-800" },
     };
