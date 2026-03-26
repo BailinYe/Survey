@@ -28,9 +28,12 @@ export default function AdminLayout() {
 
     return (
         <div className="flex flex-col lg:flex-row min-h-screen">
+
+            {/*Sidebar/Topbar*/}
             <TopNavbar handleLogout={handleLogout} />
             <LeftSidebar handleLogout={handleLogout} />
 
+            {/*Page content, controlled by Router*/}
             <main className="flex-1 p-6">
                 <Outlet />
             </main>
