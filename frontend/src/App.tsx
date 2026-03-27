@@ -1,13 +1,14 @@
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import Home from "./pages/Home.tsx";
-import Login from "./pages/Login.tsx";
-import Signup from "./pages/Signup.tsx";
-import OTPVerification from "./pages/OTPVerification.tsx";
-import ForgotPassword from "./pages/ForgotPassword.tsx";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import OTPVerification from "./pages/OTPVerification";
+import ForgotPassword from "./pages/ForgotPassword";
 import AdminDashboard from "./pages/AdminDashboard"
 import PageNotFound from "./pages/PageNotFound";
 import AdminLayout from "@/components/layout/AdminLayout";
 import SurveyAnalytics from "@/pages/SurveyAnalytics";
+import CreateSurvey from "@/pages/CreateSurvey";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
               {/* Admin routes */}
               <Route path="/admin-dashboard" element={<AdminLayout />}>
                   <Route index element={<AdminDashboard />} />
+                  <Route path="surveys/new" element={<CreateSurvey />}/>
                   <Route path="results" element={<SurveyAnalytics />} />
               </Route>
 
