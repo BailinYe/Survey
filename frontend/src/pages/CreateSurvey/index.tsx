@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-// shadcn-style UI components
+// Shadcn-style UI components
 import { Button } from "@/components/ui/button";
 
 // Shared DTO enums/types
@@ -201,7 +201,7 @@ export default function CreateSurvey() {
 
     return (
         <div className="mx-auto w-full max-w-7xl space-y-6 p-6 px-3 sm:px-4">
-            {/* Publish survey button (outside header card, aligned right) */}
+            {/* Publish survey button */}
             <div className="flex justify-end">
                 <Button type="button" variant="outline" className="rounded-full px-10" onClick={publish}>
                     Publish

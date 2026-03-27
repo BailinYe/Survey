@@ -10,9 +10,6 @@ export default function LeftSidebar({handleLogout}) {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // const isCreateSurveyPage = location.pathname.includes("admin-dashboard/surveys/new");
-    // const isResultsPage = location.pathname.includes("admin-dashboard/results");
-
     const showBackToDashboard =
         location.pathname.startsWith("/admin-dashboard/surveys/new") ||
         location.pathname.startsWith("/admin-dashboard/results");
