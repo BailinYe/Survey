@@ -2,10 +2,8 @@ import { useNavigate } from "react-router-dom";
 
 import { auth } from "../firebase/firebase";
 import { Button } from "../components/ui/button";
-
 import { Plus } from "lucide-react";
 import Card from "@/components/common/Card";
-
 import { useEffect, useState } from "react";
 import { SurveyStatus } from "@shared/models/dtos/enums/SurveyStatus";
 import { SurveyDTO as Survey } from "@shared/models/dtos/types/SurveyDTO";

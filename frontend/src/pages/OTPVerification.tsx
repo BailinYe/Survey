@@ -1,7 +1,7 @@
 import { useMemo, useState, type SyntheticEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import surveyImage from "@/assets/Survey.png";
+import surveyImage from "../assets/Survey.png";
 
 function getErrorMessage(error: unknown, fallback = "Something went wrong."): string {
     if (error instanceof Error && error.message) {
@@ -141,7 +141,7 @@ export default function OTPVerification() {
     }
 
     function handleCodeChange(value: string) {
-        setCode(value.replaceAll(/\D/g, "").slice(0, 6));
+        setCode(value.replace(/\D/g, "").slice(0, 6));
     }
 
     return (
@@ -189,7 +189,7 @@ export default function OTPVerification() {
                                         value={code[index] ?? ""}
                                         onChange={(e) => {
                                             const nextCode = code.split("");
-                                            nextCode[index] = e.target.value.replaceAll(/\D/g, "").slice(-1);
+                                            nextCode[index] = e.target.value.replace(/\D/g, "").slice(-1);
                                             handleCodeChange(nextCode.join(""));
                                         }}
                                         onKeyDown={(e) => {

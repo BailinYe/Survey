@@ -6,7 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { auth, db } from "@/firebase/firebase";
 import { Button } from "@/components/ui/button";
 import PopupWindow from "@/components/PopupWindow";
-import surveyImage from "@/assets/Survey.png";
+import surveyImage from "../assets/Survey.png";
 
 function getErrorMessage(error: unknown, fallback = "Failed to send password reset email."): string {
     if (error instanceof Error && error.message) {

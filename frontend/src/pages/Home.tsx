@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import surveyImage from "@/assets/Survey.png";
+import surveyImage from "../assets/Survey.png";
 
 export default function Home() {
 

@@ -9,8 +9,8 @@ import {
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { auth } from "@/firebase/firebase";
 import { Button } from "@/components/ui/button";
-import surveyImage from "@/assets/Survey.png";
-import googleLogo from "@/assets/Google.png";
+import surveyImage from "../assets/Survey.png";
+import googleLogo from "../assets/Google.png";
 
 function getErrorMessage(
     error: unknown,
