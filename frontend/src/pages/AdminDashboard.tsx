@@ -27,7 +27,7 @@ export default function AdminDashboard() {
         setIsLoading(true);
         setError("");
           const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-        const res = await fetch(`${apiUrl}/api/surveys`, {
+        const res = await fetch(`${apiUrl}api/surveys`, {
           headers: {
             Authorization: `Bearer ${await auth.currentUser?.getIdToken()}`,
           },
