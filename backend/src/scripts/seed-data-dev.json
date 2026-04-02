@@ -1,0 +1,574 @@
+{
+  "accounts": [
+    {
+      "id": "account1",
+      "name": "Carlos Gonzalez",
+      "email": "carlos.gonzalez@example.com",
+      "createdAt": "2026-04-02T10:00:00.000Z"
+    },
+    {
+      "id": "account2",
+      "name": "Sofia Martinez",
+      "email": "sofia.martinez@example.com",
+      "createdAt": "2026-04-02T10:05:00.000Z"
+    },
+    {
+      "id": "account3",
+      "name": "Daniel Romero",
+      "email": "daniel.romero@example.com",
+      "createdAt": "2026-04-02T10:10:00.000Z"
+    },
+    {
+      "id": "account4",
+      "name": "Valeria Cruz",
+      "email": "valeria.cruz@example.com",
+      "createdAt": "2026-04-02T10:15:00.000Z"
+    },
+    {
+      "id": "account5",
+      "name": "Mateo Herrera",
+      "email": "mateo.herrera@example.com",
+      "createdAt": "2026-04-02T10:20:00.000Z"
+    },
+    {
+      "id": "account6",
+      "name": "Lucia Flores",
+      "email": "lucia.flores@example.com",
+      "createdAt": "2026-04-02T10:25:00.000Z"
+    }
+  ],
+  "surveys": [
+    {
+      "id": "survey1",
+      "authorId": "account1",
+      "createdAt": "2026-04-02T11:00:00.000Z",
+      "updatedAt": "2026-04-02T11:00:00.000Z",
+      "title": "Customer Satisfaction Survey",
+      "description": "Dummy survey to evaluate customer experience after support interactions.",
+      "status": "New",
+      "questionCount": 4,
+      "answerCount": 4,
+      "sharedCount": 5,
+      "emails": [
+        "sofia.martinez@example.com",
+        "daniel.romero@example.com",
+        "valeria.cruz@example.com",
+        "mateo.herrera@example.com",
+        "lucia.flores@example.com"
+      ],
+      "questions": [
+        {
+          "questionId": "q1",
+          "position": 1,
+          "type": "MultipleChoice",
+          "prompt": "How did you hear about our service?",
+          "description": "Choose the main source.",
+          "required": true,
+          "options": ["Instagram", "Website", "Friend", "Other"]
+        },
+        {
+          "questionId": "q2",
+          "position": 2,
+          "type": "CheckBox",
+          "prompt": "Which features did you use?",
+          "description": "Select all that apply.",
+          "required": true,
+          "options": ["Live Chat", "Email Support", "Knowledge Base", "Phone Support"],
+          "minSelect": 1,
+          "maxSelect": 3
+        },
+        {
+          "questionId": "q3",
+          "position": 3,
+          "type": "ShortAnswer",
+          "prompt": "What could we improve?",
+          "description": "Share your feedback.",
+          "required": false
+        },
+        {
+          "questionId": "q4",
+          "position": 4,
+          "type": "Rating",
+          "prompt": "Rate your overall experience.",
+          "description": "From poor to excellent.",
+          "required": true,
+          "scaleMin": 1,
+          "scaleMax": 5,
+          "labelMin": "Poor",
+          "labelMax": "Excellent"
+        }
+      ]
+    },
+    {
+      "id": "survey2",
+      "authorId": "account1",
+      "createdAt": "2026-04-03T09:00:00.000Z",
+      "updatedAt": "2026-04-03T09:30:00.000Z",
+      "title": "Event Feedback Survey",
+      "description": "Dummy survey to collect feedback after an internal event.",
+      "status": "Closed",
+      "questionCount": 3,
+      "answerCount": 3,
+      "sharedCount": 4,
+      "emails": [
+        "sofia.martinez@example.com",
+        "valeria.cruz@example.com",
+        "mateo.herrera@example.com",
+        "lucia.flores@example.com"
+      ],
+      "questions": [
+        {
+          "questionId": "q1",
+          "position": 1,
+          "type": "MultipleChoice",
+          "prompt": "How would you rate the event organization?",
+          "description": "Choose one option.",
+          "required": true,
+          "options": ["Excellent", "Good", "Average", "Poor"]
+        },
+        {
+          "questionId": "q2",
+          "position": 2,
+          "type": "Rating",
+          "prompt": "How useful was the event content?",
+          "description": "Rate from 1 to 10.",
+          "required": true,
+          "scaleMin": 1,
+          "scaleMax": 10,
+          "labelMin": "Not useful",
+          "labelMax": "Very useful"
+        },
+        {
+          "questionId": "q3",
+          "position": 3,
+          "type": "ShortAnswer",
+          "prompt": "What topic would you like for the next event?",
+          "description": "Optional feedback.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "id": "survey3",
+      "authorId": "account2",
+      "createdAt": "2026-04-04T08:00:00.000Z",
+      "updatedAt": "2026-04-04T08:45:00.000Z",
+      "title": "Product Research Survey",
+      "description": "Dummy survey for product discovery and preferences.",
+      "status": "Closed",
+      "questionCount": 4,
+      "answerCount": 4,
+      "sharedCount": 5,
+      "emails": [
+        "carlos.gonzalez@example.com",
+        "daniel.romero@example.com",
+        "valeria.cruz@example.com",
+        "mateo.herrera@example.com",
+        "lucia.flores@example.com"
+      ],
+      "questions": [
+        {
+          "questionId": "q1",
+          "position": 1,
+          "type": "CheckBox",
+          "prompt": "Which devices do you use regularly?",
+          "description": "Select all that apply.",
+          "required": true,
+          "options": ["Laptop", "Tablet", "Phone", "Desktop"],
+          "minSelect": 1,
+          "maxSelect": 4
+        },
+        {
+          "questionId": "q2",
+          "position": 2,
+          "type": "MultipleChoice",
+          "prompt": "How often do you buy tech products?",
+          "description": "Choose one option.",
+          "required": true,
+          "options": ["Monthly", "Every 3 months", "Twice a year", "Rarely"]
+        },
+        {
+          "questionId": "q3",
+          "position": 3,
+          "type": "Rating",
+          "prompt": "How interested are you in smart home devices?",
+          "description": "Rate your interest.",
+          "required": true,
+          "scaleMin": 1,
+          "scaleMax": 5,
+          "labelMin": "Low",
+          "labelMax": "High"
+        },
+        {
+          "questionId": "q4",
+          "position": 4,
+          "type": "ShortAnswer",
+          "prompt": "What product would you like us to build next?",
+          "description": "Optional suggestion.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "id": "survey4",
+      "authorId": "account3",
+      "createdAt": "2026-04-05T14:00:00.000Z",
+      "updatedAt": "2026-04-05T14:20:00.000Z",
+      "title": "Website Usability Survey",
+      "description": "Dummy survey for testing form rendering and response analytics.",
+      "status": "Active",
+      "questionCount": 5,
+      "answerCount": 5,
+      "sharedCount": 5,
+      "emails": [
+        "carlos.gonzalez@example.com",
+        "sofia.martinez@example.com",
+        "valeria.cruz@example.com",
+        "mateo.herrera@example.com",
+        "lucia.flores@example.com"
+      ],
+      "questions": [
+        {
+          "questionId": "q1",
+          "position": 1,
+          "type": "MultipleChoice",
+          "prompt": "How easy was it to navigate the website?",
+          "description": "Choose the closest option.",
+          "required": true,
+          "options": ["Very easy", "Easy", "Neutral", "Difficult"]
+        },
+        {
+          "questionId": "q2",
+          "position": 2,
+          "type": "CheckBox",
+          "prompt": "Which sections did you visit?",
+          "description": "Select all that apply.",
+          "required": true,
+          "options": ["Homepage", "Pricing", "FAQ", "Contact", "Blog"],
+          "minSelect": 1,
+          "maxSelect": 5
+        },
+        {
+          "questionId": "q3",
+          "position": 3,
+          "type": "Rating",
+          "prompt": "Rate the visual design.",
+          "description": "Use the 1 to 5 scale.",
+          "required": true,
+          "scaleMin": 1,
+          "scaleMax": 5,
+          "labelMin": "Poor",
+          "labelMax": "Excellent"
+        },
+        {
+          "questionId": "q4",
+          "position": 4,
+          "type": "ShortAnswer",
+          "prompt": "What was confusing or hard to find?",
+          "description": "Optional detailed feedback.",
+          "required": false
+        },
+        {
+          "questionId": "q5",
+          "position": 5,
+          "type": "Rating",
+          "prompt": "How likely are you to visit again?",
+          "description": "Scale from 1 to 10.",
+          "required": true,
+          "scaleMin": 1,
+          "scaleMax": 10,
+          "labelMin": "Not likely",
+          "labelMax": "Very likely"
+        }
+      ]
+    },
+    {
+      "id": "survey5",
+      "authorId": "account4",
+      "createdAt": "2026-04-06T16:00:00.000Z",
+      "updatedAt": "2026-04-06T16:10:00.000Z",
+      "title": "Course Feedback Survey",
+      "description": "Dummy survey for academic feedback scenarios.",
+      "status": "Active",
+      "questionCount": 4,
+      "answerCount": 4,
+      "sharedCount": 4,
+      "emails": [
+        "carlos.gonzalez@example.com",
+        "sofia.martinez@example.com",
+        "daniel.romero@example.com",
+        "mateo.herrera@example.com"
+      ],
+      "questions": [
+        {
+          "questionId": "q1",
+          "position": 1,
+          "type": "Rating",
+          "prompt": "How clear were the course explanations?",
+          "description": "Rate from 1 to 5.",
+          "required": true,
+          "scaleMin": 1,
+          "scaleMax": 5,
+          "labelMin": "Unclear",
+          "labelMax": "Very clear"
+        },
+        {
+          "questionId": "q2",
+          "position": 2,
+          "type": "MultipleChoice",
+          "prompt": "Which format did you prefer?",
+          "description": "Choose one option.",
+          "required": true,
+          "options": ["In-person", "Online", "Hybrid"]
+        },
+        {
+          "questionId": "q3",
+          "position": 3,
+          "type": "CheckBox",
+          "prompt": "Which resources helped you the most?",
+          "description": "Select all that apply.",
+          "required": true,
+          "options": ["Slides", "Recordings", "Exercises", "Office Hours"],
+          "minSelect": 1,
+          "maxSelect": 4
+        },
+        {
+          "questionId": "q4",
+          "position": 4,
+          "type": "ShortAnswer",
+          "prompt": "Any suggestions for improvement?",
+          "description": "Optional comments.",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "responses": [
+    {
+      "id": "response1",
+      "surveyId": "survey1",
+      "submittedAt": "2026-04-02T12:00:00.000Z",
+      "answers": {
+        "q1": { "type": "MultipleChoice", "value": "Website" },
+        "q2": { "type": "CheckBox", "value": ["Live Chat", "Knowledge Base"] },
+        "q3": { "type": "ShortAnswer", "value": "The support was good, but response times could be faster." },
+        "q4": { "type": "Rating", "value": 4 }
+      }
+    },
+    {
+      "id": "response2",
+      "surveyId": "survey1",
+      "submittedAt": "2026-04-02T12:20:00.000Z",
+      "answers": {
+        "q1": { "type": "MultipleChoice", "value": "Friend" },
+        "q2": { "type": "CheckBox", "value": ["Email Support"] },
+        "q3": { "type": "ShortAnswer", "value": "Everything was clear and easy to use." },
+        "q4": { "type": "Rating", "value": 5 }
+      }
+    },
+    {
+      "id": "response3",
+      "surveyId": "survey1",
+      "submittedAt": "2026-04-02T12:40:00.000Z",
+      "answers": {
+        "q1": { "type": "MultipleChoice", "value": "Instagram" },
+        "q2": { "type": "CheckBox", "value": ["Live Chat", "Phone Support"] },
+        "q3": { "type": "ShortAnswer", "value": "" },
+        "q4": { "type": "Rating", "value": 3 }
+      }
+    },
+    {
+      "id": "response4",
+      "surveyId": "survey1",
+      "submittedAt": "2026-04-02T13:05:00.000Z",
+      "answers": {
+        "q1": { "type": "MultipleChoice", "value": "Other" },
+        "q2": { "type": "CheckBox", "value": ["Knowledge Base"] },
+        "q3": { "type": "ShortAnswer", "value": "The FAQ could be improved." },
+        "q4": { "type": "Rating", "value": 2 }
+      }
+    },
+
+    {
+      "id": "response5",
+      "surveyId": "survey2",
+      "submittedAt": "2026-04-03T13:10:00.000Z",
+      "answers": {
+        "q1": { "type": "MultipleChoice", "value": "Good" },
+        "q2": { "type": "Rating", "value": 8 },
+        "q3": { "type": "ShortAnswer", "value": "A session about AI tools would be great." }
+      }
+    },
+    {
+      "id": "response6",
+      "surveyId": "survey2",
+      "submittedAt": "2026-04-03T13:35:00.000Z",
+      "answers": {
+        "q1": { "type": "MultipleChoice", "value": "Excellent" },
+        "q2": { "type": "Rating", "value": 10 },
+        "q3": { "type": "ShortAnswer", "value": "More hands-on workshops." }
+      }
+    },
+    {
+      "id": "response7",
+      "surveyId": "survey2",
+      "submittedAt": "2026-04-03T14:00:00.000Z",
+      "answers": {
+        "q1": { "type": "MultipleChoice", "value": "Average" },
+        "q2": { "type": "Rating", "value": 6 },
+        "q3": { "type": "ShortAnswer", "value": "" }
+      }
+    },
+
+    {
+      "id": "response8",
+      "surveyId": "survey3",
+      "submittedAt": "2026-04-04T10:00:00.000Z",
+      "answers": {
+        "q1": { "type": "CheckBox", "value": ["Laptop", "Phone"] },
+        "q2": { "type": "MultipleChoice", "value": "Every 3 months" },
+        "q3": { "type": "Rating", "value": 5 },
+        "q4": { "type": "ShortAnswer", "value": "A more affordable smart display." }
+      }
+    },
+    {
+      "id": "response9",
+      "surveyId": "survey3",
+      "submittedAt": "2026-04-04T10:20:00.000Z",
+      "answers": {
+        "q1": { "type": "CheckBox", "value": ["Tablet", "Phone", "Laptop"] },
+        "q2": { "type": "MultipleChoice", "value": "Twice a year" },
+        "q3": { "type": "Rating", "value": 3 },
+        "q4": { "type": "ShortAnswer", "value": "A home assistant with better privacy features." }
+      }
+    },
+    {
+      "id": "response10",
+      "surveyId": "survey3",
+      "submittedAt": "2026-04-04T10:40:00.000Z",
+      "answers": {
+        "q1": { "type": "CheckBox", "value": ["Desktop"] },
+        "q2": { "type": "MultipleChoice", "value": "Rarely" },
+        "q3": { "type": "Rating", "value": 2 },
+        "q4": { "type": "ShortAnswer", "value": "Nothing specific for now." }
+      }
+    },
+    {
+      "id": "response11",
+      "surveyId": "survey3",
+      "submittedAt": "2026-04-04T11:00:00.000Z",
+      "answers": {
+        "q1": { "type": "CheckBox", "value": ["Laptop", "Desktop", "Phone"] },
+        "q2": { "type": "MultipleChoice", "value": "Monthly" },
+        "q3": { "type": "Rating", "value": 4 },
+        "q4": { "type": "ShortAnswer", "value": "" }
+      }
+    },
+
+    {
+      "id": "response12",
+      "surveyId": "survey4",
+      "submittedAt": "2026-04-05T15:00:00.000Z",
+      "answers": {
+        "q1": { "type": "MultipleChoice", "value": "Very easy" },
+        "q2": { "type": "CheckBox", "value": ["Homepage", "Pricing", "FAQ"] },
+        "q3": { "type": "Rating", "value": 5 },
+        "q4": { "type": "ShortAnswer", "value": "Nothing was confusing." },
+        "q5": { "type": "Rating", "value": 10 }
+      }
+    },
+    {
+      "id": "response13",
+      "surveyId": "survey4",
+      "submittedAt": "2026-04-05T15:15:00.000Z",
+      "answers": {
+        "q1": { "type": "MultipleChoice", "value": "Easy" },
+        "q2": { "type": "CheckBox", "value": ["Homepage", "Blog"] },
+        "q3": { "type": "Rating", "value": 4 },
+        "q4": { "type": "ShortAnswer", "value": "The pricing page could be clearer." },
+        "q5": { "type": "Rating", "value": 8 }
+      }
+    },
+    {
+      "id": "response14",
+      "surveyId": "survey4",
+      "submittedAt": "2026-04-05T15:25:00.000Z",
+      "answers": {
+        "q1": { "type": "MultipleChoice", "value": "Neutral" },
+        "q2": { "type": "CheckBox", "value": ["FAQ", "Contact"] },
+        "q3": { "type": "Rating", "value": 3 },
+        "q4": { "type": "ShortAnswer", "value": "" },
+        "q5": { "type": "Rating", "value": 6 }
+      }
+    },
+    {
+      "id": "response15",
+      "surveyId": "survey4",
+      "submittedAt": "2026-04-05T15:40:00.000Z",
+      "answers": {
+        "q1": { "type": "MultipleChoice", "value": "Difficult" },
+        "q2": { "type": "CheckBox", "value": ["Homepage"] },
+        "q3": { "type": "Rating", "value": 2 },
+        "q4": { "type": "ShortAnswer", "value": "It was hard to find the contact form." },
+        "q5": { "type": "Rating", "value": 3 }
+      }
+    },
+    {
+      "id": "response16",
+      "surveyId": "survey4",
+      "submittedAt": "2026-04-05T16:00:00.000Z",
+      "answers": {
+        "q1": { "type": "MultipleChoice", "value": "Easy" },
+        "q2": { "type": "CheckBox", "value": ["Homepage", "Pricing", "Contact"] },
+        "q3": { "type": "Rating", "value": 4 },
+        "q4": { "type": "ShortAnswer", "value": "Overall good experience." },
+        "q5": { "type": "Rating", "value": 9 }
+      }
+    },
+
+    {
+      "id": "response17",
+      "surveyId": "survey5",
+      "submittedAt": "2026-04-06T17:00:00.000Z",
+      "answers": {
+        "q1": { "type": "Rating", "value": 5 },
+        "q2": { "type": "MultipleChoice", "value": "Hybrid" },
+        "q3": { "type": "CheckBox", "value": ["Slides", "Exercises"] },
+        "q4": { "type": "ShortAnswer", "value": "More practice questions would help." }
+      }
+    },
+    {
+      "id": "response18",
+      "surveyId": "survey5",
+      "submittedAt": "2026-04-06T17:15:00.000Z",
+      "answers": {
+        "q1": { "type": "Rating", "value": 4 },
+        "q2": { "type": "MultipleChoice", "value": "Online" },
+        "q3": { "type": "CheckBox", "value": ["Recordings", "Slides", "Office Hours"] },
+        "q4": { "type": "ShortAnswer", "value": "" }
+      }
+    },
+    {
+      "id": "response19",
+      "surveyId": "survey5",
+      "submittedAt": "2026-04-06T17:30:00.000Z",
+      "answers": {
+        "q1": { "type": "Rating", "value": 3 },
+        "q2": { "type": "MultipleChoice", "value": "In-person" },
+        "q3": { "type": "CheckBox", "value": ["Exercises"] },
+        "q4": { "type": "ShortAnswer", "value": "The pace was sometimes too fast." }
+      }
+    },
+    {
+      "id": "response20",
+      "surveyId": "survey5",
+      "submittedAt": "2026-04-06T17:45:00.000Z",
+      "answers": {
+        "q1": { "type": "Rating", "value": 2 },
+        "q2": { "type": "MultipleChoice", "value": "Online" },
+        "q3": { "type": "CheckBox", "value": ["Slides"] },
+        "q4": { "type": "ShortAnswer", "value": "More examples during lectures." }
+      }
+    }
+  ]
+}

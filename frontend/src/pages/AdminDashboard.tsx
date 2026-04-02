@@ -40,7 +40,7 @@ export default function AdminDashboard() {
         const data = await res.json();
         setSurveys(data || []);
         setFilteredSurveys(data || []);
-      } catch (err: any) {
+      } catch (err) {
         console.error("Failed to fetch surveys:", err);
         setError(err?.message || "Failed to load surveys");
       } finally {
