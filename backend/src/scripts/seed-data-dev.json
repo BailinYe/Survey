@@ -60,7 +60,7 @@
         {
           "questionId": "q1",
           "position": 1,
-          "type": "MultipleChoice",
+          "type": "multipleChoice",
           "prompt": "How did you hear about our service?",
           "description": "Choose the main source.",
           "required": true,
@@ -69,7 +69,7 @@
         {
           "questionId": "q2",
           "position": 2,
-          "type": "CheckBox",
+          "type": "checkBox",
           "prompt": "Which features did you use?",
           "description": "Select all that apply.",
           "required": true,
@@ -80,7 +80,7 @@
         {
           "questionId": "q3",
           "position": 3,
-          "type": "ShortAnswer",
+          "type": "shortAnswer",
           "prompt": "What could we improve?",
           "description": "Share your feedback.",
           "required": false
@@ -88,7 +88,7 @@
         {
           "questionId": "q4",
           "position": 4,
-          "type": "Rating",
+          "type": "rating",
           "prompt": "Rate your overall experience.",
           "description": "From poor to excellent.",
           "required": true,
@@ -120,7 +120,7 @@
         {
           "questionId": "q1",
           "position": 1,
-          "type": "MultipleChoice",
+          "type": "multipleChoice",
           "prompt": "How would you rate the event organization?",
           "description": "Choose one option.",
           "required": true,
@@ -129,7 +129,7 @@
         {
           "questionId": "q2",
           "position": 2,
-          "type": "Rating",
+          "type": "rating",
           "prompt": "How useful was the event content?",
           "description": "Rate from 1 to 10.",
           "required": true,
@@ -141,7 +141,7 @@
         {
           "questionId": "q3",
           "position": 3,
-          "type": "ShortAnswer",
+          "type": "shortAnswer",
           "prompt": "What topic would you like for the next event?",
           "description": "Optional feedback.",
           "required": false
@@ -170,7 +170,7 @@
         {
           "questionId": "q1",
           "position": 1,
-          "type": "CheckBox",
+          "type": "checkBox",
           "prompt": "Which devices do you use regularly?",
           "description": "Select all that apply.",
           "required": true,
@@ -181,7 +181,7 @@
         {
           "questionId": "q2",
           "position": 2,
-          "type": "MultipleChoice",
+          "type": "multipleChoice",
           "prompt": "How often do you buy tech products?",
           "description": "Choose one option.",
           "required": true,
@@ -190,7 +190,7 @@
         {
           "questionId": "q3",
           "position": 3,
-          "type": "Rating",
+          "type": "rating",
           "prompt": "How interested are you in smart home devices?",
           "description": "Rate your interest.",
           "required": true,
@@ -202,7 +202,7 @@
         {
           "questionId": "q4",
           "position": 4,
-          "type": "ShortAnswer",
+          "type": "shortAnswer",
           "prompt": "What product would you like us to build next?",
           "description": "Optional suggestion.",
           "required": false
@@ -231,7 +231,7 @@
         {
           "questionId": "q1",
           "position": 1,
-          "type": "MultipleChoice",
+          "type": "multipleChoice",
           "prompt": "How easy was it to navigate the website?",
           "description": "Choose the closest option.",
           "required": true,
@@ -240,7 +240,7 @@
         {
           "questionId": "q2",
           "position": 2,
-          "type": "CheckBox",
+          "type": "checkBox",
           "prompt": "Which sections did you visit?",
           "description": "Select all that apply.",
           "required": true,
@@ -251,7 +251,7 @@
         {
           "questionId": "q3",
           "position": 3,
-          "type": "Rating",
+          "type": "rating",
           "prompt": "Rate the visual design.",
           "description": "Use the 1 to 5 scale.",
           "required": true,
@@ -263,7 +263,7 @@
         {
           "questionId": "q4",
           "position": 4,
-          "type": "ShortAnswer",
+          "type": "shortAnswer",
           "prompt": "What was confusing or hard to find?",
           "description": "Optional detailed feedback.",
           "required": false
@@ -271,7 +271,7 @@
         {
           "questionId": "q5",
           "position": 5,
-          "type": "Rating",
+          "type": "rating",
           "prompt": "How likely are you to visit again?",
           "description": "Scale from 1 to 10.",
           "required": true,
@@ -303,7 +303,7 @@
         {
           "questionId": "q1",
           "position": 1,
-          "type": "Rating",
+          "type": "rating",
           "prompt": "How clear were the course explanations?",
           "description": "Rate from 1 to 5.",
           "required": true,
@@ -315,7 +315,7 @@
         {
           "questionId": "q2",
           "position": 2,
-          "type": "MultipleChoice",
+          "type": "multipleChoice",
           "prompt": "Which format did you prefer?",
           "description": "Choose one option.",
           "required": true,
@@ -324,7 +324,7 @@
         {
           "questionId": "q3",
           "position": 3,
-          "type": "CheckBox",
+          "type": "checkBox",
           "prompt": "Which resources helped you the most?",
           "description": "Select all that apply.",
           "required": true,
@@ -335,7 +335,7 @@
         {
           "questionId": "q4",
           "position": 4,
-          "type": "ShortAnswer",
+          "type": "shortAnswer",
           "prompt": "Any suggestions for improvement?",
           "description": "Optional comments.",
           "required": false
@@ -349,10 +349,10 @@
       "surveyId": "survey1",
       "submittedAt": "2026-04-02T12:00:00.000Z",
       "answers": {
-        "q1": { "type": "MultipleChoice", "value": "Website" },
-        "q2": { "type": "CheckBox", "value": ["Live Chat", "Knowledge Base"] },
-        "q3": { "type": "ShortAnswer", "value": "The support was good, but response times could be faster." },
-        "q4": { "type": "Rating", "value": 4 }
+        "q1": { "type": "multipleChoice", "value": "Website" },
+        "q2": { "type": "checkBox", "value": ["Live Chat", "Knowledge Base"] },
+        "q3": { "type": "shortAnswer", "value": "The support was good, but response times could be faster." },
+        "q4": { "type": "rating", "value": 4 }
       }
     },
     {
@@ -360,10 +360,10 @@
       "surveyId": "survey1",
       "submittedAt": "2026-04-02T12:20:00.000Z",
       "answers": {
-        "q1": { "type": "MultipleChoice", "value": "Friend" },
-        "q2": { "type": "CheckBox", "value": ["Email Support"] },
-        "q3": { "type": "ShortAnswer", "value": "Everything was clear and easy to use." },
-        "q4": { "type": "Rating", "value": 5 }
+        "q1": { "type": "multipleChoice", "value": "Friend" },
+        "q2": { "type": "checkBox", "value": ["Email Support"] },
+        "q3": { "type": "shortAnswer", "value": "Everything was clear and easy to use." },
+        "q4": { "type": "rating", "value": 5 }
       }
     },
     {
@@ -371,10 +371,10 @@
       "surveyId": "survey1",
       "submittedAt": "2026-04-02T12:40:00.000Z",
       "answers": {
-        "q1": { "type": "MultipleChoice", "value": "Instagram" },
-        "q2": { "type": "CheckBox", "value": ["Live Chat", "Phone Support"] },
-        "q3": { "type": "ShortAnswer", "value": "" },
-        "q4": { "type": "Rating", "value": 3 }
+        "q1": { "type": "multipleChoice", "value": "Instagram" },
+        "q2": { "type": "checkBox", "value": ["Live Chat", "Phone Support"] },
+        "q3": { "type": "shortAnswer", "value": "" },
+        "q4": { "type": "rating", "value": 3 }
       }
     },
     {
@@ -382,10 +382,10 @@
       "surveyId": "survey1",
       "submittedAt": "2026-04-02T13:05:00.000Z",
       "answers": {
-        "q1": { "type": "MultipleChoice", "value": "Other" },
-        "q2": { "type": "CheckBox", "value": ["Knowledge Base"] },
-        "q3": { "type": "ShortAnswer", "value": "The FAQ could be improved." },
-        "q4": { "type": "Rating", "value": 2 }
+        "q1": { "type": "multipleChoice", "value": "Other" },
+        "q2": { "type": "checkBox", "value": ["Knowledge Base"] },
+        "q3": { "type": "shortAnswer", "value": "The FAQ could be improved." },
+        "q4": { "type": "rating", "value": 2 }
       }
     },
 
@@ -394,9 +394,9 @@
       "surveyId": "survey2",
       "submittedAt": "2026-04-03T13:10:00.000Z",
       "answers": {
-        "q1": { "type": "MultipleChoice", "value": "Good" },
-        "q2": { "type": "Rating", "value": 8 },
-        "q3": { "type": "ShortAnswer", "value": "A session about AI tools would be great." }
+        "q1": { "type": "multipleChoice", "value": "Good" },
+        "q2": { "type": "rating", "value": 8 },
+        "q3": { "type": "shortAnswer", "value": "A session about AI tools would be great." }
       }
     },
     {
@@ -404,9 +404,9 @@
       "surveyId": "survey2",
       "submittedAt": "2026-04-03T13:35:00.000Z",
       "answers": {
-        "q1": { "type": "MultipleChoice", "value": "Excellent" },
-        "q2": { "type": "Rating", "value": 10 },
-        "q3": { "type": "ShortAnswer", "value": "More hands-on workshops." }
+        "q1": { "type": "multipleChoice", "value": "Excellent" },
+        "q2": { "type": "rating", "value": 10 },
+        "q3": { "type": "shortAnswer", "value": "More hands-on workshops." }
       }
     },
     {
@@ -414,9 +414,9 @@
       "surveyId": "survey2",
       "submittedAt": "2026-04-03T14:00:00.000Z",
       "answers": {
-        "q1": { "type": "MultipleChoice", "value": "Average" },
-        "q2": { "type": "Rating", "value": 6 },
-        "q3": { "type": "ShortAnswer", "value": "" }
+        "q1": { "type": "multipleChoice", "value": "Average" },
+        "q2": { "type": "rating", "value": 6 },
+        "q3": { "type": "shortAnswer", "value": "" }
       }
     },
 
@@ -425,10 +425,10 @@
       "surveyId": "survey3",
       "submittedAt": "2026-04-04T10:00:00.000Z",
       "answers": {
-        "q1": { "type": "CheckBox", "value": ["Laptop", "Phone"] },
-        "q2": { "type": "MultipleChoice", "value": "Every 3 months" },
-        "q3": { "type": "Rating", "value": 5 },
-        "q4": { "type": "ShortAnswer", "value": "A more affordable smart display." }
+        "q1": { "type": "checkBox", "value": ["Laptop", "Phone"] },
+        "q2": { "type": "multipleChoice", "value": "Every 3 months" },
+        "q3": { "type": "rating", "value": 5 },
+        "q4": { "type": "shortAnswer", "value": "A more affordable smart display." }
       }
     },
     {
@@ -436,10 +436,10 @@
       "surveyId": "survey3",
       "submittedAt": "2026-04-04T10:20:00.000Z",
       "answers": {
-        "q1": { "type": "CheckBox", "value": ["Tablet", "Phone", "Laptop"] },
-        "q2": { "type": "MultipleChoice", "value": "Twice a year" },
-        "q3": { "type": "Rating", "value": 3 },
-        "q4": { "type": "ShortAnswer", "value": "A home assistant with better privacy features." }
+        "q1": { "type": "checkBox", "value": ["Tablet", "Phone", "Laptop"] },
+        "q2": { "type": "multipleChoice", "value": "Twice a year" },
+        "q3": { "type": "rating", "value": 3 },
+        "q4": { "type": "shortAnswer", "value": "A home assistant with better privacy features." }
       }
     },
     {
@@ -447,10 +447,10 @@
       "surveyId": "survey3",
       "submittedAt": "2026-04-04T10:40:00.000Z",
       "answers": {
-        "q1": { "type": "CheckBox", "value": ["Desktop"] },
-        "q2": { "type": "MultipleChoice", "value": "Rarely" },
-        "q3": { "type": "Rating", "value": 2 },
-        "q4": { "type": "ShortAnswer", "value": "Nothing specific for now." }
+        "q1": { "type": "checkBox", "value": ["Desktop"] },
+        "q2": { "type": "multipleChoice", "value": "Rarely" },
+        "q3": { "type": "rating", "value": 2 },
+        "q4": { "type": "shortAnswer", "value": "Nothing specific for now." }
       }
     },
     {
@@ -458,10 +458,10 @@
       "surveyId": "survey3",
       "submittedAt": "2026-04-04T11:00:00.000Z",
       "answers": {
-        "q1": { "type": "CheckBox", "value": ["Laptop", "Desktop", "Phone"] },
-        "q2": { "type": "MultipleChoice", "value": "Monthly" },
-        "q3": { "type": "Rating", "value": 4 },
-        "q4": { "type": "ShortAnswer", "value": "" }
+        "q1": { "type": "checkBox", "value": ["Laptop", "Desktop", "Phone"] },
+        "q2": { "type": "multipleChoice", "value": "Monthly" },
+        "q3": { "type": "rating", "value": 4 },
+        "q4": { "type": "shortAnswer", "value": "" }
       }
     },
 
@@ -470,11 +470,11 @@
       "surveyId": "survey4",
       "submittedAt": "2026-04-05T15:00:00.000Z",
       "answers": {
-        "q1": { "type": "MultipleChoice", "value": "Very easy" },
-        "q2": { "type": "CheckBox", "value": ["Homepage", "Pricing", "FAQ"] },
-        "q3": { "type": "Rating", "value": 5 },
-        "q4": { "type": "ShortAnswer", "value": "Nothing was confusing." },
-        "q5": { "type": "Rating", "value": 10 }
+        "q1": { "type": "multipleChoice", "value": "Very easy" },
+        "q2": { "type": "checkBox", "value": ["Homepage", "Pricing", "FAQ"] },
+        "q3": { "type": "rating", "value": 5 },
+        "q4": { "type": "shortAnswer", "value": "Nothing was confusing." },
+        "q5": { "type": "rating", "value": 10 }
       }
     },
     {
@@ -482,11 +482,11 @@
       "surveyId": "survey4",
       "submittedAt": "2026-04-05T15:15:00.000Z",
       "answers": {
-        "q1": { "type": "MultipleChoice", "value": "Easy" },
-        "q2": { "type": "CheckBox", "value": ["Homepage", "Blog"] },
-        "q3": { "type": "Rating", "value": 4 },
-        "q4": { "type": "ShortAnswer", "value": "The pricing page could be clearer." },
-        "q5": { "type": "Rating", "value": 8 }
+        "q1": { "type": "multipleChoice", "value": "Easy" },
+        "q2": { "type": "checkBox", "value": ["Homepage", "Blog"] },
+        "q3": { "type": "rating", "value": 4 },
+        "q4": { "type": "shortAnswer", "value": "The pricing page could be clearer." },
+        "q5": { "type": "rating", "value": 8 }
       }
     },
     {
@@ -494,11 +494,11 @@
       "surveyId": "survey4",
       "submittedAt": "2026-04-05T15:25:00.000Z",
       "answers": {
-        "q1": { "type": "MultipleChoice", "value": "Neutral" },
-        "q2": { "type": "CheckBox", "value": ["FAQ", "Contact"] },
-        "q3": { "type": "Rating", "value": 3 },
-        "q4": { "type": "ShortAnswer", "value": "" },
-        "q5": { "type": "Rating", "value": 6 }
+        "q1": { "type": "multipleChoice", "value": "Neutral" },
+        "q2": { "type": "checkBox", "value": ["FAQ", "Contact"] },
+        "q3": { "type": "rating", "value": 3 },
+        "q4": { "type": "shortAnswer", "value": "" },
+        "q5": { "type": "rating", "value": 6 }
       }
     },
     {
@@ -506,11 +506,11 @@
       "surveyId": "survey4",
       "submittedAt": "2026-04-05T15:40:00.000Z",
       "answers": {
-        "q1": { "type": "MultipleChoice", "value": "Difficult" },
-        "q2": { "type": "CheckBox", "value": ["Homepage"] },
-        "q3": { "type": "Rating", "value": 2 },
-        "q4": { "type": "ShortAnswer", "value": "It was hard to find the contact form." },
-        "q5": { "type": "Rating", "value": 3 }
+        "q1": { "type": "multipleChoice", "value": "Difficult" },
+        "q2": { "type": "checkBox", "value": ["Homepage"] },
+        "q3": { "type": "rating", "value": 2 },
+        "q4": { "type": "shortAnswer", "value": "It was hard to find the contact form." },
+        "q5": { "type": "rating", "value": 3 }
       }
     },
     {
@@ -518,11 +518,11 @@
       "surveyId": "survey4",
       "submittedAt": "2026-04-05T16:00:00.000Z",
       "answers": {
-        "q1": { "type": "MultipleChoice", "value": "Easy" },
-        "q2": { "type": "CheckBox", "value": ["Homepage", "Pricing", "Contact"] },
-        "q3": { "type": "Rating", "value": 4 },
-        "q4": { "type": "ShortAnswer", "value": "Overall good experience." },
-        "q5": { "type": "Rating", "value": 9 }
+        "q1": { "type": "multipleChoice", "value": "Easy" },
+        "q2": { "type": "checkBox", "value": ["Homepage", "Pricing", "Contact"] },
+        "q3": { "type": "rating", "value": 4 },
+        "q4": { "type": "shortAnswer", "value": "Overall good experience." },
+        "q5": { "type": "rating", "value": 9 }
       }
     },
 
@@ -531,10 +531,10 @@
       "surveyId": "survey5",
       "submittedAt": "2026-04-06T17:00:00.000Z",
       "answers": {
-        "q1": { "type": "Rating", "value": 5 },
-        "q2": { "type": "MultipleChoice", "value": "Hybrid" },
-        "q3": { "type": "CheckBox", "value": ["Slides", "Exercises"] },
-        "q4": { "type": "ShortAnswer", "value": "More practice questions would help." }
+        "q1": { "type": "rating", "value": 5 },
+        "q2": { "type": "multipleChoice", "value": "Hybrid" },
+        "q3": { "type": "checkBox", "value": ["Slides", "Exercises"] },
+        "q4": { "type": "shortAnswer", "value": "More practice questions would help." }
       }
     },
     {
@@ -542,10 +542,10 @@
       "surveyId": "survey5",
       "submittedAt": "2026-04-06T17:15:00.000Z",
       "answers": {
-        "q1": { "type": "Rating", "value": 4 },
-        "q2": { "type": "MultipleChoice", "value": "Online" },
-        "q3": { "type": "CheckBox", "value": ["Recordings", "Slides", "Office Hours"] },
-        "q4": { "type": "ShortAnswer", "value": "" }
+        "q1": { "type": "rating", "value": 4 },
+        "q2": { "type": "multipleChoice", "value": "Online" },
+        "q3": { "type": "checkBox", "value": ["Recordings", "Slides", "Office Hours"] },
+        "q4": { "type": "shortAnswer", "value": "" }
       }
     },
     {
@@ -553,10 +553,10 @@
       "surveyId": "survey5",
       "submittedAt": "2026-04-06T17:30:00.000Z",
       "answers": {
-        "q1": { "type": "Rating", "value": 3 },
-        "q2": { "type": "MultipleChoice", "value": "In-person" },
-        "q3": { "type": "CheckBox", "value": ["Exercises"] },
-        "q4": { "type": "ShortAnswer", "value": "The pace was sometimes too fast." }
+        "q1": { "type": "rating", "value": 3 },
+        "q2": { "type": "multipleChoice", "value": "In-person" },
+        "q3": { "type": "sheckBox", "value": ["Exercises"] },
+        "q4": { "type": "shortAnswer", "value": "The pace was sometimes too fast." }
       }
     },
     {
@@ -564,10 +564,10 @@
       "surveyId": "survey5",
       "submittedAt": "2026-04-06T17:45:00.000Z",
       "answers": {
-        "q1": { "type": "Rating", "value": 2 },
-        "q2": { "type": "MultipleChoice", "value": "Online" },
-        "q3": { "type": "CheckBox", "value": ["Slides"] },
-        "q4": { "type": "ShortAnswer", "value": "More examples during lectures." }
+        "q1": { "type": "rating", "value": 2 },
+        "q2": { "type": "multipleChoice", "value": "Online" },
+        "q3": { "type": "checkBox", "value": ["Slides"] },
+        "q4": { "type": "shortAnswer", "value": "More examples during lectures." }
       }
     }
   ]
