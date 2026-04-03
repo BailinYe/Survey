@@ -128,11 +128,24 @@ export default function AdminDashboard() {
                           {/* Survey Cards */}
                           {filteredSurveys.map((survey) => (
                               <Card
-                                  key={survey.id}
-                                  className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
-                                  onClick={() =>
-                                      navigate(`/admin-dashboard/surveys/${survey.id}`)
-                                  }
+                                key={survey.id}
+                                className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                                onClick={() => {
+
+                                    // Checks Survey status for conditional rendering
+                                    if (survey.status == SurveyStatus.New) {
+
+                                        // todo: add check in CreeateSurvey for surveyId and check if it
+                                        //       exists in db, then fetch saved data from the database, this
+                                        //       will allow to render the saved data and continue editing:
+                                        //          navigate(`/admin-dashboard/surveys/new/${survey.id}`);
+                                        // Temp
+                                        navigate(`/admin-dashboard/surveys/new`);
+
+                                    } else {
+                                        navigate(`/admin-dashboard/surveys/${survey.id}`)
+                                    }
+                                }}
                               >
                                   <div className="space-y-3">
                                       <div className="flex justify-between items-start gap-2">

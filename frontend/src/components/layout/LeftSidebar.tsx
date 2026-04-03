@@ -12,7 +12,7 @@ export default function LeftSidebar({handleLogout}) {
 
     const showBackToDashboard =
         location.pathname.startsWith("/admin-dashboard/surveys/new") ||
-        location.pathname.startsWith("/admin-dashboard/results");
+        location.pathname.startsWith("/admin-dashboard/surveys/");
 
     return (
         <>

@@ -7,7 +7,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import AdminDashboard from "./pages/AdminDashboard"
 import PageNotFound from "./pages/PageNotFound";
 import AdminLayout from "@/components/layout/AdminLayout";
-import SurveyAnalytics from "@/pages/SurveyAnalytics";
+import SurveyAnalytics from "@/pages/SurveyAnalytics/SurveyAnalytics";
 import CreateSurvey from "@/pages/CreateSurvey";
 
 function App() {
@@ -25,8 +25,8 @@ function App() {
               {/* Admin routes */}
               <Route path="/admin-dashboard" element={<AdminLayout />}>
                   <Route index element={<AdminDashboard />} />
-                  <Route path="surveys/new" element={<CreateSurvey />}/>
-                  <Route path="results" element={<SurveyAnalytics />} />
+                  <Route path="surveys/new" element={<CreateSurvey />} />
+                  <Route path="surveys/:id" element={<SurveyAnalytics />} />
               </Route>
 
               <Route path="*" element={<PageNotFound />} />
