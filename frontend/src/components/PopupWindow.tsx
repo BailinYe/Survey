@@ -15,7 +15,7 @@ export default function PopupWindow({
                                         onFirstClick,
                                         secondButtonText,
                                         onSecondClick,
-                                    }: PopupWindowProps) {
+                                    }: Readonly<PopupWindowProps>) {
     const hasSecondButton = Boolean(secondButtonText && onSecondClick);
 
     return (

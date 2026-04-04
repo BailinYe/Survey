@@ -1,6 +1,7 @@
 // http://localhost:5173/admin-dashboard/surveys/new
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Shadcn-style UI components
 import { Button } from "@/components/ui/button";
@@ -18,12 +19,13 @@ import type {
 // Page components (extracted)
 import SurveyHeaderCard from "./SurveyHeaderCard";
 import QuestionCard from "./QuestionCard";
+import PublishSurveyPopup from "@/components/PublishSurveyPopup";
+import PopupWindow from "@/components/PopupWindow";
 
 // Create a new question object with safe defaults
 function makeNewQuestion(params: { position: number; type?: QuestionType }): QuestionDTO {
     const { position, type = QuestionType.MultipleChoice } = params;
 
-    // IDs like q1, q2, q3...
     const questionId = `q${position + 1}`;
 
     if (type === QuestionType.MultipleChoice) {
@@ -70,7 +72,6 @@ function makeNewQuestion(params: { position: number; type?: QuestionType }): Que
         return q;
     }
 
-    // Short answer
     const q: ShortAnswerDTO = {
         questionId,
         position,
@@ -82,10 +83,6 @@ function makeNewQuestion(params: { position: number; type?: QuestionType }): Que
     return q;
 }
 
-/**
- * Keep questionId + position consistent after deletes/insertions.
- * This prevents weird states like duplicate q1/q2 or incorrect ordering.
- */
 function normalizeQuestions(questions: QuestionDTO[]): QuestionDTO[] {
     return questions.map((q, idx) => ({
         ...q,
@@ -102,7 +99,6 @@ function clampInt(n: number, min: number, max: number) {
 }
 
 function parseOptionalInt(value: string): number | undefined {
-    // Allow empty string while the user is typing
     if (value.trim() === "") return undefined;
 
     const n = Number(value);
@@ -112,30 +108,26 @@ function parseOptionalInt(value: string): number | undefined {
 }
 
 export default function CreateSurvey() {
-    // Local state for the survey header fields
+    const navigate = useNavigate();
+
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [showPublishPopup, setShowPublishPopup] = useState(false);
+    const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
-    // The question list for the builder
     const [questions, setQuestions] = useState<QuestionDTO[]>(() => [
         makeNewQuestion({ position: 0, type: QuestionType.MultipleChoice }),
     ]);
 
-    // Update a single question by index (immutable update).
     function updateQuestion(index: number, updater: (prev: QuestionDTO) => QuestionDTO) {
         setQuestions((prev) => normalizeQuestions(prev.map((q, i) => (i === index ? updater(q) : q))));
     }
 
-    /**
-     * Change question type by rebuilding with defaults for that type,
-     * while preserving common fields (prompt/description/required).
-     */
     function changeQuestionType(index: number, type: QuestionType) {
         setQuestions((prev) => {
             const old = prev[index];
             const rebuilt = makeNewQuestion({ position: index, type });
 
-            // Preserve user-entered fields so they don’t lose text when switching type
             const merged: QuestionDTO = {
                 ...rebuilt,
                 prompt: old.prompt,
@@ -161,9 +153,6 @@ export default function CreateSurvey() {
         setQuestions((prev) => normalizeQuestions(prev.filter((_, i) => i !== index)));
     }
 
-    /**
-     * Option helpers (for MultipleChoice / CheckBox).
-     */
     function addOption(index: number) {
         updateQuestion(index, (q) => {
             if (q.type !== QuestionType.MultipleChoice && q.type !== QuestionType.CheckBox) return q;
@@ -193,56 +182,89 @@ export default function CreateSurvey() {
         });
     }
 
-    // TODO: wire this to API + popup window when ready
     function publish() {
-        // no-op for now
+        setShowPublishPopup(true);
         console.log("Publish survey:", { title, description, questions });
     }
 
+    function handlePublish(emails: string[]) {
+        console.log("Selected emails:", emails);
+        setShowPublishPopup(false);
+        setShowSuccessPopup(true);
+    }
+
+    function handleGoBackToDashboard() {
+        navigate("/admin-dashboard");
+    }
+
+    const surveyName = title.trim() || "Untitled Survey";
+
     return (
-        <div className="mx-auto w-full max-w-7xl space-y-6 p-6 px-3 sm:px-4">
-            {/* Publish survey button */}
-            <div className="flex justify-end">
-                <Button type="button" variant="outline" className="rounded-full px-10" onClick={publish}>
-                    Publish
-                </Button>
+        <>
+            <div className="mx-auto w-full max-w-7xl space-y-6 p-6 px-3 sm:px-4">
+                <div className="flex justify-end">
+                    <Button
+                        type="button"
+                        className="rounded-full bg-blue-600 px-10 text-white hover:bg-blue-700"
+                        onClick={publish}
+                    >
+                        Publish
+                    </Button>
+                </div>
+
+                <SurveyHeaderCard
+                    title={title}
+                    description={description}
+                    setTitle={setTitle}
+                    setDescription={setDescription}
+                />
+
+                <div className="space-y-4">
+                    {questions.map((q, index) => (
+                        <QuestionCard
+                            key={q.questionId}
+                            q={q}
+                            index={index}
+                            changeQuestionType={changeQuestionType}
+                            deleteQuestion={deleteQuestion}
+                            updateQuestion={updateQuestion}
+                            addOption={addOption}
+                            updateOption={updateOption}
+                            removeOption={removeOption}
+                            RATING_SCALE_MIN={RATING_SCALE_MIN}
+                            RATING_SCALE_MAX={RATING_SCALE_MAX}
+                            parseOptionalInt={parseOptionalInt}
+                            clampInt={clampInt}
+                        />
+                    ))}
+                </div>
+
+                <div className="flex justify-center pt-2">
+                    <Button type="button" variant="outline" className="rounded-full px-10" onClick={addQuestion}>
+                        Add New
+                    </Button>
+                </div>
             </div>
 
-            {/* Header card */}
-            <SurveyHeaderCard
-                title={title}
-                description={description}
-                setTitle={setTitle}
-                setDescription={setDescription}
-            />
+            {showPublishPopup && (
+                <PublishSurveyPopup
+                    surveyLink="http://localhost:5173/survey/123"
+                    onBack={() => setShowPublishPopup(false)}
+                    onPublish={handlePublish}
+                />
+            )}
 
-            {/* Question Cards List */}
-            <div className="space-y-4">
-                {questions.map((q, index) => (
-                    <QuestionCard
-                        key={q.questionId}
-                        q={q}
-                        index={index}
-                        changeQuestionType={changeQuestionType}
-                        deleteQuestion={deleteQuestion}
-                        updateQuestion={updateQuestion}
-                        addOption={addOption}
-                        updateOption={updateOption}
-                        removeOption={removeOption}
-                        RATING_SCALE_MIN={RATING_SCALE_MIN}
-                        RATING_SCALE_MAX={RATING_SCALE_MAX}
-                        parseOptionalInt={parseOptionalInt}
-                        clampInt={clampInt}
-                    />
-                ))}
-            </div>
-
-            {/* Add New Question button */}
-            <div className="flex justify-center pt-2">
-                <Button type="button" variant="outline" className="rounded-full px-10" onClick={addQuestion}>
-                    Add New
-                </Button>
-            </div>
-        </div>
+            {showSuccessPopup && (
+                <PopupWindow
+                    text={
+                        <p className="text-lg font-medium">
+                            Survey &quot;{surveyName}&quot; has been successfully published!
+                        </p>
+                    }
+                    firstButtonText="Go back to admin dashboard"
+                    onFirstClick={handleGoBackToDashboard}
+                />
+            )}
+        </>
     );
 }

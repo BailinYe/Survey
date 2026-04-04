@@ -1,10 +1,11 @@
-import { Router, type Request, type Response } from "express";
+import { Router, type Response } from "express";
 import { getDb } from "../db/firestore.js";
+import { authenticateToken, type AuthRequest } from "../middleware/auth.js";
 
 const router = Router();
 
 // Submit a survey response
-router.post("/", async (req: Request, res: Response) => {
+router.post("/", async (req: AuthRequest, res: Response) => {
   try {
     const db = getDb();
     const { surveyId, answers, respondentEmail } = req.body;
@@ -40,44 +41,66 @@ router.post("/", async (req: Request, res: Response) => {
 });
 
 // Get all responses for a survey
-router.get("/survey/:surveyId", async (req: Request, res: Response) => {
-  try {
-    const db = getDb();
-    const { surveyId } = req.params;
+router.get(
+  "/survey/:surveyId",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const db = getDb();
+      const { surveyId } = req.params;
+      const userId = req.userId;
 
-    const snapshot = await db
-      .collection("responses")
-      .where("surveyId", "==", surveyId)
-      .get();
+      // Verify the survey belongs to the current user
+      const surveyDoc = await db.collection("surveys").doc(surveyId).get();
+      if (!surveyDoc.exists) {
+        return res.status(404).json({ error: "Survey not found" });
+      }
 
-    const responses = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+      const survey = surveyDoc.data();
+      if (survey?.userId !== userId) {
+        return res.status(403).json({
+          error: "You don't have permission to view responses for this survey",
+        });
+      }
 
-    res.json(responses);
-  } catch (error) {
-    console.error("Error fetching responses:", error);
-    res.status(500).json({ error: "Failed to fetch responses" });
-  }
-});
+      const snapshot = await db
+        .collection("responses")
+        .where("surveyId", "==", surveyId)
+        .get();
+
+      const responses = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      res.json(responses);
+    } catch (error) {
+      console.error("Error fetching responses:", error);
+      res.status(500).json({ error: "Failed to fetch responses" });
+    }
+  },
+);
 
 // Get a specific response
-router.get("/:id", async (req: Request, res: Response) => {
-  try {
-    const db = getDb();
-    const id = req.params.id as string;
-    const doc = await db.collection("responses").doc(id).get();
+router.get(
+  "/:id",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const db = getDb();
+      const id = req.params.id as string;
+      const doc = await db.collection("responses").doc(id).get();
 
-    if (!doc.exists) {
-      return res.status(404).json({ error: "Response not found" });
+      if (!doc.exists) {
+        return res.status(404).json({ error: "Response not found" });
+      }
+
+      res.json({ id: doc.id, ...doc.data() });
+    } catch (error) {
+      console.error("Error fetching response:", error);
+      res.status(500).json({ error: "Failed to fetch response" });
     }
-
-    res.json({ id: doc.id, ...doc.data() });
-  } catch (error) {
-    console.error("Error fetching response:", error);
-    res.status(500).json({ error: "Failed to fetch response" });
-  }
-});
+  },
+);
 
 export default router;
