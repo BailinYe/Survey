@@ -122,19 +122,6 @@ export default function RespondSurvey() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6 px-3 sm:px-4">
-      {/* Submit button */}
-      <div className="flex justify-end">
-        <Button
-          type="button"
-          variant="default"
-          className="rounded-full px-10"
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Submitting..." : "Submit"}
-        </Button>
-      </div>
-
       {/* Survey Header */}
       <SurveyHeader survey={survey} />
 
