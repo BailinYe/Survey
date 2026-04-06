@@ -1,0 +1,155 @@
+{
+  "accounts": [
+    {
+      "id": "account1",
+      "name": "Carlos Gonzalez",
+      "email": "carlos.gonzalez@example.com",
+      "createdAt": "2026-04-02T10:00:00.000Z"
+    },
+    {
+      "id": "account2",
+      "name": "Sofia Martinez",
+      "email": "sofia.martinez@example.com",
+      "createdAt": "2026-04-02T10:05:00.000Z"
+    }
+  ],
+  "surveys": [
+    {
+      "id": "survey1",
+      "authorId": "account1",
+      "createdAt": "2026-04-02T11:00:00.000Z",
+      "updatedAt": "2026-04-02T11:00:00.000Z",
+      "title": "Quick Test Survey",
+      "description": "Short development seed to test all question types.",
+      "status": "Active",
+      "questionCount": 4,
+      "answerCount": 2,
+      "sharedCount": 1,
+      "emails": [
+        "sofia.martinez@example.com"
+      ],
+      "questions": [
+        {
+          "questionId": "q1",
+          "position": 1,
+          "type": "MultipleChoice",
+          "prompt": "How did you hear about us?",
+          "description": "Choose one option.",
+          "required": true,
+          "options": ["Instagram", "Website", "Friend"]
+        },
+        {
+          "questionId": "q2",
+          "position": 2,
+          "type": "CheckBox",
+          "prompt": "Which features did you use?",
+          "description": "Select all that apply.",
+          "required": true,
+          "options": ["Live Chat", "Email Support", "FAQ"],
+          "minSelect": 1,
+          "maxSelect": 3
+        },
+        {
+          "questionId": "q3",
+          "position": 3,
+          "type": "ShortAnswer",
+          "prompt": "Any comments?",
+          "description": "Optional feedback.",
+          "required": false
+        },
+        {
+          "questionId": "q4",
+          "position": 4,
+          "type": "Rating",
+          "prompt": "Rate your experience.",
+          "description": "From 1 to 5.",
+          "required": true,
+          "scaleMin": 1,
+          "scaleMax": 5,
+          "labelMin": "Poor",
+          "labelMax": "Excellent"
+        }
+      ]
+    },
+    {
+      "id": "survey2",
+      "authorId": "account1",
+      "createdAt": "2026-04-02T12:00:00.000Z",
+      "updatedAt": "2026-04-02T12:00:00.000Z",
+      "title": "Empty State Survey",
+      "description": "Used to test surveys with no responses yet.",
+      "status": "Active",
+      "questionCount": 2,
+      "answerCount": 0,
+      "sharedCount": 0,
+      "emails": [],
+      "questions": [
+        {
+          "questionId": "q1",
+          "position": 1,
+          "type": "MultipleChoice",
+          "prompt": "Do you like the platform?",
+          "description": "Choose one option.",
+          "required": true,
+          "options": ["Yes", "No"]
+        },
+        {
+          "questionId": "q2",
+          "position": 2,
+          "type": "ShortAnswer",
+          "prompt": "Why?",
+          "description": "Optional explanation.",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "responses": [
+    {
+      "id": "response1",
+      "surveyId": "survey1",
+      "submittedAt": "2026-04-02T13:00:00.000Z",
+      "answers": {
+        "q1": {
+          "type": "MultipleChoice",
+          "value": "Website"
+        },
+        "q2": {
+          "type": "CheckBox",
+          "value": ["Live Chat", "FAQ"]
+        },
+        "q3": {
+          "type": "ShortAnswer",
+          "value": "Everything worked well."
+        },
+        "q4": {
+          "type": "Rating",
+          "value": 5
+        }
+      }
+    },
+    {
+      "id": "response2",
+      "surveyId": "survey1",
+      "submittedAt": "2026-04-02T13:20:00.000Z",
+      "answers": {
+        "q1": {
+          "type": "MultipleChoice",
+          "value": "Friend"
+        },
+        "q2": {
+          "type": "CheckBox",
+          "value": ["Email Support"]
+        },
+        "q3": {
+          "type": "ShortAnswer",
+          "value": ""
+        },
+        "q4": {
+          "type": "Rating",
+          "value": 3
+        }
+      }
+    }
+  ]
+}
