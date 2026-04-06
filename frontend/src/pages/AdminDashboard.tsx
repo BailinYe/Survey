@@ -27,7 +27,7 @@ export default function AdminDashboard() {
         setIsLoading(true);
         setError("");
           const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-        const res = await fetch(`${apiUrl}api/surveys`, {
+        const res = await fetch(`${apiUrl}/api/surveys`, {
           headers: {
             Authorization: `Bearer ${await auth.currentUser?.getIdToken()}`,
           },
@@ -40,7 +40,7 @@ export default function AdminDashboard() {
         const data = await res.json();
         setSurveys(data || []);
         setFilteredSurveys(data || []);
-      } catch (err: any) {
+      } catch (err) {
         console.error("Failed to fetch surveys:", err);
         setError(err?.message || "Failed to load surveys");
       } finally {
@@ -131,7 +131,7 @@ export default function AdminDashboard() {
                                   key={survey.id}
                                   className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
                                   onClick={() =>
-                                      navigate(`/admin-dashboard/surveys/${survey.id}`)
+                                      navigate(`/admin-dashboard/surveys/${survey.id}/analytics`)
                                   }
                               >
                                   <div className="space-y-3">
