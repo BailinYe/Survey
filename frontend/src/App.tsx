@@ -7,6 +7,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import AdminDashboard from "./pages/AdminDashboard"
 import PageNotFound from "./pages/PageNotFound";
 import AdminLayout from "@/components/layout/AdminLayout";
+import RespondSurveyLayout from "@/components/layout/RespondSurveyLayout";
 import SurveyAnalytics from "@/pages/SurveyAnalytics";
 import CreateSurvey from "@/pages/CreateSurvey";
 import RespondSurvey from "@/pages/RespondSurvey";
@@ -23,12 +24,16 @@ function App() {
               <Route path="/auth/otp" element={<OTPVerification />} />
               <Route path="/auth/forgot-password" element={<ForgotPassword />} />
 
+              {/* Public survey response route */}
+              <Route path="/survey/:surveyId" element={<RespondSurveyLayout />}>
+                  <Route index element={<RespondSurvey />} />
+              </Route>
+
               {/* Admin routes */}
               <Route path="/admin-dashboard" element={<AdminLayout />}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="surveys/new" element={<CreateSurvey />}/>
-                  <Route path="surveys/:surveyId" element={<RespondSurvey />}/>
-                  <Route path="results" element={<SurveyAnalytics />} />
+                  <Route path="surveys/:surveyId/analytics" element={<SurveyAnalytics />} />
               </Route>
 
               <Route path="*" element={<PageNotFound />} />
