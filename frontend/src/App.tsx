@@ -7,7 +7,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import AdminDashboard from "./pages/AdminDashboard"
 import PageNotFound from "./pages/PageNotFound";
 import AdminLayout from "@/components/layout/AdminLayout";
-import SurveyAnalytics from "@/pages/SurveyAnalytics/SurveyAnalytics";
+import SurveyAnalytics from "@/pages/SurveyAnalytics";
 import CreateSurvey from "@/pages/CreateSurvey";
 
 function App() {
