@@ -131,7 +131,7 @@ export default function AdminDashboard() {
                                   key={survey.id}
                                   className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
                                   onClick={() =>
-                                      navigate(`/admin-dashboard/surveys/${survey.id}`)
+                                      navigate(`/admin-dashboard/surveys/${survey.id}/analytics`)
                                   }
                               >
                                   <div className="space-y-3">
