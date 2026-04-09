@@ -130,9 +130,13 @@ export default function AdminDashboard() {
                               <Card
                                   key={survey.id}
                                   className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
-                                  onClick={() =>
-                                      navigate(`/admin-dashboard/surveys/${survey.id}/analytics`)
-                                  }
+                                  onClick={() => {
+                                    if (survey.status === SurveyStatus.New) {
+                                      navigate(`/admin-dashboard/surveys/${survey.id}/edit`);
+                                    } else {
+                                      navigate(`/admin-dashboard/surveys/${survey.id}/analytics`);
+                                    }
+                                  }}
                               >
                                   <div className="space-y-3">
                                       <div className="flex justify-between items-start gap-2">
