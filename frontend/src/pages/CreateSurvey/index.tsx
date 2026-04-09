@@ -1,7 +1,5 @@
-// http://localhost:5173/admin-dashboard/surveys/new
-
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 // Shadcn-style UI components
 import { Button } from "@/components/ui/button";
@@ -15,12 +13,16 @@ import type {
     ShortAnswerDTO,
     RatingDTO,
 } from "@shared/models/dtos/types/QuestionDTO";
+import { SurveyStatus } from "@shared/models/dtos/enums/SurveyStatus";
 
 // Page components (extracted)
 import SurveyHeaderCard from "./SurveyHeaderCard";
 import QuestionCard from "./QuestionCard";
 import PublishSurveyPopup from "@/components/PublishSurveyPopup";
 import PopupWindow from "@/components/PopupWindow";
+
+// API
+import { createSurvey, getSurveyById, publishSurvey, updateSurvey } from "@/api/surveys";
 
 // Create a new question object with safe defaults
 function makeNewQuestion(params: { position: number; type?: QuestionType }): QuestionDTO {
@@ -88,7 +90,7 @@ function normalizeQuestions(questions: QuestionDTO[]): QuestionDTO[] {
         ...q,
         position: idx,
         questionId: `q${idx + 1}`,
-    })) as QuestionDTO[];
+    }));
 }
 
 const RATING_SCALE_MIN = 0;
@@ -109,15 +111,82 @@ function parseOptionalInt(value: string): number | undefined {
 
 export default function CreateSurvey() {
     const navigate = useNavigate();
+    const { surveyId: routeSurveyId } = useParams<{ surveyId: string }>();
+
+    // Survey state
+    const [surveyId, setSurveyId] = useState<string | null>(null);
+    const [status, setStatus] = useState<SurveyStatus | undefined>(undefined);
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [showPublishPopup, setShowPublishPopup] = useState(false);
-    const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
     const [questions, setQuestions] = useState<QuestionDTO[]>(() => [
         makeNewQuestion({ position: 0, type: QuestionType.MultipleChoice }),
     ]);
+
+    // UI state
+    const [isLoadingSurvey, setIsLoadingSurvey] = useState(false);
+    const [loadError, setLoadError] = useState("");
+
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState("");
+    const [saveSuccess, setSaveSuccess] = useState("");
+
+    const [showPublishPopup, setShowPublishPopup] = useState(false);
+    const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+
+    const surveyName = title.trim() || "Untitled Survey";
+
+    const isEmptyDraft = useMemo(() => {
+        const hasAnyPrompt = questions.some((q) => q.prompt.trim().length > 0);
+        return title.trim() === "" && description.trim() === "" && !hasAnyPrompt && questions.length === 1;
+    }, [title, description, questions]);
+
+    // Load existing survey when on /:surveyId/edit
+    useEffect(() => {
+        let cancelled = false;
+
+        async function load() {
+            if (!routeSurveyId) return;
+
+            setIsLoadingSurvey(true);
+            setLoadError("");
+            setSaveError("");
+            setSaveSuccess("");
+
+            try {
+                const s = await getSurveyById(routeSurveyId);
+                if (cancelled) return;
+
+                // Only drafts are editable; otherwise go to analytics
+                if (s.status && s.status !== SurveyStatus.New) {
+                    navigate(`/admin-dashboard/surveys/${routeSurveyId}/analytics`, { replace: true });
+                    return;
+                }
+
+                setSurveyId(s.id);
+                setStatus(s.status);
+
+                setTitle(s.title ?? "");
+                setDescription(s.description ?? "");
+                setQuestions(normalizeQuestions(Array.isArray(s.questions) ? s.questions : []));
+            } catch (e) {
+                if (cancelled) return;
+                const msg = e instanceof Error ? e.message : "Failed to load survey.";
+                setLoadError(msg);
+
+                // Do NOT force redirect here; ProtectedRoute already handles auth.
+                // This avoids flaky redirects on refresh.
+            } finally {
+                if (!cancelled) setIsLoadingSurvey(false);
+            }
+        }
+
+        void load();
+        return () => {
+            cancelled = true;
+        };
+    }, [routeSurveyId, navigate]);
 
     function updateQuestion(index: number, updater: (prev: QuestionDTO) => QuestionDTO) {
         setQuestions((prev) => normalizeQuestions(prev.map((q, i) => (i === index ? updater(q) : q))));
@@ -182,35 +251,148 @@ export default function CreateSurvey() {
         });
     }
 
-    function publish() {
-        setShowPublishPopup(true);
-        console.log("Publish survey:", { title, description, questions });
+    async function handleSave() {
+        setSaveError("");
+        setSaveSuccess("");
+
+        if (title.trim() === "") {
+            setSaveError("Title is required to save a draft.");
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const payload = { title, description, questions };
+
+            if (!surveyId) {
+                const { id } = await createSurvey(payload);
+                setSurveyId(id);
+                setStatus(SurveyStatus.New);
+                setSaveSuccess("Draft created and saved.");
+
+                // Replace URL to edit route so refresh works
+                navigate(`/admin-dashboard/surveys/${id}/edit`, { replace: true });
+            } else {
+                await updateSurvey(surveyId, payload);
+                setSaveSuccess("Draft saved.");
+            }
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : "Failed to save survey.";
+            setSaveError(msg);
+        } finally {
+            setIsSaving(false);
+        }
     }
 
-    function handlePublish(emails: string[]) {
-        console.log("Selected emails:", emails);
+    async function saveDraftIfNeeded(): Promise<string | null> {
+        setSaveError("");
+        setSaveSuccess("");
+
+        if (title.trim() === "") {
+            setSaveError("Title is required to save a draft.");
+            return null;
+        }
+
+        setIsSaving(true);
+        try {
+            const payload = { title, description, questions };
+
+            if (!surveyId) {
+                const { id } = await createSurvey(payload);
+                setSurveyId(id);
+                setStatus(SurveyStatus.New);
+                // keep URL consistent for refresh/share
+                navigate(`/admin-dashboard/surveys/${id}/edit`, { replace: true });
+                return id;
+            }
+
+            await updateSurvey(surveyId, payload);
+            return surveyId;
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : "Failed to save survey.";
+            setSaveError(msg);
+            return null;
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    async function openPublish() {
+        setSaveError("");
+        setSaveSuccess("");
+
+        if (questions.length < 1) {
+            setSaveError("Add at least one question before publishing.");
+            return;
+        }
+
+        const hasBlankPrompt = questions.some((q) => !q.prompt || q.prompt.trim() === "");
+        if (hasBlankPrompt) {
+            setSaveError("Each question must have a prompt before publishing.");
+            return;
+        }
+
+        // Auto-save first (create or update draft)
+        const id = await saveDraftIfNeeded();
+        if (!id) return;
+
+        setShowPublishPopup(true);
+    }
+
+    async function handlePublish(emails: string[]) {
         setShowPublishPopup(false);
-        setShowSuccessPopup(true);
+        setSaveError("");
+        setSaveSuccess("");
+
+        if (!surveyId) {
+            setSaveError("Save the survey first before publishing.");
+            return;
+        }
+
+        try {
+            await publishSurvey(surveyId, emails);
+            setStatus(SurveyStatus.Active);
+            setShowSuccessPopup(true);
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : "Failed to publish survey.";
+            setSaveError(msg);
+        }
     }
 
     function handleGoBackToDashboard() {
         navigate("/admin-dashboard");
     }
 
-    const surveyName = title.trim() || "Untitled Survey";
-
     return (
         <>
             <div className="mx-auto w-full max-w-7xl space-y-6 p-6 px-3 sm:px-4">
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-3">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="rounded-full px-10"
+                        onClick={handleSave}
+                        disabled={isSaving || isEmptyDraft || isLoadingSurvey || (status && status !== SurveyStatus.New)}
+                        title={status && status !== SurveyStatus.New ? "Only drafts can be edited" : undefined}
+                    >
+                        {isSaving ? "Saving..." : "Save"}
+                    </Button>
                     <Button
                         type="button"
                         className="rounded-full bg-blue-600 px-10 text-white hover:bg-blue-700"
-                        onClick={publish}
+                        onClick={openPublish}
+                        disabled={!surveyId || isSaving || isLoadingSurvey}
+                        title={!surveyId ? "Save first to create a draft" : undefined}
                     >
                         Publish
                     </Button>
                 </div>
+
+                {/* Load/save feedback */}
+                {isLoadingSurvey && <p className="text-sm text-muted-foreground">Loading survey…</p>}
+                {loadError && <p className="text-sm font-medium text-red-600">{loadError}</p>}
+                {saveError && <p className="text-sm font-medium text-red-600">{saveError}</p>}
+                {saveSuccess && <p className="text-sm font-medium text-green-700">{saveSuccess}</p>}
 
                 <SurveyHeaderCard
                     title={title}
@@ -248,7 +430,7 @@ export default function CreateSurvey() {
 
             {showPublishPopup && (
                 <PublishSurveyPopup
-                    surveyLink="http://localhost:5173/survey/123"
+                    surveyLink={surveyId ? `http://localhost:5173/survey/${surveyId}` : "http://localhost:5173/survey/"}
                     onBack={() => setShowPublishPopup(false)}
                     onPublish={handlePublish}
                 />
