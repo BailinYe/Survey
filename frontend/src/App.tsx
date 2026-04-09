@@ -38,6 +38,7 @@ function App() {
             >
                 <Route index element={<AdminDashboard />} />
                 <Route path="surveys/new" element={<CreateSurvey />}/>
+                <Route path="surveys/:surveyId/edit" element={<CreateSurvey />} />
                 <Route path="surveys/:surveyId/analytics" element={<SurveyAnalytics />} />
             </Route>
             {/* Public survey response route */}

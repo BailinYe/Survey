@@ -1,217 +1,79 @@
-// http://localhost:5173/admin-dashboard/surveys/new
-
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-// Shadcn-style UI components
-import { Button } from "@/components/ui/button";
-
 // Shared DTO enums/types
-import { QuestionType } from "@shared/models/dtos/enums/QuestionType";
-import type {
-    QuestionDTO,
-    MultipleChoiceDTO,
-    CheckBoxDTO,
-    ShortAnswerDTO,
-    RatingDTO,
-} from "@shared/models/dtos/types/QuestionDTO";
+// import { QuestionType } from "@shared/models/dtos/enums/QuestionType";
+// import type {
+//     QuestionDTO,
+//     MultipleChoiceDTO,
+//     CheckBoxDTO,
+//     ShortAnswerDTO,
+//     RatingDTO,
+// } from "@shared/models/dtos/types/QuestionDTO";
+import { QuestionDTO } from "@shared/models/dtos/types/QuestionDTO";
 
 // Page components (extracted)
 import SurveyHeaderCard from "./SurveyHeaderCard";
 import QuestionCard from "./QuestionCard";
+
 import PublishSurveyPopup from "@/components/PublishSurveyPopup";
 import PopupWindow from "@/components/PopupWindow";
 
-// Create a new question object with safe defaults
-function makeNewQuestion(params: { position: number; type?: QuestionType }): QuestionDTO {
-    const { position, type = QuestionType.MultipleChoice } = params;
+import CreateSurveyActionsBar from "./CreateSurveyActionsBar";
+import CreateSurveyAlerts from "./CreateSurveyAlerts";
 
-    const questionId = `q${position + 1}`;
+import {
+    RATING_SCALE_MAX,
+    RATING_SCALE_MIN,
+    clampInt,
+    parseOptionalInt,
+} from "./questionFactory";
 
-    if (type === QuestionType.MultipleChoice) {
-        const q: MultipleChoiceDTO = {
-            questionId,
-            position,
-            type,
-            prompt: "",
-            description: "",
-            required: false,
-            options: ["", ""],
-        };
-        return q;
-    }
-
-    if (type === QuestionType.CheckBox) {
-        const q: CheckBoxDTO = {
-            questionId,
-            position,
-            type,
-            prompt: "",
-            description: "",
-            required: false,
-            options: ["", ""],
-            minSelect: 1,
-            maxSelect: 2,
-        };
-        return q;
-    }
-
-    if (type === QuestionType.Rating) {
-        const q: RatingDTO = {
-            questionId,
-            position,
-            type,
-            prompt: "",
-            description: "",
-            required: false,
-            scaleMin: 1,
-            scaleMax: 5,
-            labelMin: "Poor",
-            labelMax: "Excellent",
-        };
-        return q;
-    }
-
-    const q: ShortAnswerDTO = {
-        questionId,
-        position,
-        type: QuestionType.ShortAnswer,
-        prompt: "",
-        description: "",
-        required: false,
-    };
-    return q;
-}
-
-function normalizeQuestions(questions: QuestionDTO[]): QuestionDTO[] {
-    return questions.map((q, idx) => ({
-        ...q,
-        position: idx,
-        questionId: `q${idx + 1}`,
-    })) as QuestionDTO[];
-}
-
-const RATING_SCALE_MIN = 0;
-const RATING_SCALE_MAX = 10;
-
-function clampInt(n: number, min: number, max: number) {
-    return Math.min(max, Math.max(min, Math.trunc(n)));
-}
-
-function parseOptionalInt(value: string): number | undefined {
-    if (value.trim() === "") return undefined;
-
-    const n = Number(value);
-    if (!Number.isFinite(n)) return undefined;
-
-    return Math.trunc(n);
-}
+import { useSurveyEditor } from "./useSurveyEditor";
 
 export default function CreateSurvey() {
-    const navigate = useNavigate();
+    const editor = useSurveyEditor();
 
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [showPublishPopup, setShowPublishPopup] = useState(false);
-    const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+    const {
+        surveyId, status,
 
-    const [questions, setQuestions] = useState<QuestionDTO[]>(() => [
-        makeNewQuestion({ position: 0, type: QuestionType.MultipleChoice }),
-    ]);
+        title, description, setTitle, setDescription,
 
-    function updateQuestion(index: number, updater: (prev: QuestionDTO) => QuestionDTO) {
-        setQuestions((prev) => normalizeQuestions(prev.map((q, i) => (i === index ? updater(q) : q))));
-    }
+        questions,
 
-    function changeQuestionType(index: number, type: QuestionType) {
-        setQuestions((prev) => {
-            const old = prev[index];
-            const rebuilt = makeNewQuestion({ position: index, type });
+        // ui
+        isLoadingSurvey, loadError, isSaving, saveError, saveSuccess,
 
-            const merged: QuestionDTO = {
-                ...rebuilt,
-                prompt: old.prompt,
-            } as QuestionDTO;
+        showPublishPopup, setShowPublishPopup, showSuccessPopup, setShowSuccessPopup,
 
-            const next = [...prev];
-            next[index] = merged;
+        // derived
+        surveyName, isEmptyDraft,
 
-            return normalizeQuestions(next);
-        });
-    }
-
-    function addQuestion() {
-        setQuestions((prev) =>
-            normalizeQuestions([
-                ...prev,
-                makeNewQuestion({ position: prev.length, type: QuestionType.MultipleChoice }),
-            ])
-        );
-    }
-
-    function deleteQuestion(index: number) {
-        setQuestions((prev) => normalizeQuestions(prev.filter((_, i) => i !== index)));
-    }
-
-    function addOption(index: number) {
-        updateQuestion(index, (q) => {
-            if (q.type !== QuestionType.MultipleChoice && q.type !== QuestionType.CheckBox) return q;
-
-            return {
-                ...q,
-                options: [...q.options, ""],
-            } as QuestionDTO;
-        });
-    }
-
-    function updateOption(index: number, optionIndex: number, value: string) {
-        updateQuestion(index, (q) => {
-            if (q.type !== QuestionType.MultipleChoice && q.type !== QuestionType.CheckBox) return q;
-
-            const options = q.options.map((opt, i) => (i === optionIndex ? value : opt));
-            return { ...q, options } as QuestionDTO;
-        });
-    }
-
-    function removeOption(index: number, optionIndex: number) {
-        updateQuestion(index, (q) => {
-            if (q.type !== QuestionType.MultipleChoice && q.type !== QuestionType.CheckBox) return q;
-
-            const options = q.options.filter((_, i) => i !== optionIndex);
-            return { ...q, options } as QuestionDTO;
-        });
-    }
-
-    function publish() {
-        setShowPublishPopup(true);
-        console.log("Publish survey:", { title, description, questions });
-    }
-
-    function handlePublish(emails: string[]) {
-        console.log("Selected emails:", emails);
-        setShowPublishPopup(false);
-        setShowSuccessPopup(true);
-    }
-
-    function handleGoBackToDashboard() {
-        navigate("/admin-dashboard");
-    }
-
-    const surveyName = title.trim() || "Untitled Survey";
+        // handlers
+        changeQuestionType, deleteQuestion, updateQuestion, addQuestion, openPublish, handlePublish, handleSave,
+        goBackToDashboard,
+    } = editor;
 
     return (
         <>
             <div className="mx-auto w-full max-w-7xl space-y-6 p-6 px-3 sm:px-4">
-                <div className="flex justify-end">
-                    <Button
-                        type="button"
-                        className="rounded-full bg-blue-600 px-10 text-white hover:bg-blue-700"
-                        onClick={publish}
-                    >
-                        Publish
-                    </Button>
-                </div>
+                {/* Top action buttons */}
+                <CreateSurveyActionsBar
+                    status={status}
+                    isSaving={isSaving}
+                    isLoadingSurvey={isLoadingSurvey}
+                    isEmptyDraft={isEmptyDraft}
+                    hasSurveyId={Boolean(surveyId)}
+                    onSave={handleSave}
+                    onPublish={openPublish}
+                />
 
+                {/* Load/Save feedback */}
+                <CreateSurveyAlerts
+                    isLoadingSurvey={isLoadingSurvey}
+                    loadError={loadError}
+                    saveError={saveError}
+                    saveSuccess={saveSuccess}
+                />
+
+                {/* Survey header (title + description) */}
                 <SurveyHeaderCard
                     title={title}
                     description={description}
@@ -219,8 +81,9 @@ export default function CreateSurvey() {
                     setDescription={setDescription}
                 />
 
+                {/* Questions list */}
                 <div className="space-y-4">
-                    {questions.map((q, index) => (
+                    {questions.map((q: QuestionDTO, index: number) => (
                         <QuestionCard
                             key={q.questionId}
                             q={q}
@@ -228,9 +91,9 @@ export default function CreateSurvey() {
                             changeQuestionType={changeQuestionType}
                             deleteQuestion={deleteQuestion}
                             updateQuestion={updateQuestion}
-                            addOption={addOption}
-                            updateOption={updateOption}
-                            removeOption={removeOption}
+                            addOption={editor.addOption}
+                            updateOption={editor.updateOption}
+                            removeOption={editor.removeOption}
                             RATING_SCALE_MIN={RATING_SCALE_MIN}
                             RATING_SCALE_MAX={RATING_SCALE_MAX}
                             parseOptionalInt={parseOptionalInt}
@@ -239,21 +102,33 @@ export default function CreateSurvey() {
                     ))}
                 </div>
 
+                {/* Add question */}
                 <div className="flex justify-center pt-2">
-                    <Button type="button" variant="outline" className="rounded-full px-10" onClick={addQuestion}>
+                    <button
+                        type="button"
+                        className="inline-flex items-center justify-center rounded-full border border-input bg-background
+                                   px-10 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+                        onClick={addQuestion}
+                    >
                         Add New
-                    </Button>
+                    </button>
                 </div>
             </div>
 
+            {/* Publish popup */}
             {showPublishPopup && (
                 <PublishSurveyPopup
-                    surveyLink="http://localhost:5173/survey/123"
+                    surveyLink={
+                        surveyId
+                            ? `http://localhost:5173/survey/${surveyId}`
+                            : "http://localhost:5173/survey/"
+                    }
                     onBack={() => setShowPublishPopup(false)}
                     onPublish={handlePublish}
                 />
             )}
 
+            {/* Success popup after publish */}
             {showSuccessPopup && (
                 <PopupWindow
                     text={
@@ -262,7 +137,10 @@ export default function CreateSurvey() {
                         </p>
                     }
                     firstButtonText="Go back to admin dashboard"
-                    onFirstClick={handleGoBackToDashboard}
+                    onFirstClick={() => {
+                        setShowSuccessPopup(false);
+                        goBackToDashboard();
+                    }}
                 />
             )}
         </>

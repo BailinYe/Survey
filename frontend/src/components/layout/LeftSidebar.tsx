@@ -1,7 +1,7 @@
 import Logo from "@/components/common/Logo";
 import Avatar from "@/components/common/Avatar";
 import {Button} from "@/components/ui/button";
-import {ArrowLeft, LogOut} from "lucide-react";
+import {ArrowLeft} from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 
@@ -12,7 +12,8 @@ export default function LeftSidebar({handleLogout}) {
 
     const showBackToDashboard =
         location.pathname.startsWith("/admin-dashboard/surveys/new") ||
-        location.pathname.startsWith("/admin-dashboard/results");
+        location.pathname.includes("/analytics") ||
+        location.pathname.includes("/edit");
 
     return (
         <>
