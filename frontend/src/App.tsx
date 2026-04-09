@@ -36,22 +36,14 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route index element={<AdminDashboard />} />
-              <Route path="surveys/new" element={<CreateSurvey />} />
-              <Route path="results" element={<SurveyAnalytics />} />
+                <Route index element={<AdminDashboard />} />
+                <Route path="surveys/new" element={<CreateSurvey />}/>
+                <Route path="surveys/:surveyId/analytics" element={<SurveyAnalytics />} />
             </Route>
-              {/* Public survey response route */}
-              <Route path="/survey/:surveyId" element={<RespondSurveyLayout />}>
-                  <Route index element={<RespondSurvey />} />
-              </Route>
-
-              {/* Admin routes */}
-              <Route path="/admin-dashboard" element={<AdminLayout />}>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="surveys/new" element={<CreateSurvey />}/>
-                  <Route path="surveys/:surveyId/analytics" element={<SurveyAnalytics />} />
-              </Route>
-
+            {/* Public survey response route */}
+            <Route path="/survey/:surveyId" element={<RespondSurveyLayout />}>
+                <Route index element={<RespondSurvey />} />
+            </Route>
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </AuthProvider>
