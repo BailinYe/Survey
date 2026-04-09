@@ -10,7 +10,8 @@ export default function TopNavbar({ handleLogout }) {
 
     const showBackToDashboard =
         location.pathname.startsWith("/admin-dashboard/surveys/new") ||
-        location.pathname.startsWith("/admin-dashboard/results");
+        location.pathname.includes("/analytics") ||
+        location.pathname.includes("/edit");
 
     return (
         <>
