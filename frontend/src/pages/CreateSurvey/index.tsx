@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams  } from "react-router-dom";
 
 // Shadcn-style UI components
 import { Button } from "@/components/ui/button";
@@ -152,7 +152,7 @@ export default function CreateSurvey() {
             setIsLoadingSurvey(true);
             setLoadError("");
             setSaveError("");
-            setSaveSuccess("");
+            // setSaveSuccess("");
 
             try {
                 const s = await getSurveyById(routeSurveyId);
@@ -251,70 +251,51 @@ export default function CreateSurvey() {
         });
     }
 
-    async function handleSave() {
+    type SaveResult =
+        | { ok: true; id: string; created: boolean }
+        | { ok: false; errorMessage: string };
+
+    async function saveDraft(): Promise<SaveResult> {
         setSaveError("");
         setSaveSuccess("");
 
         if (title.trim() === "") {
-            setSaveError("Title is required to save a draft.");
-            return;
+            const msg = "Title is required to save a draft.";
+            setSaveError(msg);
+            return { ok: false, errorMessage: msg };
         }
 
         setIsSaving(true);
         try {
             const payload = { title, description, questions };
 
+            // CREATE (first save)
             if (!surveyId) {
                 const { id } = await createSurvey(payload);
                 setSurveyId(id);
                 setStatus(SurveyStatus.New);
-                setSaveSuccess("Draft created and saved.");
 
-                // Replace URL to edit route so refresh works
+                // ensure refresh stays on edit route
                 navigate(`/admin-dashboard/surveys/${id}/edit`, { replace: true });
-            } else {
-                await updateSurvey(surveyId, payload);
-                setSaveSuccess("Draft saved.");
+                setSaveSuccess("Draft created and saved.");
+                return { ok: true, id, created: true };
             }
+
+            // UPDATE (subsequent saves)
+            await updateSurvey(surveyId, payload);
+            setSaveSuccess("Draft saved.");
+            return { ok: true, id: surveyId, created: false };
         } catch (e) {
             const msg = e instanceof Error ? e.message : "Failed to save survey.";
             setSaveError(msg);
+            return { ok: false, errorMessage: msg };
         } finally {
             setIsSaving(false);
         }
     }
 
-    async function saveDraftIfNeeded(): Promise<string | null> {
-        setSaveError("");
-        setSaveSuccess("");
-
-        if (title.trim() === "") {
-            setSaveError("Title is required to save a draft.");
-            return null;
-        }
-
-        setIsSaving(true);
-        try {
-            const payload = { title, description, questions };
-
-            if (!surveyId) {
-                const { id } = await createSurvey(payload);
-                setSurveyId(id);
-                setStatus(SurveyStatus.New);
-                // keep URL consistent for refresh/share
-                navigate(`/admin-dashboard/surveys/${id}/edit`, { replace: true });
-                return id;
-            }
-
-            await updateSurvey(surveyId, payload);
-            return surveyId;
-        } catch (e) {
-            const msg = e instanceof Error ? e.message : "Failed to save survey.";
-            setSaveError(msg);
-            return null;
-        } finally {
-            setIsSaving(false);
-        }
+    async function handleSave() {
+        await saveDraft();
     }
 
     async function openPublish() {
@@ -332,9 +313,8 @@ export default function CreateSurvey() {
             return;
         }
 
-        // Auto-save first (create or update draft)
-        const id = await saveDraftIfNeeded();
-        if (!id) return;
+        const result = await saveDraft();
+        if (!result.ok) return;
 
         setShowPublishPopup(true);
     }
