@@ -9,7 +9,7 @@ import { createSurvey, getSurveyById, publishSurvey, updateSurvey } from "@/api/
 
 import { makeNewQuestion, normalizeQuestions } from "./questionFactory";
 
-type SaveResult = | { ok: true; id: string; created: boolean } | { ok: false; errorMessage: string };
+type SaveResult = { ok: true; id: string; created: boolean } | { ok: false; errorMessage: string };
 
 /**
  * Hook for CreateSurvey page:
@@ -225,7 +225,6 @@ export function useSurveyEditor() {
     }
 
     async function handlePublish(emails: string[]) {
-        setShowPublishPopup(false);
         setSaveError("");
         setSaveSuccess("");
 
@@ -237,6 +236,7 @@ export function useSurveyEditor() {
         try {
             await publishSurvey(surveyId, emails);
             setStatus(SurveyStatus.Active);
+            setShowPublishPopup(false);
             setShowSuccessPopup(true);
         } catch (e) {
             const msg = e instanceof Error ? e.message : "Failed to publish survey.";
@@ -253,29 +253,54 @@ export function useSurveyEditor() {
 
     return {
         // ids/status
-        routeSurveyId, surveyId, status, isDraftEditable,
+        routeSurveyId,
+        surveyId,
+        status,
+        isDraftEditable,
 
         // fields
-        title, setTitle, description, setDescription, questions, setQuestions,
+        title,
+        setTitle,
+        description,
+        setDescription,
+        questions,
+        setQuestions,
 
         // derived
-        surveyName, isEmptyDraft,
+        surveyName,
+        isEmptyDraft,
 
         // ui state
-        isLoadingSurvey, loadError, isSaving, saveError, saveSuccess,
+        isLoadingSurvey,
+        loadError,
+        isSaving,
+        saveError,
+        saveSuccess,
 
-        showPublishPopup, setShowPublishPopup, showSuccessPopup, setShowSuccessPopup,
+        showPublishPopup,
+        setShowPublishPopup,
+        showSuccessPopup,
+        setShowSuccessPopup,
 
         // handlers
-        updateQuestion, changeQuestionType, addQuestion, deleteQuestion, addOption, updateOption, removeOption,
+        updateQuestion,
+        changeQuestionType,
+        addQuestion,
+        deleteQuestion,
+        addOption,
+        updateOption,
+        removeOption,
 
-        saveDraft, handleSave,
+        saveDraft,
+        handleSave,
 
-        openPublish, handlePublish,
+        openPublish,
+        handlePublish,
 
         goBackToDashboard,
 
         // expose setters if you need them in the page
-        setSaveError, setSaveSuccess,
+        setSaveError,
+        setSaveSuccess,
     };
 }

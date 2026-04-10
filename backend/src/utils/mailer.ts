@@ -27,3 +27,37 @@ If you did not try to log in, you can ignore this email.`;
         text,
     });
 }
+
+export async function sendSurvey(
+    to: string[],
+    surveyLink: string,
+    surveyName: string
+) {
+    const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || "smtp.gmail.com",
+        port: Number(process.env.SMTP_PORT || 587),
+        secure: false,
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+        },
+    });
+
+    const subject = `You're invited to complete ${surveyName}`;
+
+    const text = `Hello,
+
+You're invited to complete ${surveyName}.
+
+Please click the survey link below to access and submit your response:
+${surveyLink}
+
+Thank you for your participation.`;
+
+    await transporter.sendMail({
+        from: process.env.SMTP_USER,
+        to: to.join(", "),
+        subject,
+        text,
+    });
+}
