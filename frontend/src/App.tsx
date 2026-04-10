@@ -45,6 +45,7 @@ function App() {
             <Route path="/survey/:surveyId" element={<RespondSurveyLayout />}>
                 <Route index element={<RespondSurvey />} />
             </Route>
+            {/* Fallback Page for any invalid route */}
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </AuthProvider>

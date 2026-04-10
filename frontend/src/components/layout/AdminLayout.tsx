@@ -27,14 +27,14 @@ export default function AdminLayout() {
     }
 
     return (
-        <div className="flex flex-col lg:flex-row min-h-screen">
+        <div className="min-h-screen bg-background">
 
             {/*Sidebar/Topbar*/}
             <TopNavbar handleLogout={handleLogout} />
             <LeftSidebar handleLogout={handleLogout} />
 
             {/*Page content, controlled by Router*/}
-            <main className="flex-1 p-6">
+            <main className="flex-1 px-6 py-6 pt-24 lg:ml-64 lg:pt-6">
                 <Outlet />
             </main>
 
@@ -42,7 +42,7 @@ export default function AdminLayout() {
                 <PopupWindow
                     text={
                         <div>
-                            <p className="text-lg font-semibold mb-2">Confirm Logout</p>
+                            <p className="mb-2 text-lg font-semibold">Confirm Logout</p>
                             <p className="text-sm text-muted-foreground">
                                 Are you sure you want to logout?
                             </p>
