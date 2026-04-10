@@ -34,10 +34,8 @@ function normalizeEmailsOrRespond(emails: unknown, res: Response): string[] | nu
         .map((e) => String(e).trim().toLowerCase())
         .filter((e) => e.length > 0);
 
-    // Deduplicate
     const unique = Array.from(new Set(normalized));
 
-    // Basic email format check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     for (const e of unique) {
         if (!emailRegex.test(e)) {
@@ -59,7 +57,6 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
             return res.status(401).json({ error: "User ID not found in token" });
         }
 
-        // Only fetch surveys created by the current user
         const snapshot = await db
             .collection("surveys")
             .where("authorId", "==", authorId)
@@ -74,6 +71,43 @@ router.get("/", authenticateToken, async (req: AuthRequest, res: Response) => {
     } catch (error) {
         console.error("Error fetching surveys:", error);
         res.status(500).json({ error: "Failed to fetch surveys" });
+    }
+});
+
+// Public: Get active survey by ID for respondents
+router.get("/public/:id", async (req: AuthRequest, res: Response) => {
+    try {
+        const db = getDb();
+        const id = req.params.id as string;
+
+        const doc = await db.collection("surveys").doc(id).get();
+
+        if (!doc.exists) {
+            return res.status(404).json({ error: "Survey not found" });
+        }
+
+        const survey = doc.data() as Record<string, unknown> | undefined;
+
+        if (!survey) {
+            return res.status(404).json({ error: "Survey not found" });
+        }
+
+        if (survey.status !== "Active") {
+            return res.status(404).json({ error: "Survey is not available" });
+        }
+
+        return res.json({
+            id: doc.id,
+            title: typeof survey.title === "string" ? survey.title : "",
+            description: typeof survey.description === "string" ? survey.description : "",
+            status: survey.status,
+            authorId: typeof survey.authorId === "string" ? survey.authorId : "",
+            questions: Array.isArray(survey.questions) ? survey.questions : [],
+            questionCount: typeof survey.questionCount === "number" ? survey.questionCount : 0,
+        });
+    } catch (error) {
+        console.error("Error fetching public survey:", error);
+        return res.status(500).json({ error: "Failed to fetch survey" });
     }
 });
 
@@ -93,7 +127,6 @@ router.get(
                 return res.status(404).json({ error: "Survey not found" });
             }
 
-            // Verify the survey belongs to the current user
             const survey = doc.data();
             if (survey?.authorId !== authorId) {
                 return res
@@ -173,14 +206,12 @@ router.put(
 
             const survey = doc.data() as Record<string, unknown> | undefined;
 
-            // Ownership check
             if (!survey || survey.authorId !== authorId) {
                 return res
                     .status(403)
                     .json({ error: "You don't have permission to update this survey" });
             }
 
-            // Draft-only rule: only status New is editable
             if (survey.status !== "New") {
                 return res.status(409).json({ error: "Only draft surveys can be edited" });
             }
@@ -191,7 +222,6 @@ router.put(
                 questions?: unknown;
             };
 
-            // Build an explicit update payload (so "" and [] are allowed)
             const updatePayload: Record<string, unknown> = {
                 updatedAt: new Date(),
             };
@@ -241,21 +271,16 @@ router.post("/:id/publish", authenticateToken, async (req: AuthRequest, res: Res
 
         const survey = doc.data() as Record<string, unknown> | undefined;
 
-        // Ownership check
         if (!survey || survey.authorId !== authorId) {
             return res
                 .status(403)
                 .json({ error: "You don't have permission to publish this survey" });
         }
 
-        // Only drafts can be published
         if (survey.status !== "New") {
             return res.status(409).json({ error: "Only draft surveys (status=New) can be published" });
         }
 
-        // Publish validation:
-        // - must have title
-        // - must have at least 1 question
         const existingTitle = typeof survey.title === "string" ? survey.title.trim() : "";
         if (!existingTitle) {
             return res.status(400).json({ error: "Title is required to publish" });

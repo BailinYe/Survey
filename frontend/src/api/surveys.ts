@@ -2,6 +2,7 @@ import { auth } from "@/firebase/firebase";
 import type { QuestionDTO } from "@shared/models/dtos/types/QuestionDTO";
 import type { SurveyDTO } from "@shared/models/dtos/types/SurveyDTO";
 import { SurveyStatus } from "@shared/models/dtos/enums/SurveyStatus";
+import type { AnswerValue } from "@shared/models/dtos/types/ResponseDTO";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -32,7 +33,6 @@ async function getIdTokenOrThrow(): Promise<string> {
 async function fetchJson(path: string, init: RequestInit): Promise<unknown> {
     const res = await fetch(`${API_BASE_URL}${path}`, init);
 
-    // Try to parse JSON, but don't explode on empty responses
     const text = await res.text();
     const data: unknown = text ? JSON.parse(text) : null;
 
@@ -80,7 +80,7 @@ export async function updateSurvey(
     });
 }
 
-/** GET /api/surveys/:id -> loads survey */
+/** GET /api/surveys/:id -> loads survey for admin owner */
 export async function getSurveyById(surveyId: string): Promise<SurveyDTO> {
     const token = await getIdTokenOrThrow();
 
@@ -104,6 +104,27 @@ export async function getSurveyById(surveyId: string): Promise<SurveyDTO> {
     return data as unknown as SurveyDTO;
 }
 
+/** GET /api/surveys/public/:id -> loads public survey for respondents */
+export async function getPublicSurveyById(surveyId: string): Promise<SurveyDTO> {
+    const data = await fetchJson(`/api/surveys/public/${surveyId}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (
+        !isRecord(data) ||
+        typeof data.id !== "string" ||
+        typeof data.title !== "string" ||
+        typeof data.description !== "string"
+    ) {
+        throw new Error("Invalid survey response from backend");
+    }
+
+    return data as unknown as SurveyDTO;
+}
+
 /** POST /api/surveys/:id/publish -> sets status Active and stores emails */
 export async function publishSurvey(surveyId: string, emails: string[]): Promise<void> {
     const token = await getIdTokenOrThrow();
@@ -115,6 +136,23 @@ export async function publishSurvey(surveyId: string, emails: string[]): Promise
             Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ emails }),
+    });
+}
+
+/** POST /api/responses -> submit respondent answers */
+export async function submitSurveyResponse(
+    surveyId: string,
+    answers: Record<string, AnswerValue>,
+): Promise<void> {
+    await fetchJson("/api/responses", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            surveyId,
+            answers,
+        }),
     });
 }
 
