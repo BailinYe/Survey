@@ -1,4 +1,5 @@
-import Logo from "@/components/common/Logo";
+import Logo from "@/assets/logo_3.png";
+
 import Avatar from "@/components/common/Avatar";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, LogOut } from "lucide-react";
@@ -22,7 +23,7 @@ export default function TopNavbar({ handleLogout }: TopNavbarProps) {
             {/* Top Navbar - Mobile Only */}
             <header className="sticky top-0 z-50 flex w-full items-center justify-between border-b border-border bg-background px-6 py-4 lg:hidden">
                 <div className="flex items-center gap-3">
-                    <Logo className="h-10" />
+                    <img src={Logo} alt="Logo" className="h-auto w-40" />
                 </div>
 
                 <div className="flex items-center gap-4">

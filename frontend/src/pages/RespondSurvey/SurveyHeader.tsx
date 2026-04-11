@@ -10,7 +10,6 @@ export default function SurveyHeader({ survey }: Props) {
       <h1 className="text-3xl font-bold">{survey.title}</h1>
       {survey.description && (
         <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground">Survey's description</p>
           <p className="text-base text-muted-foreground">{survey.description}</p>
         </div>
       )}

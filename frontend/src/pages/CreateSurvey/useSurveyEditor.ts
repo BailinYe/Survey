@@ -8,6 +8,7 @@ import { SurveyStatus } from "@shared/models/dtos/enums/SurveyStatus";
 import { createSurvey, getSurveyById, publishSurvey, updateSurvey } from "@/api/surveys";
 
 import { makeNewQuestion, normalizeQuestions } from "./questionFactory";
+import {toast} from "sonner";
 
 type SaveResult = { ok: true; id: string; created: boolean } | { ok: false; errorMessage: string };
 
@@ -34,11 +35,9 @@ export function useSurveyEditor() {
 
     // UI state
     const [isLoadingSurvey, setIsLoadingSurvey] = useState(false);
-    const [loadError, setLoadError] = useState("");
+    const [loadError] = useState("");
 
     const [isSaving, setIsSaving] = useState(false);
-    const [saveError, setSaveError] = useState("");
-    const [saveSuccess, setSaveSuccess] = useState("");
 
     const [showPublishPopup, setShowPublishPopup] = useState(false);
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -59,8 +58,6 @@ export function useSurveyEditor() {
             if (!routeSurveyId) return;
 
             setIsLoadingSurvey(true);
-            setLoadError("");
-            setSaveError("");
 
             try {
                 const s = await getSurveyById(routeSurveyId);
@@ -81,7 +78,8 @@ export function useSurveyEditor() {
             } catch (e) {
                 if (cancelled) return;
                 const msg = e instanceof Error ? e.message : "Failed to load survey.";
-                setLoadError(msg);
+                console.error(msg);
+                toast.error(msg, {position: "top-center"});
             } finally {
                 if (!cancelled) setIsLoadingSurvey(false);
             }
@@ -159,12 +157,10 @@ export function useSurveyEditor() {
 
     // Save logic (single source of truth)
     async function saveDraft(): Promise<SaveResult> {
-        setSaveError("");
-        setSaveSuccess("");
 
         if (title.trim() === "") {
+            toast.error("Title is required to save a draft.", { position: "top-center" })
             const msg = "Title is required to save a draft.";
-            setSaveError(msg);
             return { ok: false, errorMessage: msg };
         }
 
@@ -180,18 +176,19 @@ export function useSurveyEditor() {
                 setStatus(SurveyStatus.New);
 
                 navigate(`/admin-dashboard/surveys/${id}/edit`, { replace: true });
-                setSaveSuccess("Draft created and saved.");
+                toast.success("Draft created successfully.", { position: "top-center" })
 
                 return { ok: true, id, created: true };
             }
 
             // UPDATE (subsequent saves)
             await updateSurvey(surveyId, payload);
-            setSaveSuccess("Draft saved.");
+            toast.success("Draft saved successfully.", { position: "top-center" });
             return { ok: true, id: surveyId, created: false };
         } catch (e) {
             const msg = e instanceof Error ? e.message : "Failed to save survey.";
-            setSaveError(msg);
+            toast.error("Failed to save survey.", { position: "top-center" });
+            console.error(e);
             return { ok: false, errorMessage: msg };
         } finally {
             setIsSaving(false);
@@ -204,17 +201,32 @@ export function useSurveyEditor() {
 
     // Publish flow
     async function openPublish() {
-        setSaveError("");
-        setSaveSuccess("");
 
         if (questions.length < 1) {
-            setSaveError("Add at least one question before publishing.");
+            toast.error("Please add at least one question before publishing.", { position: "top-center" });
             return;
         }
 
         const hasBlankPrompt = questions.some((q) => !q.prompt || q.prompt.trim() === "");
         if (hasBlankPrompt) {
-            setSaveError("Each question must have a prompt before publishing.");
+            toast.error("Each question must have a prompt before publishing.", { position: "top-center" });
+            return;
+        }
+
+        const hasInvalidOptions = questions.some((q) => {
+            if (q.type !== QuestionType.MultipleChoice && q.type !== QuestionType.CheckBox) {
+                return false;
+            }
+
+            if (!Array.isArray(q.options) || q.options.length < 1) {
+                return true;
+            }
+
+            return q.options.some((option) => option.trim() === "");
+        });
+
+        if (hasInvalidOptions) {
+            toast.error("Each question must have non-empty options before publishing.", { position: "top-center" });
             return;
         }
 
@@ -225,11 +237,9 @@ export function useSurveyEditor() {
     }
 
     async function handlePublish(emails: string[]) {
-        setSaveError("");
-        setSaveSuccess("");
 
         if (!surveyId) {
-            setSaveError("Save the survey first before publishing.");
+            toast.error("Save the survey first before publishing.");
             return;
         }
 
@@ -239,8 +249,8 @@ export function useSurveyEditor() {
             setShowPublishPopup(false);
             setShowSuccessPopup(true);
         } catch (e) {
-            const msg = e instanceof Error ? e.message : "Failed to publish survey.";
-            setSaveError(msg);
+            toast.error("Failed to publish survey.");
+            console.log(e);
         }
     }
 
@@ -274,8 +284,6 @@ export function useSurveyEditor() {
         isLoadingSurvey,
         loadError,
         isSaving,
-        saveError,
-        saveSuccess,
 
         showPublishPopup,
         setShowPublishPopup,
@@ -298,9 +306,5 @@ export function useSurveyEditor() {
         handlePublish,
 
         goBackToDashboard,
-
-        // expose setters if you need them in the page
-        setSaveError,
-        setSaveSuccess,
     };
 }

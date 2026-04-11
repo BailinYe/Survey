@@ -41,45 +41,45 @@ router.post("/", async (req: AuthRequest, res: Response) => {
 });
 
 // Get all responses for a survey
-router.get(
-  "/survey/:surveyId",
-  authenticateToken,
-  async (req: AuthRequest, res: Response) => {
+router.get("/survey/:id", authenticateToken, async (req: AuthRequest, res: Response) => {
     try {
-      const db = getDb();
-      const { surveyId } = req.params;
-      const userId = req.userId;
+        const db = getDb();
+        const surveyId = req.params.id as string;
+        const authorId = req.userId;
 
-      // Verify the survey belongs to the current user
-      const surveyDoc = await db.collection("surveys").doc(surveyId).get();
-      if (!surveyDoc.exists) {
-        return res.status(404).json({ error: "Survey not found" });
-      }
+        if (!authorId) {
+            return res.status(401).json({ error: "User ID not found in token" });
+        }
 
-      const survey = surveyDoc.data();
-      if (survey?.userId !== userId) {
-        return res.status(403).json({
-          error: "You don't have permission to view responses for this survey",
-        });
-      }
+        const surveyDoc = await db.collection("surveys").doc(surveyId).get();
 
-      const snapshot = await db
-        .collection("responses")
-        .where("surveyId", "==", surveyId)
-        .get();
+        if (!surveyDoc.exists) {
+            return res.status(404).json({ error: "Survey not found" });
+        }
 
-      const responses = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+        const survey = surveyDoc.data();
 
-      res.json(responses);
+        if (!survey || survey.authorId !== authorId) {
+            return res.status(403).json({ error: "You don't have permission to view responses for this survey" });
+        }
+
+        const snapshot = await db
+            .collection("responses")
+            .where("surveyId", "==", surveyId)
+            .get();
+
+        const responses = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+
+        return res.json(responses);
     } catch (error) {
-      console.error("Error fetching responses:", error);
-      res.status(500).json({ error: "Failed to fetch responses" });
+        console.error("Error fetching survey responses:", error);
+        return res.status(500).json({ error: "Failed to fetch survey responses" });
     }
-  },
-);
+});
+
 
 // Get a specific response
 router.get(

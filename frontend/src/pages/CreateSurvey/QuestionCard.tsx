@@ -101,7 +101,7 @@ export default function QuestionCard(props: Props) {
                         id={`prompt-${q.questionId}`}
                         value={q.prompt}
                         onChange={(e) => updateQuestion(index, (prev) => ({ ...prev, prompt: e.target.value }))}
-                        placeholder="Your question..."
+                        placeholder="Your prompt..."
                         rows={1}
                         className="resize-none rounded-none border-0 border-b border-border bg-transparent px-0 text-base outline-none ring-0 placeholder:text-muted-foreground focus-visible:ring-0"
                     />

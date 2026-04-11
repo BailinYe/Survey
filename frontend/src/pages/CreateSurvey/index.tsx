@@ -39,7 +39,7 @@ export default function CreateSurvey() {
         questions,
 
         // ui
-        isLoadingSurvey, loadError, isSaving, saveError, saveSuccess,
+        isLoadingSurvey, isSaving,
 
         showPublishPopup, setShowPublishPopup, showSuccessPopup, setShowSuccessPopup,
 
@@ -68,9 +68,6 @@ export default function CreateSurvey() {
                 {/* Load/Save feedback */}
                 <CreateSurveyAlerts
                     isLoadingSurvey={isLoadingSurvey}
-                    loadError={loadError}
-                    saveError={saveError}
-                    saveSuccess={saveSuccess}
                 />
 
                 {/* Survey header (title + description) */}

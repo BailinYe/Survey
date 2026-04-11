@@ -1,4 +1,4 @@
-import Logo from "@/components/common/Logo";
+import Logo from "@/assets/logo_3.png";
 import Avatar from "@/components/common/Avatar";
 import {Button} from "@/components/ui/button";
 import {ArrowLeft} from "lucide-react";
@@ -23,7 +23,7 @@ export default function LeftSidebar({handleLogout} : LeftSidebarProps) {
             {/* Left Sidebar - Desktop Only */}
             <aside className="fixed left-0 top-0 hidden h-screen w-64 flex-col items-center border-r border-border bg-background lg:flex">
                 <div className="flex h-full w-full flex-col items-center px-6 py-6">
-                    <Logo className="self-center" />
+                    <img src={Logo} alt="Logo" className="h-auto w-80" />
 
 
                     <div className="mt-16 flex flex-1 flex-col items-center gap-10">

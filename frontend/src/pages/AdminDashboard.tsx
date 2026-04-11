@@ -73,7 +73,7 @@ export default function AdminDashboard() {
           {/* Right Content */}
           <div className="flex flex-col w-full lg:flex-1 px-6 lg:px-10 py-6 gap-2 lg:border-l-2 lg:border-gray-200">
               <h1 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 mb-7">
-                  Survey Overview
+                  My Surveys
               </h1>
               <FilterSort surveys={surveys} onFiltered={setFilteredSurveys} />
 
@@ -156,13 +156,13 @@ export default function AdminDashboard() {
                                                   {survey.questionCount || 0}
                                               </p>
                                               <p className="text-xs text-muted-foreground">
-                                                  Questions
+                                                  {survey.questionCount >1?"Questions":"Question"}
                                               </p>
                                           </div>
-                                          {/*<div>*/}
-                                          {/*  <p className="font-medium">{survey.sharedCount || 0}</p>*/}
-                                          {/*  <p className="text-xs text-muted-foreground">Shared</p>*/}
-                                          {/*</div>*/}
+                                          <div>
+                                            <p className="font-medium">{survey.sharedCount || 0}</p>
+                                            <p className="text-xs text-muted-foreground">Shared</p>
+                                          </div>
                                           <div>
                                               <p className="font-medium">{survey.answerCount || 0}</p>
                                               <p className="text-xs text-muted-foreground">Answers</p>

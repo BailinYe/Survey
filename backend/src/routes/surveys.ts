@@ -303,7 +303,11 @@ router.post("/:id/publish", authenticateToken, async (req: AuthRequest, res: Res
         });
 
         const surveyLink = `http://localhost:5173/survey/${id}`;
-        await sendSurvey(emails, surveyLink, existingTitle);
+
+        // Check if there are n=
+        if (emails.length > 0) {
+            await sendSurvey(emails, surveyLink, existingTitle);
+        }
 
         return res.json({ message: "Survey published successfully" });
     } catch (error) {
@@ -312,7 +316,7 @@ router.post("/:id/publish", authenticateToken, async (req: AuthRequest, res: Res
     }
 });
 
-// Delete a survey
+// Delete a survey and respective responses
 router.delete(
     "/:id",
     authenticateToken,
@@ -336,7 +340,21 @@ router.delete(
                     .json({ error: "You don't have permission to delete this survey" });
             }
 
-            await docRef.delete();
+            const responsesSnapshot = await db
+                .collection("responses")
+                .where("surveyId", "==", id)
+                .get();
+
+            const batch = db.batch();
+
+            responsesSnapshot.docs.forEach((responseDoc) => {
+                batch.delete(responseDoc.ref);
+            });
+
+            batch.delete(docRef);
+
+            await batch.commit();
+
             res.json({ message: "Survey deleted successfully" });
         } catch (error) {
             console.error("Error deleting survey:", error);
@@ -344,5 +362,83 @@ router.delete(
         }
     },
 );
+
+router.patch("/:id/close", authenticateToken, async (req: AuthRequest, res: Response) => {
+    try {
+        const db = getDb();
+        const id = req.params.id as string;
+        const authorId = req.userId;
+
+        if (!authorId) {
+            return res.status(401).json({ error: "User ID not found in token" });
+        }
+
+        const docRef = db.collection("surveys").doc(id);
+        const doc = await docRef.get();
+
+        if (!doc.exists) {
+            return res.status(404).json({ error: "Survey not found" });
+        }
+
+        const survey = doc.data();
+
+        if (survey?.authorId !== authorId) {
+            return res.status(403).json({ error: "You don't have permission to close this survey" });
+        }
+
+        if (survey?.status === "Closed") {
+            return res.status(409).json({ error: "Survey is already closed" });
+        }
+
+        await docRef.update({
+            status: "Closed",
+            updatedAt: new Date(),
+        });
+
+        return res.json({ message: "Survey closed successfully" });
+    } catch (error) {
+        console.error("Error closing survey:", error);
+        return res.status(500).json({ error: "Failed to close survey" });
+    }
+});
+
+router.patch("/:id/open", authenticateToken, async (req: AuthRequest, res: Response) => {
+    try {
+        const db = getDb();
+        const id = req.params.id as string;
+        const authorId = req.userId;
+
+        if (!authorId) {
+            return res.status(401).json({ error: "User ID not found in token" });
+        }
+
+        const docRef = db.collection("surveys").doc(id);
+        const doc = await docRef.get();
+
+        if (!doc.exists) {
+            return res.status(404).json({ error: "Survey not found" });
+        }
+
+        const survey = doc.data();
+
+        if (survey?.authorId !== authorId) {
+            return res.status(403).json({ error: "You don't have permission to open this survey" });
+        }
+
+        if (survey?.status === "Active") {
+            return res.status(409).json({ error: "Survey is already open" });
+        }
+
+        await docRef.update({
+            status: "Active",
+            updatedAt: new Date(),
+        });
+
+        return res.json({ message: "Survey opened successfully" });
+    } catch (error) {
+        console.error("Error opening survey:", error);
+        return res.status(500).json({ error: "Failed to open survey" });
+    }
+});
 
 export default router;

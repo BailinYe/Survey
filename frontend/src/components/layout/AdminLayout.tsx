@@ -5,6 +5,7 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
 import PopupWindow from "@/components/PopupWindow";
 import { Outlet, useNavigate } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner"
 
 export default function AdminLayout() {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -34,7 +35,8 @@ export default function AdminLayout() {
             <LeftSidebar handleLogout={handleLogout} />
 
             {/*Page content, controlled by Router*/}
-            <main className="flex-1 px-6 py-6 pt-24 lg:ml-64 lg:pt-6">
+            <main className="flex-1 px-6 py-6 pt-24 lg:ml-64 lg:pt-6 sm:pt-2">
+                <Toaster />
                 <Outlet />
             </main>
 
