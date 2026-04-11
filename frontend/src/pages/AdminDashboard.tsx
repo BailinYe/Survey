@@ -165,7 +165,9 @@ export default function AdminDashboard() {
                                           </div>
                                           <div>
                                               <p className="font-medium">{survey.answerCount || 0}</p>
-                                              <p className="text-xs text-muted-foreground">Answers</p>
+                                              <p className="text-xs text-muted-foreground">
+                                                  {(survey.answerCount || 0) === 1 ? "Answer" : "Answers"}
+                                              </p>
                                           </div>
                                       </div>
                                   </div>

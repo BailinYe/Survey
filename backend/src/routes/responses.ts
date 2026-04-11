@@ -24,10 +24,20 @@ router.post("/", async (req: AuthRequest, res: Response) => {
 
     // Save response
     const docRef = await db.collection("responses").add({
-      surveyId,
-      answers,
-      respondentEmail: respondentEmail || null,
-      submittedAt: new Date(),
+        surveyId,
+        answers,
+        respondentEmail: respondentEmail || null,
+        submittedAt: new Date(),
+    });
+
+    // Increment answer count in survey
+    const currentSurvey = surveyDoc.data();
+    const currentAnswerCount =
+        typeof currentSurvey?.answerCount === "number" ? currentSurvey.answerCount : 0;
+
+    await db.collection("surveys").doc(surveyId).update({
+      answerCount: currentAnswerCount + 1,
+      updatedAt: new Date(),
     });
 
     res.status(201).json({
