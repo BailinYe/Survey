@@ -41,6 +41,17 @@
     --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
     --sidebar-border: oklch(0.92 0.004 286.32);
     --sidebar-ring: oklch(0.705 0.015 286.067);
+
+    /* status badges - light */
+    --status-new-bg: oklch(0.92 0.05 255);
+    --status-new-fg: oklch(0.5 0.18 258);
+
+    --status-active-bg: oklch(0.92 0.06 150);
+    --status-active-fg: oklch(0.45 0.13 155);
+
+    --status-closed-bg: oklch(0.94 0.06 95);
+    --status-closed-fg: oklch(0.55 0.12 85);
+
 }
 
 @theme inline {
@@ -118,6 +129,17 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.552 0.016 285.938);
+
+
+    /* status badges - dark */
+    --status-new-bg: oklch(0.3 0.08 255);
+    --status-new-fg: oklch(0.88 0.06 255);
+
+    --status-active-bg: oklch(0.32 0.08 150);
+    --status-active-fg: oklch(0.9 0.05 155);
+
+    --status-closed-bg: oklch(0.34 0.07 95);
+    --status-closed-fg: oklch(0.92 0.05 95);
 }
 
 @layer base {
@@ -142,5 +164,82 @@
 
     #root {
         width: 100%;
+    }
+}
+
+@layer utilities {
+    .status-badge {
+        @apply rounded-full px-3 py-1 text-sm font-medium;
+    }
+
+    .status-new {
+        background-color: var(--status-new-bg);
+        color: var(--status-new-fg);
+    }
+
+    .status-active {
+        background-color: var(--status-active-bg);
+        color: var(--status-active-fg);
+    }
+
+    .status-closed {
+        background-color: var(--status-closed-bg);
+        color: var(--status-closed-fg);
+    }
+}
+
+@layer utilities {
+    .analytics-action-btn {
+        @apply inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .analytics-action-neutral {
+        @apply border-border bg-card text-card-foreground hover:bg-accent;
+    }
+
+    .analytics-action-open {
+        @apply border-green-200 bg-green-50 text-green-700 hover:bg-green-100 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-300 dark:hover:bg-green-950/60;
+    }
+
+    .analytics-action-closed {
+        @apply border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-950/60;
+    }
+
+    .analytics-action-danger {
+        @apply border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/60;
+    }
+
+    .analytics-icon-violet {
+        @apply bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-300;
+    }
+
+    .analytics-icon-blue {
+        @apply bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300;
+    }
+
+    .analytics-icon-orange {
+        @apply bg-orange-100 text-orange-600 dark:bg-orange-950/50 dark:text-orange-300;
+    }
+}
+
+@layer utilities {
+    .alert-error {
+        @apply rounded-xl border px-4 py-3;
+        border-color: color-mix(in oklab, var(--color-destructive) 50%, transparent);
+        background-color: color-mix(in oklab, var(--color-destructive) 12%, transparent);
+        color: var(--color-destructive);
+    }
+
+    .alert-success {
+        @apply rounded-xl border px-4 py-3;
+        border-color: rgb(74 222 128 / 0.5);
+        background-color: rgb(34 197 94 / 0.12);
+        color: rgb(21 128 61);
+    }
+
+    .dark .alert-success {
+        border-color: rgb(21 128 61 / 0.5);
+        background-color: rgb(20 83 45 / 0.4);
+        color: rgb(134 239 172);
     }
 }

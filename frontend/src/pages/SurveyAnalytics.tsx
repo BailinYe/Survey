@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import {useNavigate, useParams} from "react-router-dom";
 
+import {useOutletContext } from "react-router-dom";
+import type { AdminLayoutContext } from "@/components/layout/AdminLayout";
+
 import { parseDate } from "@/utils/date";
 
 import Card from "@/components/common/Card";
@@ -21,6 +24,8 @@ import { auth } from "@/firebase/firebase";
 import PopupWindow from "@/components/PopupWindow";
 
 export default function SurveyAnalytics() {
+
+    const { refreshSurveys } = useOutletContext<AdminLayoutContext>();
 
     const navigate = useNavigate();
 
@@ -189,8 +194,8 @@ export default function SurveyAnalytics() {
                     }
                     : prev,
             );
-
             toast.success("Survey closed successfully.", { position: "top-center" });
+            await refreshSurveys();
         } catch (error) {
             console.error("Error closing survey:", error);
             toast.error(error instanceof Error ? error.message : "Failed to close survey.");
@@ -232,6 +237,7 @@ export default function SurveyAnalytics() {
             );
 
             toast.success("Survey opened successfully.", { position: "top-center" });
+            await refreshSurveys();
         } catch (error) {
             console.error("Error opening survey:", error);
             toast.error(error instanceof Error ? error.message : "Failed to open survey.");
@@ -266,6 +272,7 @@ export default function SurveyAnalytics() {
             setShowDeletePopup(false);
             navigate("/admin-dashboard");
             toast.warning("Survey deleted successfully.", { position: "top-center" });
+            await refreshSurveys();
         } catch (error) {
             console.error("Error deleting survey:", error);
             setShowDeletePopup(false);
@@ -283,7 +290,7 @@ export default function SurveyAnalytics() {
     }
 
     return (
-        <div className="flex flex-col w-full lg:flex-1 px-6 lg:px-10 py-6 gap-6 lg:border-l-2 lg:border-gray-200">
+        <div className="flex w-full flex-col gap-6 px-6 py-6 lg:flex-1 lg:border-l lg:border-border lg:px-10">
             <div className="border-b pb-4">
                 <h1 className="text-3xl font-semibold tracking-tight">{survey.title}</h1>
                 <p className="text-sm text-muted-foreground mt-1">{survey.description}</p>
@@ -293,8 +300,7 @@ export default function SurveyAnalytics() {
                 <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                >
+                    className="analytics-action-btn analytics-action-neutral"                >
                     <Link2 className="h-4 w-4" />
                     Copy Responder Link
                 </button>
@@ -302,8 +308,7 @@ export default function SurveyAnalytics() {
                     <button
                         type="button"
                         onClick={handleCloseSurvey}
-                        className="inline-flex items-center gap-2 rounded-full border border-green-300 bg-green-50 px-4 py-2 text-sm font-medium text-green-700 transition hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
+                        className="analytics-action-btn analytics-action-open"                    >
                         <LockOpen className="h-4 w-4" />
                         Survey Open
                     </button>
@@ -311,8 +316,7 @@ export default function SurveyAnalytics() {
                     <button
                         type="button"
                         onClick={handleOpenSurvey}
-                        className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
+                        className="analytics-action-btn analytics-action-closed"                    >
                         <Lock className="h-4 w-4" />
                         Survey Closed
                     </button>
@@ -321,8 +325,7 @@ export default function SurveyAnalytics() {
                 <button
                     type="button"
                     onClick={handleDeleteSurvey}
-                    className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
-                >
+                    className="analytics-action-btn analytics-action-danger"                >
                     <Trash2 className="h-4 w-4" />
                     Delete Survey
                 </button>
@@ -333,24 +336,24 @@ export default function SurveyAnalytics() {
                     title="Responses"
                     value={responses.length}
                     icon={MessageCircle}
-                    iconClassName="text-violet-600"
-                    iconContainerClassName="bg-violet-100"
+                    iconClassName="analytics-icon-violet"
+                    iconContainerClassName="analytics-icon-violet"
                 />
 
                 <SurveyInfoCard
                     title="Questions"
                     value={questions.length}
                     icon={MessageSquareText}
-                    iconClassName="text-blue-600"
-                    iconContainerClassName="bg-blue-100"
+                    iconClassName="text-blue-600 dark:text-blue-300"
+                    iconContainerClassName="bg-blue-100 dark:bg-blue-950/50"
                 />
 
                 <SurveyInfoCard
                     title="Last Edited"
                     value={parseDate(survey.updatedAt)}
                     icon={CalendarMinus2}
-                    iconClassName="text-orange-600"
-                    iconContainerClassName="bg-orange-100"
+                    iconClassName="text-orange-600 dark:text-orange-300"
+                    iconContainerClassName="bg-orange-100 dark:bg-orange-950/50"
                 />
             </div>
 

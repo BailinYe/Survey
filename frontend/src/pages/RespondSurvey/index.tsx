@@ -11,9 +11,7 @@ import type { CheckBoxDTO } from "@shared/models/dtos/types/QuestionDTO";
 import { getPublicSurveyById, submitSurveyResponse } from "@/api/surveys";
 
 export default function RespondSurvey() {
-
     const { surveyId } = useParams<{ surveyId: string }>();
-
     const navigate = useNavigate();
 
     const [survey, setSurvey] = useState<SurveyDTO | null>(null);
@@ -90,8 +88,9 @@ export default function RespondSurvey() {
             }
 
             if (
-                (question.type === "multipleChoice") &&
-                ("value" in answer && typeof answer.value === "string") &&
+                question.type === "multipleChoice" &&
+                "value" in answer &&
+                typeof answer.value === "string" &&
                 answer.value.trim() === ""
             ) {
                 errors[question.questionId] = "Please select an option";
@@ -99,8 +98,9 @@ export default function RespondSurvey() {
             }
 
             if (
-                (question.type === "shortAnswer") &&
-                ("value" in answer && typeof answer.value === "string") &&
+                question.type === "shortAnswer" &&
+                "value" in answer &&
+                typeof answer.value === "string" &&
                 answer.value.trim() === ""
             ) {
                 errors[question.questionId] = "This question is required";
@@ -131,8 +131,9 @@ export default function RespondSurvey() {
             }
 
             if (
-                (question.type === "rating") &&
-                ("value" in answer && (answer.value === null || answer.value === undefined || answer.value === 0))
+                question.type === "rating" &&
+                "value" in answer &&
+                (answer.value === null || answer.value === undefined || answer.value === 0)
             ) {
                 if (question.required) {
                     errors[question.questionId] = "Please select a rating";
@@ -180,8 +181,8 @@ export default function RespondSurvey() {
 
     if (error && !survey) {
         return (
-            <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-                <div className="rounded border border-red-400 bg-red-100 p-4 text-red-700">
+            <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
+                <div className="rounded-xl border border-red-400/50 bg-red-100 px-4 py-3 text-red-700 dark:bg-red-950/40 dark:text-red-300">
                     {error}
                 </div>
             </div>
@@ -201,13 +202,13 @@ export default function RespondSurvey() {
             <SurveyHeader survey={survey} />
 
             {error && (
-                <div className="rounded border border-red-400 bg-red-100 p-4 text-red-700">
+                <div className="rounded-xl border border-red-400/50 bg-red-100 px-4 py-3 text-red-700 dark:bg-red-950/40 dark:text-red-300">
                     {error}
                 </div>
             )}
 
             {successMessage && (
-                <div className="rounded border border-green-400 bg-green-100 p-4 text-green-700">
+                <div className="rounded-xl border border-green-400/50 bg-green-100 px-4 py-3 text-green-700 dark:bg-green-950/40 dark:text-green-300">
                     {successMessage}
                 </div>
             )}

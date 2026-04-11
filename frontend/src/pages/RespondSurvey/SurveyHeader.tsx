@@ -1,18 +1,18 @@
 import { SurveyDTO } from "@shared/models/dtos/types/SurveyDTO";
 
 type Props = {
-  survey: SurveyDTO;
+    survey: SurveyDTO;
 };
 
 export default function SurveyHeader({ survey }: Props) {
-  return (
-    <div className="space-y-3 pb-4 border-b">
-      <h1 className="text-3xl font-bold">{survey.title}</h1>
-      {survey.description && (
-        <div className="space-y-1">
-          <p className="text-base text-muted-foreground">{survey.description}</p>
+    return (
+        <div className="space-y-3 border-b border-border pb-4">
+            <h1 className="text-3xl font-bold text-foreground">{survey.title}</h1>
+            {survey.description && (
+                <div className="space-y-1">
+                    <p className="text-base text-muted-foreground">{survey.description}</p>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }

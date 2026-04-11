@@ -5,7 +5,10 @@ import { QuestionType } from "@shared/models/dtos/enums/QuestionType";
 import type { QuestionDTO } from "@shared/models/dtos/types/QuestionDTO";
 import { SurveyStatus } from "@shared/models/dtos/enums/SurveyStatus";
 
-import { createSurvey, getSurveyById, publishSurvey, updateSurvey } from "@/api/surveys";
+import { useOutletContext } from "react-router-dom";
+import type { AdminLayoutContext } from "@/components/layout/AdminLayout";
+
+import { createSurvey, deleteSurvey, getSurveyById, publishSurvey, updateSurvey } from "@/api/surveys";
 
 import { makeNewQuestion, normalizeQuestions } from "./questionFactory";
 import {toast} from "sonner";
@@ -19,7 +22,11 @@ type SaveResult = { ok: true; id: string; created: boolean } | { ok: false; erro
  * - handles save (create or update) and publish
  */
 export function useSurveyEditor() {
+
     const navigate = useNavigate();
+
+    const { refreshSurveys } = useOutletContext<AdminLayoutContext>();
+
     const { surveyId: routeSurveyId } = useParams<{ surveyId: string }>();
 
     // Survey editor state
@@ -177,13 +184,14 @@ export function useSurveyEditor() {
 
                 navigate(`/admin-dashboard/surveys/${id}/edit`, { replace: true });
                 toast.success("Draft created successfully.", { position: "top-center" })
-
+                await refreshSurveys();
                 return { ok: true, id, created: true };
             }
 
             // UPDATE (subsequent saves)
             await updateSurvey(surveyId, payload);
             toast.success("Draft saved successfully.", { position: "top-center" });
+            await refreshSurveys();
             return { ok: true, id: surveyId, created: false };
         } catch (e) {
             const msg = e instanceof Error ? e.message : "Failed to save survey.";
@@ -248,9 +256,28 @@ export function useSurveyEditor() {
             setStatus(SurveyStatus.Active);
             setShowPublishPopup(false);
             setShowSuccessPopup(true);
+            await refreshSurveys();
         } catch (e) {
             toast.error("Failed to publish survey.");
             console.log(e);
+        }
+    }
+
+    async function handleDeleteSurvey() {
+        if (!surveyId) {
+            toast.error("Save the survey first before deleting.", { position: "top-center" });
+            return;
+        }
+
+        try {
+            await deleteSurvey(surveyId);
+            toast.success("Survey deleted successfully.", { position: "top-center" });
+            await refreshSurveys();
+            navigate("/admin-dashboard", { replace: true });
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : "Failed to delete survey.";
+            toast.error(msg, { position: "top-center" });
+            console.error(e);
         }
     }
 
@@ -301,6 +328,7 @@ export function useSurveyEditor() {
 
         saveDraft,
         handleSave,
+        handleDeleteSurvey,
 
         openPublish,
         handlePublish,
