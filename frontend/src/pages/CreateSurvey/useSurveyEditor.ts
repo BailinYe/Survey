@@ -1,19 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 
 import { QuestionType } from "@shared/models/dtos/enums/QuestionType";
 import type { QuestionDTO } from "@shared/models/dtos/types/QuestionDTO";
 import { SurveyStatus } from "@shared/models/dtos/enums/SurveyStatus";
 
-import { useOutletContext } from "react-router-dom";
 import type { AdminLayoutContext } from "@/components/layout/AdminLayout";
-
 import { createSurvey, deleteSurvey, getSurveyById, publishSurvey, updateSurvey } from "@/api/surveys";
 
 import { makeNewQuestion, normalizeQuestions } from "./questionFactory";
-import {toast} from "sonner";
+import { toast } from "sonner";
 
 type SaveResult = { ok: true; id: string; created: boolean } | { ok: false; errorMessage: string };
+
+function isExpiredAtInPast(expiredAt: string): boolean {
+    if (!expiredAt.trim()) return false;
+
+    const parsed = new Date(expiredAt);
+    if (Number.isNaN(parsed.getTime())) return false;
+
+    return parsed.getTime() <= Date.now();
+}
 
 /**
  * Hook for CreateSurvey page:
@@ -22,42 +29,41 @@ type SaveResult = { ok: true; id: string; created: boolean } | { ok: false; erro
  * - handles save (create or update) and publish
  */
 export function useSurveyEditor() {
-
     const navigate = useNavigate();
 
     const { refreshSurveys } = useOutletContext<AdminLayoutContext>();
-
     const { surveyId: routeSurveyId } = useParams<{ surveyId: string }>();
 
-    // Survey editor state
     const [surveyId, setSurveyId] = useState<string | null>(null);
     const [status, setStatus] = useState<SurveyStatus | undefined>(undefined);
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [expiredAt, setExpiredAt] = useState("");
 
     const [questions, setQuestions] = useState<QuestionDTO[]>(() => [
         makeNewQuestion({ position: 0, type: QuestionType.MultipleChoice }),
     ]);
 
-    // UI state
     const [isLoadingSurvey, setIsLoadingSurvey] = useState(false);
     const [loadError] = useState("");
-
     const [isSaving, setIsSaving] = useState(false);
-
     const [showPublishPopup, setShowPublishPopup] = useState(false);
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
     const surveyName = title.trim() || "Untitled Survey";
 
-    // Used to disable Save on untouched new screen
     const isEmptyDraft = useMemo(() => {
         const hasAnyPrompt = questions.some((q) => q.prompt.trim().length > 0);
-        return title.trim() === "" && description.trim() === "" && !hasAnyPrompt && questions.length === 1;
-    }, [title, description, questions]);
+        return (
+            title.trim() === "" &&
+            description.trim() === "" &&
+            expiredAt.trim() === "" &&
+            !hasAnyPrompt &&
+            questions.length === 1
+        );
+    }, [title, description, expiredAt, questions]);
 
-    // Load existing survey when on /:surveyId/edit
     useEffect(() => {
         let cancelled = false;
 
@@ -70,7 +76,6 @@ export function useSurveyEditor() {
                 const s = await getSurveyById(routeSurveyId);
                 if (cancelled) return;
 
-                // Only drafts are editable; otherwise go to analytics
                 if (s.status && s.status !== SurveyStatus.New) {
                     navigate(`/admin-dashboard/surveys/${routeSurveyId}/analytics`, { replace: true });
                     return;
@@ -78,27 +83,27 @@ export function useSurveyEditor() {
 
                 setSurveyId(s.id);
                 setStatus(s.status);
-
                 setTitle(s.title ?? "");
                 setDescription(s.description ?? "");
+                setExpiredAt(s.expiredAt ? new Date(s.expiredAt).toISOString().slice(0, 16) : "");
                 setQuestions(normalizeQuestions(Array.isArray(s.questions) ? s.questions : []));
             } catch (e) {
                 if (cancelled) return;
                 const msg = e instanceof Error ? e.message : "Failed to load survey.";
                 console.error(msg);
-                toast.error(msg, {position: "top-center"});
+                toast.error(msg, { position: "top-center" });
             } finally {
                 if (!cancelled) setIsLoadingSurvey(false);
             }
         }
 
         void load();
+
         return () => {
             cancelled = true;
         };
     }, [routeSurveyId, navigate]);
 
-    // Question editing helpers
     function updateQuestion(index: number, updater: (prev: QuestionDTO) => QuestionDTO) {
         setQuestions((prev) => normalizeQuestions(prev.map((q, i) => (i === index ? updater(q) : q))));
     }
@@ -162,20 +167,22 @@ export function useSurveyEditor() {
         setQuestions((prev) => normalizeQuestions(prev.filter((_, i) => i !== index)));
     }
 
-    // Save logic (single source of truth)
     async function saveDraft(): Promise<SaveResult> {
-
         if (title.trim() === "") {
-            toast.error("Title is required to save a draft.", { position: "top-center" })
-            const msg = "Title is required to save a draft.";
-            return { ok: false, errorMessage: msg };
+            toast.error("Title is required to save a draft.", { position: "top-center" });
+            return { ok: false, errorMessage: "Title is required to save a draft." };
         }
 
         setIsSaving(true);
-        try {
-            const payload = { title, description, questions };
 
-            // CREATE (first save)
+        try {
+            const payload = {
+                title,
+                description,
+                expiredAt: expiredAt.trim() === "" ? null : new Date(expiredAt).toISOString(),
+                questions,
+            };
+
             if (!surveyId) {
                 const { id } = await createSurvey(payload);
 
@@ -183,15 +190,16 @@ export function useSurveyEditor() {
                 setStatus(SurveyStatus.New);
 
                 navigate(`/admin-dashboard/surveys/${id}/edit`, { replace: true });
-                toast.success("Draft created successfully.", { position: "top-center" })
+                toast.success("Draft created successfully.", { position: "top-center" });
                 await refreshSurveys();
+
                 return { ok: true, id, created: true };
             }
 
-            // UPDATE (subsequent saves)
             await updateSurvey(surveyId, payload);
             toast.success("Draft saved successfully.", { position: "top-center" });
             await refreshSurveys();
+
             return { ok: true, id: surveyId, created: false };
         } catch (e) {
             const msg = e instanceof Error ? e.message : "Failed to save survey.";
@@ -207,8 +215,16 @@ export function useSurveyEditor() {
         await saveDraft();
     }
 
-    // Publish flow
     async function openPublish() {
+        if (!expiredAt.trim()) {
+            toast.error("Please set an expiry date and time before publishing.", { position: "top-center" });
+            return;
+        }
+
+        if (isExpiredAtInPast(expiredAt)) {
+            toast.error("The expiry date and time must be in the future before publishing.", { position: "top-center" });
+            return;
+        }
 
         if (questions.length < 1) {
             toast.error("Please add at least one question before publishing.", { position: "top-center" });
@@ -245,7 +261,6 @@ export function useSurveyEditor() {
     }
 
     async function handlePublish(emails: string[]) {
-
         if (!surveyId) {
             toast.error("Save the survey first before publishing.");
             return;
@@ -285,29 +300,26 @@ export function useSurveyEditor() {
         navigate("/admin-dashboard");
     }
 
-    // Draft editability
     const isDraftEditable = (status ?? SurveyStatus.New) === SurveyStatus.New;
 
     return {
-        // ids/status
         routeSurveyId,
         surveyId,
         status,
         isDraftEditable,
 
-        // fields
         title,
         setTitle,
         description,
         setDescription,
+        expiredAt,
+        setExpiredAt,
         questions,
         setQuestions,
 
-        // derived
         surveyName,
         isEmptyDraft,
 
-        // ui state
         isLoadingSurvey,
         loadError,
         isSaving,
@@ -317,7 +329,6 @@ export function useSurveyEditor() {
         showSuccessPopup,
         setShowSuccessPopup,
 
-        // handlers
         updateQuestion,
         changeQuestionType,
         addQuestion,
@@ -329,10 +340,8 @@ export function useSurveyEditor() {
         saveDraft,
         handleSave,
         handleDeleteSurvey,
-
         openPublish,
         handlePublish,
-
         goBackToDashboard,
     };
 }
