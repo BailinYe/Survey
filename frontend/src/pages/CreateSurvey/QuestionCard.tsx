@@ -59,7 +59,7 @@ export default function QuestionCard(props: Props) {
     } = props;
 
     return (
-        <Card className="border border-border bg-background shadow-none">
+        <Card className="border border-border bg-card shadow-none">
             <CardHeader className="border-b border-border">
                 <CardTitle className="text-base font-semibold">Question {index + 1}</CardTitle>
 
@@ -103,7 +103,7 @@ export default function QuestionCard(props: Props) {
                         onChange={(e) => updateQuestion(index, (prev) => ({ ...prev, prompt: e.target.value }))}
                         placeholder="Your prompt..."
                         rows={1}
-                        className="resize-none rounded-none border-0 border-b border-border bg-transparent px-0 text-base outline-none ring-0 placeholder:text-muted-foreground focus-visible:ring-0"
+                        className="resize-none border-0 border-b border-border bg-transparent px-0 text-base outline-none ring-0 placeholder:text-muted-foreground focus-visible:ring-0 pl-3 rounded-2xl"
                     />
                 </div>
 
@@ -272,7 +272,7 @@ export default function QuestionCard(props: Props) {
                                             <div className="flex flex-1 items-center justify-center gap-4">
                                                 {values.map((v) => (
                                                     <div key={v} className="flex flex-col items-center gap-1">
-                                                        <div className="h-4 w-4 rounded-full border border-border bg-background" />
+                                                        <div className="h-4 w-4 rounded-full border border-border bg-card" />
                                                         <span className="text-xs text-muted-foreground">{v}</span>
                                                     </div>
                                                 ))}
@@ -314,7 +314,7 @@ export default function QuestionCard(props: Props) {
                                         <div className="flex items-center justify-center gap-2">
                                             {values.map((v) => (
                                                 <div key={v} className="flex flex-col items-center gap-1">
-                                                    <div className="h-3 w-3 rounded-full border border-border bg-background" />
+                                                    <div className="h-3 w-3 rounded-full border border-border bg-card" />
                                                     <span className="text-[10px] text-muted-foreground">{v}</span>
                                                 </div>
                                             ))}

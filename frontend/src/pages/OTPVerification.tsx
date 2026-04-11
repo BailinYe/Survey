@@ -1,7 +1,8 @@
 import { useMemo, useState, type SyntheticEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import surveyImage from "@/assets/Survey.png";
+import Logo from "@/components/common/Logo";
 
 function getErrorMessage(error: unknown, fallback = "Something went wrong."): string {
     if (error instanceof Error && error.message) {
@@ -141,118 +142,167 @@ export default function OTPVerification() {
     }
 
     function handleCodeChange(value: string) {
-        setCode(value.replaceAll(/\D/g, "").slice(0, 6));
+        setCode(value.replace(/\D/g, "").slice(0, 6));
     }
 
     return (
-        <main className="h-screen overflow-hidden bg-background text-foreground">
-            <section className="mx-auto grid h-full max-w-7xl border border-border bg-background md:grid-cols-[280px_1fr]">
-                <div className="grid h-full grid-rows-[1fr_1.4fr] border-r border-border">
-                    <div className="flex items-center justify-center border-b border-border p-8">
-                        <div className="flex h-40 w-40 items-center justify-center border-2 border-dashed border-border bg-muted/20 text-center text-lg font-medium text-muted-foreground">
-                            Website&apos;s
-                            <br />
-                            logo
+        <main className="flex min-h-screen items-center justify-center bg-background px-4 py-4 text-foreground md:px-6 md:py-6 lg:px-8">
+            <section className="mx-auto w-full max-w-7xl rounded-[32px] border border-border bg-background shadow-sm">
+                <div className="grid items-center gap-0 lg:grid-cols-[0.95fr_1.05fr]">
+                    <div className="hidden border-r border-border lg:flex lg:flex-col lg:justify-between lg:p-10">
+                        <div>
+                            <div className="inline-flex rounded-[24px] border border-border/70 bg-card/70 px-4 py-3 shadow-sm backdrop-blur">
+                                <Logo className="h-auto w-36" />
+                            </div>
+
+                            <div className="mt-10 max-w-md">
+                                <p className="mb-3 inline-flex rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                                    Verification
+                                </p>
+
+                                <h1 className="text-4xl font-semibold tracking-tight text-foreground">
+                                    Confirm your identity to continue
+                                </h1>
+
+                                <p className="mt-4 text-sm leading-7 text-muted-foreground">
+                                    Enter the verification code sent to your email to securely access your account and dashboard.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="grid max-w-md grid-cols-2 gap-3">
+                            <div className="rounded-2xl border border-border bg-card px-4 py-4 shadow-sm">
+                                <p className="text-xs text-muted-foreground">Secure</p>
+                                <p className="mt-1 text-sm font-semibold">Verification</p>
+                            </div>
+                            <div className="rounded-2xl border border-border bg-card px-4 py-4 shadow-sm">
+                                <p className="text-xs text-muted-foreground">Quick</p>
+                                <p className="mt-1 text-sm font-semibold">Access</p>
+                            </div>
+                            <div className="rounded-2xl border border-border bg-card px-4 py-4 shadow-sm">
+                                <p className="text-xs text-muted-foreground">Email</p>
+                                <p className="mt-1 text-sm font-semibold">Code delivery</p>
+                            </div>
+                            <div className="rounded-2xl border border-border bg-card px-4 py-4 shadow-sm">
+                                <p className="text-xs text-muted-foreground">Protected</p>
+                                <p className="mt-1 text-sm font-semibold">Login flow</p>
+                            </div>
                         </div>
                     </div>
 
-                    <div
-                        className="h-full bg-cover bg-center bg-no-repeat"
-                        style={{ backgroundImage: `url(${surveyImage})` }}
-                    />
-                </div>
+                    <div className="flex items-center justify-center px-5 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-10">
+                        <div className="w-full max-w-md">
+                            <div className="mb-8 lg:hidden">
+                                <div className="inline-flex rounded-[24px] border border-border/70 bg-card/70 px-4 py-3 shadow-sm backdrop-blur">
+                                    <Logo className="h-auto w-32" />
+                                </div>
+                            </div>
 
-                <div className="flex items-center justify-center px-8 py-10 md:px-16">
-                    <div className="w-full max-w-md text-center">
-                        <div className="mb-8">
-                            <h1 className="text-3xl font-semibold tracking-wide">
-                                Verify your identity
-                            </h1>
+                            <div className="mb-8">
+                                <p className="mb-3 inline-flex rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                                    Account verification
+                                </p>
 
-                            <p className="mt-6 text-sm leading-7 text-muted-foreground">
-                                A verification code has been sent to{" "}
-                                <span className="font-medium text-foreground">
-                                    {maskedEmail || "your email"}
-                                </span>
-                                .
-                                <br />
-                                Enter the code to continue.
-                            </p>
+                                <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
+                                    Verify your identity
+                                </h2>
+
+                                <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                                    A verification code has been sent to{" "}
+                                    <span className="font-medium text-foreground">
+                    {maskedEmail || "your email"}
+                  </span>
+                                    . Enter the code below to continue.
+                                </p>
+                            </div>
+
+                            <div className="rounded-[28px] border border-border bg-card px-5 py-5 shadow-sm sm:px-6 sm:py-6">
+                                <form onSubmit={handleVerifySubmit} className="space-y-6">
+                                    <div className="flex justify-center gap-3">
+                                        {OTP_BOX_IDS.map((inputId, index) => (
+                                            <input
+                                                key={inputId}
+                                                id={inputId}
+                                                value={code[index] ?? ""}
+                                                onChange={(e) => {
+                                                    const nextCode = code.split("");
+                                                    nextCode[index] = e.target.value.replace(/\D/g, "").slice(-1);
+                                                    handleCodeChange(nextCode.join(""));
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Backspace" && !code[index] && index > 0) {
+                                                        const previousInput = document.getElementById(OTP_BOX_IDS[index - 1]);
+                                                        previousInput?.focus();
+                                                    }
+                                                }}
+                                                onInput={(e) => {
+                                                    const target = e.currentTarget as HTMLInputElement;
+                                                    if (target.value && index < OTP_BOX_IDS.length - 1) {
+                                                        const nextInput = document.getElementById(OTP_BOX_IDS[index + 1]);
+                                                        nextInput?.focus();
+                                                    }
+                                                }}
+                                                type="text"
+                                                inputMode="numeric"
+                                                maxLength={1}
+                                                className="h-12 w-12 rounded-xl border border-input bg-card text-center text-lg font-semibold text-foreground outline-none transition focus:border-ring"
+                                            />
+                                        ))}
+                                    </div>
+
+                                    {(error || message) && (
+                                        <div className="space-y-2">
+                                            {error && (
+                                                <div className="rounded-xl border border-red-400/50 bg-red-100 px-4 py-3 text-sm font-medium text-red-700 dark:bg-red-950/40 dark:text-red-300">
+                                                    {error}
+                                                </div>
+                                            )}
+
+                                            {message && (
+                                                <div className="rounded-xl border border-green-400/50 bg-green-100 px-4 py-3 text-sm font-medium text-green-700 dark:bg-green-950/40 dark:text-green-300">
+                                                    {message}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className="text-center">
+                    <span className="text-sm text-muted-foreground">
+                      No code received?{" "}
+                    </span>
+                                        <button
+                                            type="button"
+                                            onClick={handleResendCode}
+                                            disabled={resending}
+                                            className="text-sm font-medium text-foreground underline underline-offset-4 transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {resending ? "Sending..." : "Resend Code"}
+                                        </button>
+                                    </div>
+
+                                    <div className="flex flex-wrap items-center gap-4 pt-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="icon"
+                                            className="h-12 w-12 rounded-full"
+                                            onClick={() => navigate("/auth/login")}
+                                        >
+                                            <ArrowLeft className="h-5 w-5" />
+                                        </Button>
+
+                                        <Button
+                                            type="submit"
+                                            size="lg"
+                                            disabled={loading}
+                                            className="min-w-[260px] rounded-full px-8 disabled:opacity-60"
+                                        >
+                                            {loading ? "Verifying..." : "Continue"}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-
-                        <form onSubmit={handleVerifySubmit} className="space-y-6">
-                            <div className="flex justify-center gap-3">
-                                {OTP_BOX_IDS.map((inputId, index) => (
-                                    <input
-                                        key={inputId}
-                                        id={inputId}
-                                        value={code[index] ?? ""}
-                                        onChange={(e) => {
-                                            const nextCode = code.split("");
-                                            nextCode[index] = e.target.value.replaceAll(/\D/g, "").slice(-1);
-                                            handleCodeChange(nextCode.join(""));
-                                        }}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Backspace" && !code[index] && index > 0) {
-                                                const previousInput = document.getElementById(OTP_BOX_IDS[index - 1]);
-                                                previousInput?.focus();
-                                            }
-                                        }}
-                                        onInput={(e) => {
-                                            const target = e.currentTarget as HTMLInputElement;
-
-                                            if (target.value && index < OTP_BOX_IDS.length - 1) {
-                                                const nextInput = document.getElementById(OTP_BOX_IDS[index + 1]);
-                                                nextInput?.focus();
-                                            }
-                                        }}
-                                        type="text"
-                                        inputMode="numeric"
-                                        maxLength={1}
-                                        className="h-12 w-12 rounded-md border border-border bg-background text-center text-lg font-semibold outline-none transition-colors focus:border-foreground"
-                                    />
-                                ))}
-                            </div>
-
-                            <div className="space-y-2">
-                                {error && (
-                                    <p className="text-center text-sm font-medium text-red-500">
-                                        {error}
-                                    </p>
-                                )}
-
-                                {message && (
-                                    <p className="text-center text-sm font-medium text-green-600">
-                                        {message}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="text-center">
-                                <span className="text-sm text-muted-foreground">
-                                    No code received?{" "}
-                                </span>
-                                <button
-                                    type="button"
-                                    onClick={handleResendCode}
-                                    disabled={resending}
-                                    className="text-sm font-medium text-foreground underline underline-offset-4 transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    {resending ? "Sending..." : "Resend Code"}
-                                </button>
-                            </div>
-
-                            <div className="flex items-center justify-center pt-10">
-                                <Button
-                                    type="submit"
-                                    size="lg"
-                                    disabled={loading}
-                                    className="min-w-[260px] rounded-full bg-black text-white transition-colors duration-200 hover:bg-zinc-800 disabled:opacity-60"
-                                >
-                                    {loading ? "Verifying..." : "Login"}
-                                </Button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </section>

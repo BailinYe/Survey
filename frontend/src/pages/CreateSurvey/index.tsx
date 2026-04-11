@@ -9,6 +9,8 @@
 // } from "@shared/models/dtos/types/QuestionDTO";
 import { QuestionDTO } from "@shared/models/dtos/types/QuestionDTO";
 
+import {Plus} from "lucide-react"
+
 // Page components (extracted)
 import SurveyHeaderCard from "./SurveyHeaderCard";
 import QuestionCard from "./QuestionCard";
@@ -48,7 +50,7 @@ export default function CreateSurvey() {
 
         // handlers
         changeQuestionType, deleteQuestion, updateQuestion, addQuestion, openPublish, handlePublish, handleSave,
-        goBackToDashboard,
+        handleDeleteSurvey, goBackToDashboard,
     } = editor;
 
     return (
@@ -63,6 +65,7 @@ export default function CreateSurvey() {
                     hasSurveyId={Boolean(surveyId)}
                     onSave={handleSave}
                     onPublish={openPublish}
+                    handleDeleteSurvey={handleDeleteSurvey}
                 />
 
                 {/* Load/Save feedback */}
@@ -103,10 +106,10 @@ export default function CreateSurvey() {
                 <div className="flex justify-center pt-2">
                     <button
                         type="button"
-                        className="inline-flex items-center justify-center rounded-full border border-input bg-background
-                                   px-10 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+                        className="inline-flex items-center justify-center rounded-full border border-input bg-card px-10 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground gap-2"
                         onClick={addQuestion}
                     >
+                        <Plus size={16} />
                         Add New
                     </button>
                 </div>

@@ -1,30 +1,23 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SurveyStatus } from "@shared/models/dtos/enums/SurveyStatus";
+import { Save, Trash2 } from "lucide-react";
+import PopupWindow from "@/components/PopupWindow";
 
-/**
- * Top action row for the Create/Edit Survey page
- * Keeps index.tsx clean by extracting the "Save" + "Publish" buttons and their disable logic.
- */
 type Props = {
-    // Current survey status (New/Active/Closed)
     status?: SurveyStatus;
-
-    // Whether the editor is currently saving or loading
     isSaving: boolean;
     isLoadingSurvey: boolean;
-
-    // Whether the current draft is empty (optional UX guard)
     isEmptyDraft: boolean;
-
-    // Whether a surveyId exists yet (draft created)
     hasSurveyId: boolean;
-
-    // Actions
     onSave: () => void | Promise<void>;
     onPublish: () => void | Promise<void>;
+    handleDeleteSurvey: () => void | Promise<void>;
 };
 
 export default function CreateSurveyActionsBar(props: Props) {
+    const [showDeletePopup, setShowDeletePopup] = useState(false);
+
     const {
         status,
         isSaving,
@@ -33,34 +26,87 @@ export default function CreateSurveyActionsBar(props: Props) {
         hasSurveyId,
         onSave,
         onPublish,
+        handleDeleteSurvey,
     } = props;
 
     const isEditableDraft = !status || status === SurveyStatus.New;
 
-    return (
-        <div className="flex justify-end gap-3">
-            {/* Save draft */}
-            <Button
-                type="button"
-                variant="outline"
-                className="rounded-full px-10"
-                onClick={onSave}
-                disabled={isSaving || isEmptyDraft || isLoadingSurvey || !isEditableDraft}
-                title={!isEditableDraft ? "Only drafts can be edited" : undefined}
-            >
-                {isSaving ? "Saving..." : "Save"}
-            </Button>
+    async function confirmDeleteSurvey() {
+        setShowDeletePopup(false);
+        await handleDeleteSurvey();
+    }
 
-            {/* Publish (auto-saves inside handler, but requires an id after save) */}
-            <Button
-                type="button"
-                className="rounded-full bg-blue-600 px-10 text-white hover:bg-blue-700"
-                onClick={onPublish}
-                disabled={isSaving || isLoadingSurvey || !hasSurveyId}
-                title={!hasSurveyId ? "Save first to create a draft" : undefined}
-            >
-                Publish
-            </Button>
-        </div>
+    function cancelDeleteSurvey() {
+        setShowDeletePopup(false);
+    }
+
+    function openDeletePopup() {
+        setShowDeletePopup(true);
+    }
+
+    return (
+        <>
+            <div className="flex justify-end gap-3">
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="analytics-action-btn analytics-action-danger rounded-full"
+                    onClick={openDeletePopup}
+                    disabled={isSaving || isLoadingSurvey || !hasSurveyId}
+                    title={!hasSurveyId ? "Save first to create a draft" : undefined}
+                >
+                    <Trash2 className="h-4 w-4" />
+                    Delete Survey
+                </Button>
+
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-full px-10"
+                    onClick={onSave}
+                    disabled={isSaving || isEmptyDraft || isLoadingSurvey || !isEditableDraft}
+                    title={!isEditableDraft ? "Only drafts can be edited" : undefined}
+                >
+                    {isSaving ? (
+                        <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Saving...
+                        </>
+                    ) : (
+                        <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Save
+                        </>
+                    )}
+                </Button>
+
+                <Button
+                    type="button"
+                    className="rounded-full bg-primary px-10 text-primary-foreground hover:opacity-90"
+                    onClick={onPublish}
+                    disabled={isSaving || isLoadingSurvey || !hasSurveyId}
+                    title={!hasSurveyId ? "Save first to create a draft" : undefined}
+                >
+                    Publish
+                </Button>
+            </div>
+
+            {showDeletePopup && (
+                <PopupWindow
+                    text={
+                        <div>
+                            <p className="mb-2 text-lg font-semibold">Delete survey?</p>
+                            <p className="text-sm text-muted-foreground">
+                                This action cannot be undone.
+                            </p>
+                        </div>
+                    }
+                    firstButtonText="Delete"
+                    onFirstClick={confirmDeleteSurvey}
+                    secondButtonText="Cancel"
+                    onSecondClick={cancelDeleteSurvey}
+                />
+            )}
+        </>
     );
 }

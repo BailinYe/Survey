@@ -160,3 +160,15 @@ export async function submitSurveyResponse(
 export function isDraftEditable(status?: SurveyStatus): boolean {
     return (status ?? SurveyStatus.Active) === SurveyStatus.New;
 }
+
+/** DELETE /api/survey/:id -> Deletes a Survey */
+export async function deleteSurvey(surveyId: string): Promise<void> {
+    const token = await getIdTokenOrThrow();
+
+    await fetchJson(`/api/surveys/${surveyId}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+}

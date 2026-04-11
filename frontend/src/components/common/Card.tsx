@@ -1,21 +1,23 @@
 import { twMerge } from "tailwind-merge";
-import {ReactNode} from "react";
+import { ReactNode } from "react";
 
 interface CardProps {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void | Promise<void>;
+    children: ReactNode;
+    className?: string;
+    onClick?: () => void | Promise<void>;
 }
 
 const Card = ({ children, className, onClick }: CardProps) => {
-  return (
-    <div
-      className={twMerge(`w-full max-w-md rounded-lg bg-white p-6 shadow-md ${className || ""}`)}
-      onClick={onClick}
-    >
-      {children}
-    </div>
-  );
+    return (
+        <div
+            className={twMerge(
+                `w-full max-w-md rounded-lg border border-border bg-card p-6 text-card-foreground shadow-md ${className || ""}`
+            )}
+            onClick={onClick}
+        >
+            {children}
+        </div>
+    );
 };
 
 export default Card;
