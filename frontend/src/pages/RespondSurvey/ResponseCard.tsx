@@ -188,7 +188,7 @@ export default function ResponseCard(props: Props) {
                                                 >
                                                     <div
                                                         className={`h-8 w-8 rounded-full border-2 transition-all sm:h-10 sm:w-10 ${
-                                                            currentValue === v
+                                                            currentValue !== undefined && v <= currentValue
                                                                 ? "border-primary bg-primary"
                                                                 : "border-border bg-background group-hover:border-primary/50"
                                                         }`}

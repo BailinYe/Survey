@@ -156,8 +156,8 @@ export default function Signup() {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-center px-5 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-10">
-                        <div className="mb-8 lg:hidden">
+                    <div className="flex w-full flex-col items-center justify-center px-5 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-10">
+                        <div className="mb-8 self-start lg:hidden">
                             <div className="inline-flex rounded-[24px] border border-border/70 bg-card/70 px-4 py-3 shadow-sm backdrop-blur">
                                 <Logo className="h-auto w-32" />
                             </div>
