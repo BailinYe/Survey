@@ -1,10 +1,15 @@
-import Logo from "@/components/common/Logo";
+import Logo from "@/assets/logo_3.png";
+
 import Avatar from "@/components/common/Avatar";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, LogOut } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export default function TopNavbar({ handleLogout }) {
+type TopNavbarProps = {
+    handleLogout: () => void;
+}
+
+export default function TopNavbar({ handleLogout }: TopNavbarProps) {
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -16,32 +21,48 @@ export default function TopNavbar({ handleLogout }) {
     return (
         <>
             {/* Top Navbar - Mobile Only */}
-            <div className="w-full lg:hidden flex items-center justify-between px-6 py-4 border-b-2 border-gray-200 bg-white">
+            <header className="sticky top-0 z-50 flex w-full items-center justify-between border-b border-border bg-background px-6 py-4 lg:hidden">
                 <div className="flex items-center gap-3">
-                    <Logo className="h-10" />
-
-
+                    <img src={Logo} alt="Logo" className="h-auto w-40" />
                 </div>
 
                 <div className="flex items-center gap-4">
-                    {/* Show back button on mobile in the navbar */}
                     {showBackToDashboard && (
+
+
+
+
+
+
+
+
+
+
+
+
+
                         <Button
                             variant="outline"
+                            size="icon"
                             className="rounded-full"
-                            onClick={() => navigate("/admin-dashboard")}>
-                            <ArrowLeft />
+                            onClick={() => navigate("/admin-dashboard")}
+                        >
+                            <ArrowLeft className="h-4 w-4" />
                         </Button>
                     )}
-                    <Avatar className="w-10 h-10" />
+
+                    <Avatar className="h-10 w-10" />
+
                     <Button
                         variant="outline"
+                        size="icon"
                         className="rounded-full"
-                        onClick={handleLogout}>
-                        <LogOut />
+                        onClick={handleLogout}
+                    >
+                        <LogOut className="h-4 w-4" />
                     </Button>
                 </div>
-            </div>
+            </header>
         </>
     );
 }

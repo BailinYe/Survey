@@ -13,6 +13,7 @@ import CreateSurvey from "@/pages/CreateSurvey";
 import { AuthProvider } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import RespondSurvey from "@/pages/RespondSurvey";
+import SurveySubmitted from "@/pages/SurveySubmitted";
 
 function App() {
   return (
@@ -45,6 +46,8 @@ function App() {
             <Route path="/survey/:surveyId" element={<RespondSurveyLayout />}>
                 <Route index element={<RespondSurvey />} />
             </Route>
+            <Route path="/survey-submitted/:surveyId" element={<SurveySubmitted/>} />
+            {/* Fallback Page for any invalid route */}
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </AuthProvider>

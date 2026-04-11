@@ -1,3 +1,4 @@
+
 /**
  * Small presentational component for all "status" text:
  * - loading survey, load error, save error, save success
@@ -21,18 +22,6 @@ export default function CreateSurveyAlerts(props: Props) {
         <div className="space-y-1">
             {isLoadingSurvey && (
                 <p className="text-sm text-muted-foreground">Loading survey…</p>
-            )}
-
-            {loadError && (
-                <p className="text-sm font-medium text-red-600">{loadError}</p>
-            )}
-
-            {saveError && (
-                <p className="text-sm font-medium text-red-600">{saveError}</p>
-            )}
-
-            {saveSuccess && (
-                <p className="text-sm font-medium text-green-700">{saveSuccess}</p>
             )}
         </div>
     );

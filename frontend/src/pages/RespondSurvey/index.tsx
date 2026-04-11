@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import SurveyHeader from "./SurveyHeader";
@@ -11,7 +11,10 @@ import type { CheckBoxDTO } from "@shared/models/dtos/types/QuestionDTO";
 import { getPublicSurveyById, submitSurveyResponse } from "@/api/surveys";
 
 export default function RespondSurvey() {
+
     const { surveyId } = useParams<{ surveyId: string }>();
+
+    const navigate = useNavigate();
 
     const [survey, setSurvey] = useState<SurveyDTO | null>(null);
     const [answers, setAnswers] = useState<Record<string, AnswerValue>>({});
@@ -79,23 +82,60 @@ export default function RespondSurvey() {
         for (const question of survey.questions) {
             const answer = answers[question.questionId];
 
-            if (question.required && !answer) {
+            if (!answer) {
+                if (question.required) {
+                    errors[question.questionId] = "This question is required";
+                }
+                continue;
+            }
+
+            if (
+                (question.type === "multipleChoice") &&
+                ("value" in answer && typeof answer.value === "string") &&
+                answer.value.trim() === ""
+            ) {
+                errors[question.questionId] = "Please select an option";
+                continue;
+            }
+
+            if (
+                (question.type === "shortAnswer") &&
+                ("value" in answer && typeof answer.value === "string") &&
+                answer.value.trim() === ""
+            ) {
                 errors[question.questionId] = "This question is required";
                 continue;
             }
 
-            if (!answer) continue;
-
-            if (question.type === "CheckBox" || question.type === "checkBox") {
+            if (question.type === "checkBox") {
                 const checkBoxQ = question as CheckBoxDTO;
-                const selectedCount = (answer as { type: "CheckBox" | "checkBox"; value: string[] }).value.length;
+                const selectedValues =
+                    "value" in answer && Array.isArray(answer.value) ? answer.value : [];
+
+                const selectedCount = selectedValues.length;
+
+                if (question.required && selectedCount === 0) {
+                    errors[question.questionId] = "Please select at least one option";
+                    continue;
+                }
 
                 if (checkBoxQ.minSelect !== undefined && selectedCount < checkBoxQ.minSelect) {
                     errors[question.questionId] = `Please select at least ${checkBoxQ.minSelect} option(s)`;
+                    continue;
                 }
 
                 if (checkBoxQ.maxSelect !== undefined && selectedCount > checkBoxQ.maxSelect) {
                     errors[question.questionId] = `Please select at most ${checkBoxQ.maxSelect} option(s)`;
+                    continue;
+                }
+            }
+
+            if (
+                (question.type === "rating") &&
+                ("value" in answer && (answer.value === null || answer.value === undefined || answer.value === 0))
+            ) {
+                if (question.required) {
+                    errors[question.questionId] = "Please select a rating";
                 }
             }
         }
@@ -119,9 +159,9 @@ export default function RespondSurvey() {
 
         try {
             await submitSurveyResponse(surveyId, answers);
-            setSuccessMessage("Your response has been submitted successfully.");
             setAnswers({});
             setValidationErrors({});
+            navigate(`/survey-submitted/${surveyId}`, { replace: true });
         } catch (e) {
             const msg = e instanceof Error ? e.message : "Failed to submit survey response.";
             setError(msg);

@@ -25,7 +25,7 @@ export function makeNewQuestion(params: { position: number; type?: QuestionType 
             type,
             prompt: "",
             description: "",
-            required: false,
+            required: true,
             options: ["", ""],
         };
         return q;
@@ -38,7 +38,7 @@ export function makeNewQuestion(params: { position: number; type?: QuestionType 
             type,
             prompt: "",
             description: "",
-            required: false,
+            required: true,
             options: ["", ""],
             minSelect: 1,
             maxSelect: 2,
@@ -53,7 +53,7 @@ export function makeNewQuestion(params: { position: number; type?: QuestionType 
             type,
             prompt: "",
             description: "",
-            required: false,
+            required: true,
             scaleMin: 1,
             scaleMax: 5,
             labelMin: "Poor",
@@ -68,7 +68,7 @@ export function makeNewQuestion(params: { position: number; type?: QuestionType 
         type: QuestionType.ShortAnswer,
         prompt: "",
         description: "",
-        required: false,
+        required: true,
     };
     return q;
 }
