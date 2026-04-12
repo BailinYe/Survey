@@ -217,7 +217,7 @@ export default function Signup() {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-2">
+                                    <div className="min-w-0 space-y-2">
                                         <label htmlFor="dob" className="block text-left text-sm font-medium">
                                             Date of Birth
                                         </label>
@@ -226,11 +226,11 @@ export default function Signup() {
                                             value={dob}
                                             onChange={(e) => setDob(e.target.value)}
                                             type="date"
-                                            className="h-12 w-full rounded-xl border border-input bg-background px-4 text-base outline-none transition focus:border-ring dark:[color-scheme:dark]"
+                                            className="block h-12 w-full min-w-0 max-w-full rounded-xl border border-input bg-background px-4 text-base outline-none transition focus:border-ring dark:[color-scheme:dark]"
                                         />
                                     </div>
 
-                                    <div className="space-y-2">
+                                    <div className="min-w-0 space-y-2">
                                         <label htmlFor="email" className="block text-left text-sm font-medium">
                                             Email Address
                                         </label>
