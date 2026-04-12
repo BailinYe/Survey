@@ -9,6 +9,26 @@ const THEMES = { light: "", dark: ".dark" } as const
 const INITIAL_DIMENSION = { width: 320, height: 200 } as const
 type TooltipNameType = number | string
 type TooltipValueType = number | string | Array<number | string>
+type ChartIndicator = "line" | "dot" | "dashed"
+
+type ChartPayloadItem = {
+    dataKey?: string | number | ((value: unknown) => unknown)
+    name?: string | number
+    value?: string | number | Array<string | number>
+    color?: string
+    payload?: {
+        fill?: string
+        [key: string]: unknown
+    }
+    type?: string
+}
+
+type LegendPayloadItem = {
+    dataKey?: string | number | ((value: unknown) => unknown)
+    value?: string | number | Array<string | number>
+    color?: string
+    type?: string
+}
 
 export type ChartConfig = Record<
     string,
@@ -37,39 +57,120 @@ function useChart() {
     return context
 }
 
+function stringifyDataKey(
+    dataKey: string | number | ((value: unknown) => unknown) | undefined
+): string {
+    if (typeof dataKey === "string" || typeof dataKey === "number") {
+        return String(dataKey)
+    }
+
+    if (typeof dataKey === "function") {
+        return "fn"
+    }
+
+    return ""
+}
+
+function stringifyValue(
+    value: string | number | Array<string | number> | undefined
+): string {
+    if (typeof value === "string" || typeof value === "number") {
+        return String(value)
+    }
+
+    if (Array.isArray(value)) {
+        return value.map(String).join("-")
+    }
+
+    return ""
+}
+
 function getTooltipItemKey(
-    item: RechartsPrimitive.Payload<TooltipValueType, TooltipNameType>,
+    item: ChartPayloadItem,
     fallbackKey: string
 ): string {
-    const dataKey =
-        typeof item.dataKey === "string" || typeof item.dataKey === "number"
-            ? String(item.dataKey)
-            : ""
+    const dataKey = stringifyDataKey(item.dataKey)
     const name =
         typeof item.name === "string" || typeof item.name === "number"
             ? String(item.name)
             : ""
-    const value =
-        typeof item.value === "string" || typeof item.value === "number"
-            ? String(item.value)
-            : ""
+    const value = stringifyValue(item.value)
     const color = typeof item.color === "string" ? item.color : ""
 
     return [fallbackKey, dataKey, name, value, color].join("-")
 }
 
-function getLegendItemKey(item: RechartsPrimitive.Payload): string {
-    const dataKey =
-        typeof item.dataKey === "string" || typeof item.dataKey === "number"
-            ? String(item.dataKey)
-            : ""
-    const value =
-        typeof item.value === "string" || typeof item.value === "number"
-            ? String(item.value)
-            : ""
+function getLegendItemKey(item: LegendPayloadItem): string {
+    const dataKey = stringifyDataKey(item.dataKey)
+    const value = stringifyValue(item.value)
     const color = typeof item.color === "string" ? item.color : ""
 
     return [dataKey, value, color].join("-")
+}
+
+function formatItemValue(value: ChartPayloadItem["value"]): string {
+    if (typeof value === "number") {
+        return value.toLocaleString()
+    }
+
+    if (Array.isArray(value)) {
+        return value.map(String).join(", ")
+    }
+
+    return String(value)
+}
+
+function getIndicatorClassName(
+    indicator: ChartIndicator,
+    nestLabel: boolean
+) {
+    return cn(
+        "shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)",
+        {
+            "h-2.5 w-2.5": indicator === "dot",
+            "w-1": indicator === "line",
+            "w-0 border-[1.5px] border-dashed bg-transparent":
+                indicator === "dashed",
+            "my-0.5": nestLabel && indicator === "dashed",
+        }
+    )
+}
+
+function getItemLabel(
+    config: ChartConfig,
+    item: ChartPayloadItem,
+    key: string
+) {
+    const itemConfig = getPayloadConfigFromPayload(config, item, key)
+    return itemConfig?.label ?? item.name
+}
+
+function renderIndicator(
+    itemConfig: ChartConfig[string] | undefined,
+    hideIndicator: boolean,
+    indicator: ChartIndicator,
+    nestLabel: boolean,
+    indicatorColor: string | undefined
+) {
+    if (itemConfig?.icon) {
+        return <itemConfig.icon />
+    }
+
+    if (hideIndicator) {
+        return null
+    }
+
+    return (
+        <div
+            className={getIndicatorClassName(indicator, nestLabel)}
+            style={
+                {
+                    "--color-bg": indicatorColor,
+                    "--color-border": indicatorColor,
+                } as React.CSSProperties
+            }
+        />
+    )
 }
 
 function ChartContainer({
@@ -90,7 +191,7 @@ function ChartContainer({
     }
 }) {
     const uniqueId = React.useId()
-    const chartId = `chart-${id ?? uniqueId.replaceAll(':', "")}`
+    const chartId = `chart-${id ?? uniqueId.replaceAll(":", "")}`
     const contextValue = React.useMemo(() => ({ config }), [config])
 
     return (
@@ -168,7 +269,7 @@ function ChartTooltipContent({
     React.ComponentProps<"div"> & {
     hideLabel?: boolean
     hideIndicator?: boolean
-    indicator?: "line" | "dot" | "dashed"
+    indicator?: ChartIndicator
     nameKey?: string
     labelKey?: string
 } & Omit<
@@ -238,6 +339,7 @@ function ChartTooltipContent({
                         const itemConfig = getPayloadConfigFromPayload(config, item, key)
                         const indicatorColor = color ?? item.payload?.fill ?? item.color
                         const itemKey = getTooltipItemKey(item, key)
+                        const itemLabel = getItemLabel(config, item, key)
 
                         return (
                             <div
@@ -251,29 +353,12 @@ function ChartTooltipContent({
                                     formatter(item.value, item.name, item, 0, item.payload)
                                 ) : (
                                     <>
-                                        {itemConfig?.icon ? (
-                                            <itemConfig.icon />
-                                        ) : (
-                                            !hideIndicator && (
-                                                <div
-                                                    className={cn(
-                                                        "shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)",
-                                                        {
-                                                            "h-2.5 w-2.5": indicator === "dot",
-                                                            "w-1": indicator === "line",
-                                                            "w-0 border-[1.5px] border-dashed bg-transparent":
-                                                                indicator === "dashed",
-                                                            "my-0.5": nestLabel && indicator === "dashed",
-                                                        }
-                                                    )}
-                                                    style={
-                                                        {
-                                                            "--color-bg": indicatorColor,
-                                                            "--color-border": indicatorColor,
-                                                        } as React.CSSProperties
-                                                    }
-                                                />
-                                            )
+                                        {renderIndicator(
+                                            itemConfig,
+                                            hideIndicator,
+                                            indicator,
+                                            nestLabel,
+                                            indicatorColor
                                         )}
                                         <div
                                             className={cn(
@@ -284,14 +369,12 @@ function ChartTooltipContent({
                                             <div className="grid gap-1.5">
                                                 {nestLabel ? tooltipLabel : null}
                                                 <span className="text-muted-foreground">
-                          {itemConfig?.label ?? item.name}
+                          {itemLabel}
                         </span>
                                             </div>
                                             {item.value != null && (
                                                 <span className="font-mono font-medium text-foreground tabular-nums">
-                          {typeof item.value === "number"
-                              ? item.value.toLocaleString()
-                              : String(item.value)}
+                          {formatItemValue(item.value)}
                         </span>
                                             )}
                                         </div>
