@@ -381,7 +381,8 @@ router.post("/:id/publish", authenticateToken, async (req: AuthRequest, res: Res
             updatedAt: new Date(),
         });
 
-        const surveyLink = `http://localhost:5173/survey/${id}`;
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const surveyLink = `${frontendUrl}/survey/${id}`;
         const expiryText = expiredAtToString(survey.expiredAt);
 
         if (emails.length > 0) {

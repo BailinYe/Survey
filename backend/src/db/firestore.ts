@@ -1,58 +1,60 @@
 import admin from "firebase-admin";
 import { getFirestore } from "firebase-admin/firestore";
-import fs from "fs";
-import path from "path";
 
 let db: FirebaseFirestore.Firestore | null = null;
 
-export async function connectToFirestore() {
-  try {
-    // Read service account key
-    const serviceAccountPath = path.join(
-      process.cwd(),
-      "serviceAccountKey.json",
-    );
+function getFirebaseServiceAccount() {
+    const projectId = process.env.FIREBASE_PROJECT_ID;
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
-    if (!fs.existsSync(serviceAccountPath)) {
-      throw new Error(
-        "serviceAccountKey.json not found. Please download it from Firebase Console:\n" +
-          "1. Go to https://console.firebase.google.com/\n" +
-          "2. Select your project\n" +
-          "3. Project Settings > Service Accounts > Generate New Private Key\n" +
-          "4. Save the file as serviceAccountKey.json in the backend directory",
-      );
+    if (!projectId || !clientEmail || !privateKey) {
+        throw new Error(
+            "Missing Firebase Admin environment variables. Please set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY.",
+        );
     }
 
-    const serviceAccount = JSON.parse(
-      fs.readFileSync(serviceAccountPath, "utf8"),
-    );
+    return {
+        projectId,
+        clientEmail,
+        privateKey: privateKey.replace(/\\n/g, "\n"),
+    };
+}
 
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
+export async function connectToFirestore() {
+    try {
+        if (!admin.apps.length) {
+            const serviceAccount = getFirebaseServiceAccount();
 
-    db = getFirestore();
-    console.log("Connected to Firestore");
-  } catch (error) {
-    console.error("Error connecting to Firestore:", error);
-    throw error;
-  }
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+            });
+        }
+
+        db = getFirestore();
+        console.log("Connected to Firestore");
+    } catch (error) {
+        console.error("Error connecting to Firestore:", error);
+        throw error;
+    }
 }
 
 export function getDb(): FirebaseFirestore.Firestore {
-  if (!db) {
-    throw new Error(
-      "Firestore not initialized. Call connectToFirestore() first.",
-    );
-  }
-  return db;
+    if (!db) {
+        throw new Error(
+            "Firestore not initialized. Call connectToFirestore() first.",
+        );
+    }
+    return db;
 }
 
 export async function closeFirestore() {
-  try {
-    await admin.app().delete();
-    console.log("Disconnected from Firestore");
-  } catch (error) {
-    console.error("Error closing Firestore connection:", error);
-  }
+    try {
+        if (admin.apps.length) {
+            await admin.app().delete();
+            console.log("Disconnected from Firestore");
+        }
+    } catch (error) {
+        console.error("Error closing Firestore connection:", error);
+    }
 }
