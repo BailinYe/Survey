@@ -93,6 +93,22 @@ function expiredAtToString(expiredAt: unknown): string {
     return parsed ? parsed.toISOString() : "";
 }
 
+function formatExpiryForEmail(expiredAt: unknown): string {
+    const parsed = parseExpiredAt(expiredAt);
+
+    if (!parsed) {
+        return "";
+    }
+
+    return parsed.toLocaleString("en-CA", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+    });
+}
+
 function serializeSurvey(survey: Record<string, unknown>, id: string) {
     return {
         id,
@@ -383,7 +399,7 @@ router.post("/:id/publish", authenticateToken, async (req: AuthRequest, res: Res
 
         const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
         const surveyLink = `${frontendUrl}/survey/${id}`;
-        const expiryText = expiredAtToString(survey.expiredAt);
+        const expiryText = formatExpiryForEmail(survey.expiredAt);
 
         if (emails.length > 0) {
             await sendSurvey(emails, surveyLink, existingTitle, expiryText);
