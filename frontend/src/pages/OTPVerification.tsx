@@ -217,8 +217,10 @@ export default function OTPVerification() {
                                 </p>
                             </div>
 
-                            <div className="w-full rounded-[28px] border border-border bg-card px-4 py-5 shadow-sm sm:px-6 sm:py-6">                                <form onSubmit={handleVerifySubmit} className="space-y-6">
-                                <div className="flex flex-wrap justify-center gap-2 sm:gap-3">                                        {OTP_BOX_IDS.map((inputId, index) => (
+                            <div className="w-full rounded-[28px] border border-border bg-card px-4 py-5 shadow-sm sm:px-6 sm:py-6">
+                                <form onSubmit={handleVerifySubmit} className="space-y-6">
+                                    <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+                                        {OTP_BOX_IDS.map((inputId, index) => (
                                             <input
                                                 key={inputId}
                                                 id={inputId}
