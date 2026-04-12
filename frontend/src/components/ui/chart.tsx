@@ -38,7 +38,7 @@ function useChart() {
 }
 
 function getTooltipItemKey(
-    item: Readonly<Record<string, unknown>>,
+    item: RechartsPrimitive.Payload<TooltipValueType, TooltipNameType>,
     fallbackKey: string
 ): string {
     const dataKey =
@@ -58,7 +58,7 @@ function getTooltipItemKey(
     return [fallbackKey, dataKey, name, value, color].join("-")
 }
 
-function getLegendItemKey(item: Readonly<Record<string, unknown>>): string {
+function getLegendItemKey(item: RechartsPrimitive.Payload): string {
     const dataKey =
         typeof item.dataKey === "string" || typeof item.dataKey === "number"
             ? String(item.dataKey)
@@ -90,7 +90,7 @@ function ChartContainer({
     }
 }) {
     const uniqueId = React.useId()
-    const chartId = `chart-${id ?? uniqueId.replaceAll(":", "")}`
+    const chartId = `chart-${id ?? uniqueId.replaceAll(':', "")}`
     const contextValue = React.useMemo(() => ({ config }), [config])
 
     return (
