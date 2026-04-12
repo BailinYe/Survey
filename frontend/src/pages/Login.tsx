@@ -55,7 +55,24 @@ export default function Login() {
                 return;
             }
 
-            navigate("/admin-dashboard");
+            const res = await fetch("http://localhost:3000/api/auth/send-otp", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email: googleEmail }),
+            });
+
+            const data: { message?: string } = await res.json();
+
+            if (!res.ok) {
+                await signOut(auth);
+                setError(data.message || "Failed to send verification code.");
+                return;
+            }
+
+            localStorage.setItem("otpEmail", googleEmail);
+            navigate("/auth/otp");
         } catch (err: unknown) {
             setError(getErrorMessage(err, "Google login failed."));
         }
@@ -86,7 +103,24 @@ export default function Login() {
                 return;
             }
 
-            navigate("/admin-dashboard");
+            const res = await fetch("http://localhost:3000/api/auth/send-otp", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email }),
+            });
+
+            const data: { message?: string } = await res.json();
+
+            if (!res.ok) {
+                await signOut(auth);
+                setError(data.message || "Failed to send verification code.");
+                return;
+            }
+
+            localStorage.setItem("otpEmail", email);
+            navigate("/auth/otp");
         } catch (err: unknown) {
             const message = getErrorMessage(err, "Login failed.");
 

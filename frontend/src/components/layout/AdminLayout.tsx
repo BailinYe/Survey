@@ -1,28 +1,36 @@
 import TopNavbar from "@/components/layout/TopNavbar";
 import LeftSidebar from "@/components/layout/LeftSidebar";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
 import PopupWindow from "@/components/PopupWindow";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { SurveyDTO as Survey, SurveyStatus } from "@shared/models/dtos";
+
+type UserProfile = {
+    firstName?: string;
+    name?: string;
+};
 
 export type AdminLayoutContext = {
     surveys: Survey[];
     isLoading: boolean;
     error: string;
     refreshSurveys: () => Promise<void>;
+    setBackToDashboardHandler: (handler: (() => void) | null) => void;
 };
 
 export default function AdminLayout() {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
 
-    const [userProfile, setUserProfile] = useState<any>(null);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [surveys, setSurveys] = useState<Survey[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
+    const [backToDashboardHandler, setBackToDashboardHandler] = useState<(() => void) | null>(null);
 
     const fetchSurveys = useCallback(async () => {
         try {
@@ -47,7 +55,7 @@ export default function AdminLayout() {
                 throw new Error(`Failed to fetch surveys: ${res.statusText}`);
             }
 
-            const data = await res.json();
+            const data: Survey[] = await res.json();
             setSurveys(data || []);
         } catch (err) {
             console.error("Failed to fetch surveys:", err);
@@ -76,21 +84,31 @@ export default function AdminLayout() {
                     throw new Error("Failed to fetch user profile");
                 }
 
-                const data = await res.json();
+                const data: UserProfile = await res.json();
                 setUserProfile(data);
             } catch (err) {
                 console.error("Failed to fetch user profile:", err);
             }
         }
 
-        fetchUserProfile();
+        void fetchUserProfile();
     }, []);
 
     useEffect(() => {
-        fetchSurveys();
+        void fetchSurveys();
     }, [fetchSurveys]);
 
-    async function handleLogout() {
+    useEffect(() => {
+        const isSurveyEditorPage =
+            location.pathname.startsWith("/admin-dashboard/surveys/new") ||
+            location.pathname.includes("/edit");
+
+        if (!isSurveyEditorPage && backToDashboardHandler) {
+            setBackToDashboardHandler(null);
+        }
+    }, [location.pathname, backToDashboardHandler]);
+
+    function handleLogout() {
         setShowLogoutConfirm(true);
     }
 
@@ -113,18 +131,50 @@ export default function AdminLayout() {
         totalShares: surveys.reduce((sum, survey) => sum + (survey.sharedCount || 0), 0),
     };
 
+    const firstName = useMemo(() => {
+        const rawFirstName =
+            typeof userProfile?.firstName === "string" ? userProfile.firstName.trim() : "";
+
+        if (rawFirstName) {
+            return rawFirstName;
+        }
+
+        let rawName = "";
+
+        if (typeof userProfile?.name === "string") {
+            rawName = userProfile.name.trim();
+        } else if (typeof auth.currentUser?.displayName === "string") {
+            rawName = auth.currentUser.displayName.trim();
+        }
+
+        if (rawName) {
+            return rawName.split(/\s+/)[0];
+        }
+
+        return "";
+    }, [userProfile]);
+
     return (
         <div className="min-h-screen bg-background">
             <TopNavbar handleLogout={handleLogout} />
             <LeftSidebar
                 handleLogout={handleLogout}
-                nameUser={userProfile?.firstName ?? ""}
+                nameUser={firstName}
                 stats={sidebarStats}
+                onBackToDashboard={backToDashboardHandler ?? undefined}
             />
 
             <main className="flex-1 px-6 py-6 pt-24 sm:pt-2 lg:ml-72 lg:pt-6">
                 <Toaster />
-                <Outlet context={{ surveys, isLoading, error, refreshSurveys: fetchSurveys }} />
+                <Outlet
+                    context={{
+                        surveys,
+                        isLoading,
+                        error,
+                        refreshSurveys: fetchSurveys,
+                        setBackToDashboardHandler,
+                    }}
+                />
             </main>
 
             {showLogoutConfirm && (

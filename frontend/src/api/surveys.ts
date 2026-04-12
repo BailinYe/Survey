@@ -9,6 +9,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 export type SaveSurveyPayload = {
     title: string;
     description: string;
+    expiredAt: Date | string | null;
     questions: QuestionDTO[];
 };
 
@@ -101,7 +102,7 @@ export async function getSurveyById(surveyId: string): Promise<SurveyDTO> {
         throw new Error("Invalid survey response from backend");
     }
 
-    return data as unknown as SurveyDTO;
+    return data as SurveyDTO;
 }
 
 /** GET /api/surveys/public/:id -> loads public survey for respondents */
@@ -113,6 +114,8 @@ export async function getPublicSurveyById(surveyId: string): Promise<SurveyDTO> 
         },
     });
 
+    console.log("Public survey response:", data);
+
     if (
         !isRecord(data) ||
         typeof data.id !== "string" ||
@@ -122,7 +125,7 @@ export async function getPublicSurveyById(surveyId: string): Promise<SurveyDTO> 
         throw new Error("Invalid survey response from backend");
     }
 
-    return data as unknown as SurveyDTO;
+    return data as SurveyDTO;
 }
 
 /** POST /api/surveys/:id/publish -> sets status Active and stores emails */

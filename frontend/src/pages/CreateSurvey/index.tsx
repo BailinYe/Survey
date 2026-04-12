@@ -1,17 +1,6 @@
-// Shared DTO enums/types
-// import { QuestionType } from "@shared/models/dtos/enums/QuestionType";
-// import type {
-//     QuestionDTO,
-//     MultipleChoiceDTO,
-//     CheckBoxDTO,
-//     ShortAnswerDTO,
-//     RatingDTO,
-// } from "@shared/models/dtos/types/QuestionDTO";
 import { QuestionDTO } from "@shared/models/dtos/types/QuestionDTO";
+import { Plus } from "lucide-react";
 
-import {Plus} from "lucide-react"
-
-// Page components (extracted)
 import SurveyHeaderCard from "./SurveyHeaderCard";
 import QuestionCard from "./QuestionCard";
 
@@ -34,29 +23,46 @@ export default function CreateSurvey() {
     const editor = useSurveyEditor();
 
     const {
-        surveyId, status,
+        surveyId,
+        status,
 
-        title, description, setTitle, setDescription,
+        title,
+        description,
+        expiredAt,
+        setTitle,
+        setDescription,
+        setExpiredAt,
 
         questions,
 
-        // ui
-        isLoadingSurvey, isSaving,
+        isLoadingSurvey,
+        isSaving,
 
-        showPublishPopup, setShowPublishPopup, showSuccessPopup, setShowSuccessPopup,
+        showPublishPopup,
+        setShowPublishPopup,
+        showSuccessPopup,
+        setShowSuccessPopup,
+        showDiscardChangesPopup,
 
-        // derived
-        surveyName, isEmptyDraft,
+        surveyName,
+        isEmptyDraft,
 
-        // handlers
-        changeQuestionType, deleteQuestion, updateQuestion, addQuestion, openPublish, handlePublish, handleSave,
-        handleDeleteSurvey, goBackToDashboard,
+        changeQuestionType,
+        deleteQuestion,
+        updateQuestion,
+        addQuestion,
+        openPublish,
+        handlePublish,
+        handleSave,
+        handleDeleteSurvey,
+        goBackToDashboard,
+        cancelDiscardChanges,
+        discardChangesAndLeave,
     } = editor;
 
     return (
         <>
             <div className="mx-auto w-full max-w-7xl space-y-6 p-6 px-3 sm:px-4">
-                {/* Top action buttons */}
                 <CreateSurveyActionsBar
                     status={status}
                     isSaving={isSaving}
@@ -68,12 +74,8 @@ export default function CreateSurvey() {
                     handleDeleteSurvey={handleDeleteSurvey}
                 />
 
-                {/* Load/Save feedback */}
-                <CreateSurveyAlerts
-                    isLoadingSurvey={isLoadingSurvey}
-                />
+                <CreateSurveyAlerts isLoadingSurvey={isLoadingSurvey} />
 
-                {/* Survey header (title + description) */}
                 <SurveyHeaderCard
                     title={title}
                     description={description}
@@ -81,7 +83,28 @@ export default function CreateSurvey() {
                     setDescription={setDescription}
                 />
 
-                {/* Questions list */}
+                <div className="rounded-2xl border bg-card p-5 shadow-sm">
+                    <div className="mb-4">
+                        <h2 className="text-lg font-semibold">Survey Expiry</h2>
+                        <p className="text-sm text-muted-foreground">
+                            Choose the date and time when this survey should automatically close.
+                        </p>
+                    </div>
+
+                    <div className="max-w-xs">
+                        <label htmlFor="expiredAt" className="mb-2 block text-sm font-medium">
+                            Expiry date and time
+                        </label>
+                        <input
+                            id="expiredAt"
+                            type="datetime-local"
+                            value={expiredAt}
+                            onChange={(e) => setExpiredAt(e.target.value)}
+                            className="w-full appearance-none rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring dark:[color-scheme:dark]"
+                        />
+                    </div>
+                </div>
+
                 <div className="space-y-4">
                     {questions.map((q: QuestionDTO, index: number) => (
                         <QuestionCard
@@ -102,11 +125,10 @@ export default function CreateSurvey() {
                     ))}
                 </div>
 
-                {/* Add question */}
                 <div className="flex justify-center pt-2">
                     <button
                         type="button"
-                        className="inline-flex items-center justify-center rounded-full border border-input bg-card px-10 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground gap-2"
+                        className="inline-flex items-center justify-center gap-2 rounded-full border border-input bg-card px-10 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
                         onClick={addQuestion}
                     >
                         <Plus size={16} />
@@ -115,7 +137,6 @@ export default function CreateSurvey() {
                 </div>
             </div>
 
-            {/* Publish popup */}
             {showPublishPopup && (
                 <PublishSurveyPopup
                     surveyLink={
@@ -128,7 +149,6 @@ export default function CreateSurvey() {
                 />
             )}
 
-            {/* Success popup after publish */}
             {showSuccessPopup && (
                 <PopupWindow
                     text={
@@ -141,6 +161,23 @@ export default function CreateSurvey() {
                         setShowSuccessPopup(false);
                         goBackToDashboard();
                     }}
+                />
+            )}
+
+            {showDiscardChangesPopup && (
+                <PopupWindow
+                    text={
+                        <>
+                            <p className="text-lg font-semibold">Discard unsaved changes?</p>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                If you continue, your current changes will be lost.
+                            </p>
+                        </>
+                    }
+                    firstButtonText="Discard changes"
+                    onFirstClick={discardChangesAndLeave}
+                    secondButtonText="Cancel"
+                    onSecondClick={cancelDiscardChanges}
                 />
             )}
         </>

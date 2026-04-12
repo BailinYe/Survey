@@ -7,6 +7,7 @@ export interface SurveyDTO {
     authorId: string;
     createdAt: Date;
     updatedAt: Date;
+    expiredAt: Date;
     title: string;
     description: string;
     status: SurveyStatus;

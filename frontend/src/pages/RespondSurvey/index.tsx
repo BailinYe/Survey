@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,126 @@ import ResponseCard from "./ResponseCard";
 
 import type { SurveyDTO } from "@shared/models/dtos/types/SurveyDTO";
 import type { AnswerValue } from "@shared/models/dtos/types/ResponseDTO";
-import type { CheckBoxDTO } from "@shared/models/dtos/types/QuestionDTO";
 import { getPublicSurveyById, submitSurveyResponse } from "@/api/surveys";
+
+function isSurveyExpired(expiredAt: SurveyDTO["expiredAt"]): boolean {
+    if (!expiredAt) return false;
+
+    const parsed = new Date(expiredAt);
+    if (Number.isNaN(parsed.getTime())) return false;
+
+    return parsed.getTime() <= Date.now();
+}
+
+function formatExpiredAt(expiredAt: SurveyDTO["expiredAt"]): string {
+    if (!expiredAt) return "";
+
+    const parsed = new Date(expiredAt);
+    if (Number.isNaN(parsed.getTime())) return "";
+
+    return parsed.toLocaleString("en-CA", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+    });
+}
+
+function getMultipleChoiceError(question: SurveyDTO["questions"][number], answer: AnswerValue): string {
+    if (
+        question.type === "multipleChoice" &&
+        "value" in answer &&
+        typeof answer.value === "string" &&
+        answer.value.trim() === ""
+    ) {
+        return "Please select an option";
+    }
+
+    return "";
+}
+
+function getShortAnswerError(question: SurveyDTO["questions"][number], answer: AnswerValue): string {
+    if (
+        question.type === "shortAnswer" &&
+        "value" in answer &&
+        typeof answer.value === "string" &&
+        answer.value.trim() === ""
+    ) {
+        return "This question is required";
+    }
+
+    return "";
+}
+
+function getCheckBoxError(question: SurveyDTO["questions"][number], answer: AnswerValue): string {
+    if (question.type !== "checkBox") {
+        return "";
+    }
+
+    const selectedValues = "value" in answer && Array.isArray(answer.value) ? answer.value : [];
+    const selectedCount = selectedValues.length;
+
+    if (question.required && selectedCount === 0) {
+        return "Please select at least one option";
+    }
+
+    if (question.minSelect !== undefined && selectedCount < question.minSelect) {
+        return `Please select at least ${question.minSelect} option(s)`;
+    }
+
+    if (question.maxSelect !== undefined && selectedCount > question.maxSelect) {
+        return `Please select at most ${question.maxSelect} option(s)`;
+    }
+
+    return "";
+}
+
+function getRatingError(question: SurveyDTO["questions"][number], answer: AnswerValue): string {
+    if (
+        question.type === "rating" &&
+        "value" in answer &&
+        (answer.value === null || answer.value === undefined || answer.value === 0) &&
+        question.required
+    ) {
+        return "Please select a rating";
+    }
+
+    return "";
+}
+
+function getQuestionValidationError(
+    question: SurveyDTO["questions"][number],
+    answer: AnswerValue | undefined,
+): string {
+    if (!answer) {
+        return question.required ? "This question is required" : "";
+    }
+
+    return (
+        getMultipleChoiceError(question, answer) ||
+        getShortAnswerError(question, answer) ||
+        getCheckBoxError(question, answer) ||
+        getRatingError(question, answer)
+    );
+}
+
+function validateSurveyAnswers(
+    survey: SurveyDTO | null,
+    answers: Record<string, AnswerValue>,
+): Record<string, string> {
+    if (!survey) return {};
+
+    return survey.questions.reduce<Record<string, string>>((errors, question) => {
+        const errorMessage = getQuestionValidationError(question, answers[question.questionId]);
+
+        if (errorMessage) {
+            errors[question.questionId] = errorMessage;
+        }
+
+        return errors;
+    }, {});
+}
 
 export default function RespondSurvey() {
     const { surveyId } = useParams<{ surveyId: string }>();
@@ -57,6 +175,23 @@ export default function RespondSurvey() {
         };
     }, [surveyId]);
 
+    const surveyUnavailableMessage = useMemo(() => {
+        if (!survey) return "";
+
+        if (survey.status === "Closed") {
+            return "This survey is closed and no longer accepts responses.";
+        }
+
+        if (isSurveyExpired(survey.expiredAt)) {
+            const formattedExpiry = formatExpiredAt(survey.expiredAt);
+            return formattedExpiry
+                ? `This survey expired on ${formattedExpiry}.`
+                : "This survey has expired and no longer accepts responses.";
+        }
+
+        return "";
+    }, [survey]);
+
     const handleAnswerChange = (questionId: string, answer: AnswerValue) => {
         setAnswers((prev) => ({
             ...prev,
@@ -73,80 +208,18 @@ export default function RespondSurvey() {
     };
 
     const validateAnswers = (): boolean => {
-        if (!survey) return false;
-
-        const errors: Record<string, string> = {};
-
-        for (const question of survey.questions) {
-            const answer = answers[question.questionId];
-
-            if (!answer) {
-                if (question.required) {
-                    errors[question.questionId] = "This question is required";
-                }
-                continue;
-            }
-
-            if (
-                question.type === "multipleChoice" &&
-                "value" in answer &&
-                typeof answer.value === "string" &&
-                answer.value.trim() === ""
-            ) {
-                errors[question.questionId] = "Please select an option";
-                continue;
-            }
-
-            if (
-                question.type === "shortAnswer" &&
-                "value" in answer &&
-                typeof answer.value === "string" &&
-                answer.value.trim() === ""
-            ) {
-                errors[question.questionId] = "This question is required";
-                continue;
-            }
-
-            if (question.type === "checkBox") {
-                const checkBoxQ = question as CheckBoxDTO;
-                const selectedValues =
-                    "value" in answer && Array.isArray(answer.value) ? answer.value : [];
-
-                const selectedCount = selectedValues.length;
-
-                if (question.required && selectedCount === 0) {
-                    errors[question.questionId] = "Please select at least one option";
-                    continue;
-                }
-
-                if (checkBoxQ.minSelect !== undefined && selectedCount < checkBoxQ.minSelect) {
-                    errors[question.questionId] = `Please select at least ${checkBoxQ.minSelect} option(s)`;
-                    continue;
-                }
-
-                if (checkBoxQ.maxSelect !== undefined && selectedCount > checkBoxQ.maxSelect) {
-                    errors[question.questionId] = `Please select at most ${checkBoxQ.maxSelect} option(s)`;
-                    continue;
-                }
-            }
-
-            if (
-                question.type === "rating" &&
-                "value" in answer &&
-                (answer.value === null || answer.value === undefined || answer.value === 0)
-            ) {
-                if (question.required) {
-                    errors[question.questionId] = "Please select a rating";
-                }
-            }
-        }
-
+        const errors = validateSurveyAnswers(survey, answers);
         setValidationErrors(errors);
         return Object.keys(errors).length === 0;
     };
 
     const handleSubmit = async () => {
         if (!survey || !surveyId) return;
+
+        if (surveyUnavailableMessage) {
+            setError(surveyUnavailableMessage);
+            return;
+        }
 
         setError("");
         setSuccessMessage("");
@@ -201,6 +274,12 @@ export default function RespondSurvey() {
         <div className="mx-auto w-full max-w-7xl space-y-6 p-6 px-3 sm:px-4">
             <SurveyHeader survey={survey} />
 
+            {surveyUnavailableMessage && (
+                <div className="rounded-xl border border-amber-400/50 bg-amber-100 px-4 py-3 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+                    {surveyUnavailableMessage}
+                </div>
+            )}
+
             {error && (
                 <div className="rounded-xl border border-red-400/50 bg-red-100 px-4 py-3 text-red-700 dark:bg-red-950/40 dark:text-red-300">
                     {error}
@@ -232,7 +311,7 @@ export default function RespondSurvey() {
                     variant="default"
                     className="rounded-full px-10"
                     onClick={handleSubmit}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || Boolean(surveyUnavailableMessage)}
                 >
                     {isSubmitting ? "Submitting..." : "Submit"}
                 </Button>
