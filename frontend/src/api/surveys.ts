@@ -102,7 +102,7 @@ export async function getSurveyById(surveyId: string): Promise<SurveyDTO> {
         throw new Error("Invalid survey response from backend");
     }
 
-    return data as SurveyDTO;
+    return data as unknown as SurveyDTO;
 }
 
 /** GET /api/surveys/public/:id -> loads public survey for respondents */
@@ -125,7 +125,7 @@ export async function getPublicSurveyById(surveyId: string): Promise<SurveyDTO> 
         throw new Error("Invalid survey response from backend");
     }
 
-    return data as SurveyDTO;
+    return data as unknown as SurveyDTO;
 }
 
 /** POST /api/surveys/:id/publish -> sets status Active and stores emails */
