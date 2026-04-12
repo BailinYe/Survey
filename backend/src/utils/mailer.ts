@@ -1,17 +1,7 @@
 import "dotenv/config";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-function buildTransporter() {
-    return nodemailer.createTransport({
-        host: process.env.SMTP_HOST || "smtp.gmail.com",
-        port: Number(process.env.SMTP_PORT || 587),
-        secure: false,
-        auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-        },
-    });
-}
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 function formatExpiryDateTime(expiredAt: string): string {
     const parsed = new Date(expiredAt);
@@ -29,12 +19,12 @@ function formatExpiryDateTime(expiredAt: string): string {
     });
 }
 
+function getFromEmail(): string {
+    return process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+}
+
 export async function sendOtpEmail(to: string, code: string) {
-    const transporter = buildTransporter();
-
     try {
-        await transporter.verify();
-
         const subject = "Your login verification code";
 
         const text = `Here's the 6-digit verification code for login: ${code}
@@ -43,12 +33,17 @@ It will expire in 10 minutes.
 
 If you did not try to log in, you can ignore this email.`;
 
-        await transporter.sendMail({
-            from: process.env.SMTP_USER,
+        const { error } = await resend.emails.send({
+            from: getFromEmail(),
             to,
             subject,
             text,
         });
+
+        if (error) {
+            console.error("sendOtpEmail error:", error);
+            throw new Error(error.message || "Failed to send OTP email.");
+        }
     } catch (error) {
         console.error("sendOtpEmail error:", error);
         throw error;
@@ -61,11 +56,7 @@ export async function sendSurvey(
     surveyName: string,
     expiredAt: string,
 ) {
-    const transporter = buildTransporter();
-
     try {
-        await transporter.verify();
-
         const formattedExpiry = formatExpiryDateTime(expiredAt);
         const subject = `You're invited to complete ${surveyName}`;
 
@@ -83,12 +74,17 @@ Please make sure to submit your response before the expiry date and time.
 
 Thank you for your participation.`;
 
-        await transporter.sendMail({
-            from: process.env.SMTP_USER,
-            to: to.join(", "),
+        const { error } = await resend.emails.send({
+            from: getFromEmail(),
+            to,
             subject,
             text,
         });
+
+        if (error) {
+            console.error("sendSurvey error:", error);
+            throw new Error(error.message || "Failed to send survey email.");
+        }
     } catch (error) {
         console.error("sendSurvey error:", error);
         throw error;
