@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/firebase/firebase";
 import PopupWindow from "@/components/PopupWindow";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { SurveyDTO as Survey, SurveyStatus } from "@shared/models/dtos";
 
@@ -18,16 +18,19 @@ export type AdminLayoutContext = {
     isLoading: boolean;
     error: string;
     refreshSurveys: () => Promise<void>;
+    setBackToDashboardHandler: (handler: (() => void) | null) => void;
 };
 
 export default function AdminLayout() {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [surveys, setSurveys] = useState<Survey[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
+    const [backToDashboardHandler, setBackToDashboardHandler] = useState<(() => void) | null>(null);
 
     const fetchSurveys = useCallback(async () => {
         try {
@@ -95,6 +98,16 @@ export default function AdminLayout() {
         void fetchSurveys();
     }, [fetchSurveys]);
 
+    useEffect(() => {
+        const isSurveyEditorPage =
+            location.pathname.startsWith("/admin-dashboard/surveys/new") ||
+            location.pathname.includes("/edit");
+
+        if (!isSurveyEditorPage && backToDashboardHandler) {
+            setBackToDashboardHandler(null);
+        }
+    }, [location.pathname, backToDashboardHandler]);
+
     function handleLogout() {
         setShowLogoutConfirm(true);
     }
@@ -148,11 +161,20 @@ export default function AdminLayout() {
                 handleLogout={handleLogout}
                 nameUser={firstName}
                 stats={sidebarStats}
+                onBackToDashboard={backToDashboardHandler ?? undefined}
             />
 
             <main className="flex-1 px-6 py-6 pt-24 sm:pt-2 lg:ml-72 lg:pt-6">
                 <Toaster />
-                <Outlet context={{ surveys, isLoading, error, refreshSurveys: fetchSurveys }} />
+                <Outlet
+                    context={{
+                        surveys,
+                        isLoading,
+                        error,
+                        refreshSurveys: fetchSurveys,
+                        setBackToDashboardHandler,
+                    }}
+                />
             </main>
 
             {showLogoutConfirm && (

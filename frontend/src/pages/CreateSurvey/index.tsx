@@ -1,7 +1,6 @@
 import { QuestionDTO } from "@shared/models/dtos/types/QuestionDTO";
 import { Plus } from "lucide-react";
 
-// Page components (extracted)
 import SurveyHeaderCard from "./SurveyHeaderCard";
 import QuestionCard from "./QuestionCard";
 
@@ -36,7 +35,6 @@ export default function CreateSurvey() {
 
         questions,
 
-        // ui
         isLoadingSurvey,
         isSaving,
 
@@ -44,12 +42,11 @@ export default function CreateSurvey() {
         setShowPublishPopup,
         showSuccessPopup,
         setShowSuccessPopup,
+        showDiscardChangesPopup,
 
-        // derived
         surveyName,
         isEmptyDraft,
 
-        // handlers
         changeQuestionType,
         deleteQuestion,
         updateQuestion,
@@ -59,6 +56,8 @@ export default function CreateSurvey() {
         handleSave,
         handleDeleteSurvey,
         goBackToDashboard,
+        cancelDiscardChanges,
+        discardChangesAndLeave,
     } = editor;
 
     return (
@@ -162,6 +161,23 @@ export default function CreateSurvey() {
                         setShowSuccessPopup(false);
                         goBackToDashboard();
                     }}
+                />
+            )}
+
+            {showDiscardChangesPopup && (
+                <PopupWindow
+                    text={
+                        <>
+                            <p className="text-lg font-semibold">Discard unsaved changes?</p>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                If you continue, your current changes will be lost.
+                            </p>
+                        </>
+                    }
+                    firstButtonText="Discard changes"
+                    onFirstClick={discardChangesAndLeave}
+                    secondButtonText="Cancel"
+                    onSecondClick={cancelDiscardChanges}
                 />
             )}
         </>

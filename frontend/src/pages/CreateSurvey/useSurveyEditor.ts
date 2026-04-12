@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 
 import { QuestionType } from "@shared/models/dtos/enums/QuestionType";
@@ -13,6 +13,13 @@ import { toast } from "sonner";
 
 type SaveResult = { ok: true; id: string; created: boolean } | { ok: false; errorMessage: string };
 
+type ComparableSurveyState = {
+    title: string;
+    description: string;
+    expiredAt: string;
+    questions: QuestionDTO[];
+};
+
 function isExpiredAtInPast(expiredAt: string): boolean {
     if (!expiredAt.trim()) return false;
 
@@ -22,16 +29,45 @@ function isExpiredAtInPast(expiredAt: string): boolean {
     return parsed.getTime() <= Date.now();
 }
 
+function normalizeExpiredAtForComparison(value: string): string {
+    if (!value.trim()) return "";
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return value.trim();
+
+    return parsed.toISOString();
+}
+
+function buildComparableSurveyState(
+    title: string,
+    description: string,
+    expiredAt: string,
+    questions: QuestionDTO[],
+): ComparableSurveyState {
+    return {
+        title: title.trim(),
+        description: description.trim(),
+        expiredAt: normalizeExpiredAtForComparison(expiredAt),
+        questions: normalizeQuestions(questions),
+    };
+}
+
+function stringifySurveyState(state: ComparableSurveyState): string {
+    return JSON.stringify(state);
+}
+
 /**
  * Hook for CreateSurvey page:
  * - supports /surveys/new and /surveys/:surveyId/edit
  * - loads existing survey (draft-only editable)
  * - handles save (create or update) and publish
+ * - detects unsaved changes before leaving the editor
  */
 export function useSurveyEditor() {
     const navigate = useNavigate();
 
-    const { refreshSurveys } = useOutletContext<AdminLayoutContext>();
+    const { refreshSurveys, setBackToDashboardHandler } =
+        useOutletContext<AdminLayoutContext>();
     const { surveyId: routeSurveyId } = useParams<{ surveyId: string }>();
 
     const [surveyId, setSurveyId] = useState<string | null>(null);
@@ -50,8 +86,29 @@ export function useSurveyEditor() {
     const [isSaving, setIsSaving] = useState(false);
     const [showPublishPopup, setShowPublishPopup] = useState(false);
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+    const [showDiscardChangesPopup, setShowDiscardChangesPopup] = useState(false);
+    const [lastSavedSnapshot, setLastSavedSnapshot] = useState(() =>
+        stringifySurveyState(
+            buildComparableSurveyState(
+                "",
+                "",
+                "",
+                [makeNewQuestion({ position: 0, type: QuestionType.MultipleChoice })],
+            ),
+        ),
+    );
 
     const surveyName = title.trim() || "Untitled Survey";
+
+    const currentSnapshot = useMemo(
+        () =>
+            stringifySurveyState(
+                buildComparableSurveyState(title, description, expiredAt, questions),
+            ),
+        [title, description, expiredAt, questions],
+    );
+
+    const hasUnsavedChanges = currentSnapshot !== lastSavedSnapshot;
 
     const isEmptyDraft = useMemo(() => {
         const hasAnyPrompt = questions.some((q) => q.prompt.trim().length > 0);
@@ -64,11 +121,48 @@ export function useSurveyEditor() {
         );
     }, [title, description, expiredAt, questions]);
 
+    const goBackToDashboard = useCallback(() => {
+        if (hasUnsavedChanges) {
+            setShowDiscardChangesPopup(true);
+            return;
+        }
+
+        navigate("/admin-dashboard");
+    }, [hasUnsavedChanges, navigate]);
+
+    const cancelDiscardChanges = useCallback(() => {
+        setShowDiscardChangesPopup(false);
+    }, []);
+
+    const discardChangesAndLeave = useCallback(() => {
+        setShowDiscardChangesPopup(false);
+        navigate("/admin-dashboard");
+    }, [navigate]);
+
+    useEffect(() => {
+        setBackToDashboardHandler(() => goBackToDashboard);
+
+        return () => {
+            setBackToDashboardHandler(null);
+        };
+    }, [setBackToDashboardHandler, goBackToDashboard]);
+
     useEffect(() => {
         let cancelled = false;
 
         async function load() {
-            if (!routeSurveyId) return;
+            if (!routeSurveyId) {
+                const emptySnapshot = stringifySurveyState(
+                    buildComparableSurveyState(
+                        "",
+                        "",
+                        "",
+                        [makeNewQuestion({ position: 0, type: QuestionType.MultipleChoice })],
+                    ),
+                );
+                setLastSavedSnapshot(emptySnapshot);
+                return;
+            }
 
             setIsLoadingSurvey(true);
 
@@ -81,12 +175,29 @@ export function useSurveyEditor() {
                     return;
                 }
 
+                const loadedTitle = s.title ?? "";
+                const loadedDescription = s.description ?? "";
+                const loadedExpiredAt = s.expiredAt
+                    ? new Date(s.expiredAt).toISOString().slice(0, 16)
+                    : "";
+                const loadedQuestions = normalizeQuestions(Array.isArray(s.questions) ? s.questions : []);
+
                 setSurveyId(s.id);
                 setStatus(s.status);
-                setTitle(s.title ?? "");
-                setDescription(s.description ?? "");
-                setExpiredAt(s.expiredAt ? new Date(s.expiredAt).toISOString().slice(0, 16) : "");
-                setQuestions(normalizeQuestions(Array.isArray(s.questions) ? s.questions : []));
+                setTitle(loadedTitle);
+                setDescription(loadedDescription);
+                setExpiredAt(loadedExpiredAt);
+                setQuestions(loadedQuestions);
+                setLastSavedSnapshot(
+                    stringifySurveyState(
+                        buildComparableSurveyState(
+                            loadedTitle,
+                            loadedDescription,
+                            loadedExpiredAt,
+                            loadedQuestions,
+                        ),
+                    ),
+                );
             } catch (e) {
                 if (cancelled) return;
                 const msg = e instanceof Error ? e.message : "Failed to load survey.";
@@ -188,6 +299,7 @@ export function useSurveyEditor() {
 
                 setSurveyId(id);
                 setStatus(SurveyStatus.New);
+                setLastSavedSnapshot(currentSnapshot);
 
                 navigate(`/admin-dashboard/surveys/${id}/edit`, { replace: true });
                 toast.success("Draft created successfully.", { position: "top-center" });
@@ -197,6 +309,7 @@ export function useSurveyEditor() {
             }
 
             await updateSurvey(surveyId, payload);
+            setLastSavedSnapshot(currentSnapshot);
             toast.success("Draft saved successfully.", { position: "top-center" });
             await refreshSurveys();
 
@@ -296,10 +409,6 @@ export function useSurveyEditor() {
         }
     }
 
-    function goBackToDashboard() {
-        navigate("/admin-dashboard");
-    }
-
     const isDraftEditable = (status ?? SurveyStatus.New) === SurveyStatus.New;
 
     return {
@@ -319,6 +428,7 @@ export function useSurveyEditor() {
 
         surveyName,
         isEmptyDraft,
+        hasUnsavedChanges,
 
         isLoadingSurvey,
         loadError,
@@ -328,6 +438,8 @@ export function useSurveyEditor() {
         setShowPublishPopup,
         showSuccessPopup,
         setShowSuccessPopup,
+        showDiscardChangesPopup,
+        setShowDiscardChangesPopup,
 
         updateQuestion,
         changeQuestionType,
@@ -342,6 +454,9 @@ export function useSurveyEditor() {
         handleDeleteSurvey,
         openPublish,
         handlePublish,
+
         goBackToDashboard,
+        cancelDiscardChanges,
+        discardChangesAndLeave,
     };
 }
