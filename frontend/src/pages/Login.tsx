@@ -14,7 +14,7 @@ import Logo from "@/components/common/Logo";
 
 function getErrorMessage(
     error: unknown,
-    fallback = "Something went wrong."
+    fallback = "Something went wrong.",
 ): string {
     if (error instanceof Error && error.message) {
         return error.message;
@@ -34,6 +34,7 @@ function getErrorMessage(
 
 export default function Login() {
     const navigate = useNavigate();
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -55,7 +56,7 @@ export default function Login() {
                 return;
             }
 
-            const res = await fetch("http://localhost:3000/api/auth/send-otp", {
+            const res = await fetch(`${apiUrl}/api/auth/send-otp`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -103,7 +104,7 @@ export default function Login() {
                 return;
             }
 
-            const res = await fetch("http://localhost:3000/api/auth/send-otp", {
+            const res = await fetch(`${apiUrl}/api/auth/send-otp`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

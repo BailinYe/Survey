@@ -32,20 +32,27 @@ function formatExpiryDateTime(expiredAt: string): string {
 export async function sendOtpEmail(to: string, code: string) {
     const transporter = buildTransporter();
 
-    const subject = "Your login verification code";
+    try {
+        await transporter.verify();
 
-    const text = `Here's the 6-digit verification code for login: ${code}
+        const subject = "Your login verification code";
+
+        const text = `Here's the 6-digit verification code for login: ${code}
 
 It will expire in 10 minutes.
 
 If you did not try to log in, you can ignore this email.`;
 
-    await transporter.sendMail({
-        from: process.env.SMTP_USER,
-        to,
-        subject,
-        text,
-    });
+        await transporter.sendMail({
+            from: process.env.SMTP_USER,
+            to,
+            subject,
+            text,
+        });
+    } catch (error) {
+        console.error("sendOtpEmail error:", error);
+        throw error;
+    }
 }
 
 export async function sendSurvey(
@@ -56,10 +63,13 @@ export async function sendSurvey(
 ) {
     const transporter = buildTransporter();
 
-    const formattedExpiry = formatExpiryDateTime(expiredAt);
-    const subject = `You're invited to complete ${surveyName}`;
+    try {
+        await transporter.verify();
 
-    const text = `Hello,
+        const formattedExpiry = formatExpiryDateTime(expiredAt);
+        const subject = `You're invited to complete ${surveyName}`;
+
+        const text = `Hello,
 
 You're invited to complete ${surveyName}.
 
@@ -73,10 +83,14 @@ Please make sure to submit your response before the expiry date and time.
 
 Thank you for your participation.`;
 
-    await transporter.sendMail({
-        from: process.env.SMTP_USER,
-        to: to.join(", "),
-        subject,
-        text,
-    });
+        await transporter.sendMail({
+            from: process.env.SMTP_USER,
+            to: to.join(", "),
+            subject,
+            text,
+        });
+    } catch (error) {
+        console.error("sendSurvey error:", error);
+        throw error;
+    }
 }
