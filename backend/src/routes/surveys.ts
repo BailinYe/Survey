@@ -101,6 +101,7 @@ function formatExpiryForEmail(expiredAt: unknown): string {
     }
 
     return parsed.toLocaleString("en-CA", {
+        timeZone: "America/Toronto",
         year: "numeric",
         month: "short",
         day: "numeric",
