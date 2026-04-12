@@ -100,7 +100,7 @@ router.get("/survey/:id", authenticateToken, async (req: AuthRequest, res: Respo
 
         const survey = surveyDoc.data();
 
-        if (!survey || survey.authorId !== authorId) {
+        if (survey?.authorId !== authorId) {
             return res.status(403).json({ error: "You don't have permission to view responses for this survey" });
         }
 
