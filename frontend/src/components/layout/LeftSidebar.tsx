@@ -12,13 +12,19 @@ type SidebarStats = {
     totalShares: number;
 };
 
-type LeftSidebarProps = {
+type LeftSidebarProps = Readonly<{
     handleLogout: () => void;
     nameUser: string;
     stats?: SidebarStats;
-};
+    onBackToDashboard?: () => void;
+}>;
 
-export default function LeftSidebar({ handleLogout, nameUser, stats }: LeftSidebarProps) {
+export default function LeftSidebar({
+                                        handleLogout,
+                                        nameUser,
+                                        stats,
+                                        onBackToDashboard,
+                                    }: LeftSidebarProps) {
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -27,15 +33,30 @@ export default function LeftSidebar({ handleLogout, nameUser, stats }: LeftSideb
         location.pathname.includes("/analytics") ||
         location.pathname.includes("/edit");
 
+    function handleBackToDashboardClick() {
+        if (onBackToDashboard) {
+            onBackToDashboard();
+            return;
+        }
+
+        navigate("/admin-dashboard");
+    }
+
+    const displayName =
+        nameUser.charAt(0).toUpperCase() + nameUser.substring(1);
+
     return (
         <aside className="fixed left-0 top-0 hidden h-screen w-72 border-r border-border bg-sidebar text-sidebar-foreground lg:flex">
             <div className="flex h-full w-full flex-col px-5 py-5">
-                <div className="rounded-[28px] border border-border/70 bg-card/60 px-4 py-5 shadow-sm backdrop-blur cursor-pointer"
-                     onClick={() => navigate("/admin-dashboard")}>
+                <button
+                    type="button"
+                    className="rounded-[28px] border border-border/70 bg-card/60 px-4 py-5 shadow-sm backdrop-blur"
+                    onClick={() => navigate("/admin-dashboard")}
+                >
                     <div className="flex items-center justify-center">
                         <Logo className="h-auto w-48" />
                     </div>
-                </div>
+                </button>
 
                 <div className="flex flex-1 flex-col justify-between pt-6">
                     <div className="flex flex-col gap-5">
@@ -47,7 +68,22 @@ export default function LeftSidebar({ handleLogout, nameUser, stats }: LeftSideb
                                     <Avatar className="h-24 w-24 border-4 border-card ring-4 ring-muted/70" />
                                 </div>
 
-                                {!showBackToDashboard ? (
+                                {showBackToDashboard ? (
+                                    <>
+                                        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                                            <LayoutDashboard className="h-3.5 w-3.5" />
+                                            Navigation
+                                        </div>
+
+                                        <h1 className="text-2xl font-semibold tracking-tight text-card-foreground">
+                                            Working on a survey
+                                        </h1>
+
+                                        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                                            Return to your dashboard anytime to manage surveys and view overall activity.
+                                        </p>
+                                    </>
+                                ) : (
                                     <>
                                         <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
                                             <Sparkles className="h-3.5 w-3.5" />
@@ -55,7 +91,7 @@ export default function LeftSidebar({ handleLogout, nameUser, stats }: LeftSideb
                                         </div>
 
                                         <h1 className="text-2xl font-semibold tracking-tight text-card-foreground">
-                                            Hi {nameUser.charAt(0).toUpperCase()+nameUser.substring(1, nameUser.length)}!
+                                            Hi {displayName}!
                                         </h1>
 
                                         <div className="mt-5 grid grid-cols-2 gap-3 text-left">
@@ -88,21 +124,6 @@ export default function LeftSidebar({ handleLogout, nameUser, stats }: LeftSideb
                                             </div>
                                         </div>
                                     </>
-                                ) : (
-                                    <>
-                                        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                                            <LayoutDashboard className="h-3.5 w-3.5" />
-                                            Navigation
-                                        </div>
-
-                                        <h1 className="text-2xl font-semibold tracking-tight text-card-foreground">
-                                            Working on a survey
-                                        </h1>
-
-                                        <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                                            Return to your dashboard anytime to manage surveys and view overall activity.
-                                        </p>
-                                    </>
                                 )}
                             </div>
                         </div>
@@ -111,7 +132,7 @@ export default function LeftSidebar({ handleLogout, nameUser, stats }: LeftSideb
                             <Button
                                 variant="outline"
                                 className="h-11 w-full rounded-full bg-card"
-                                onClick={() => navigate("/admin-dashboard")}
+                                onClick={handleBackToDashboardClick}
                             >
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Dashboard
@@ -124,7 +145,9 @@ export default function LeftSidebar({ handleLogout, nameUser, stats }: LeftSideb
                             <div className="flex items-center justify-between gap-4">
                                 <div>
                                     <p className="text-sm font-medium text-card-foreground">Appearance</p>
-                                    <p className="text-xs text-muted-foreground">Switch between light and dark mode</p>
+                                    <p className="text-xs text-muted-foreground">
+                                        Switch between light and dark mode
+                                    </p>
                                 </div>
                                 <ThemeToggle />
                             </div>

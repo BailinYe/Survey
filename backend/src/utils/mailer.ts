@@ -1,8 +1,8 @@
 import "dotenv/config";
 import nodemailer from "nodemailer";
 
-export async function sendOtpEmail(to: string, code: string) {
-    const transporter = nodemailer.createTransport({
+function buildTransporter() {
+    return nodemailer.createTransport({
         host: process.env.SMTP_HOST || "smtp.gmail.com",
         port: Number(process.env.SMTP_PORT || 587),
         secure: false,
@@ -11,6 +11,26 @@ export async function sendOtpEmail(to: string, code: string) {
             pass: process.env.SMTP_PASS,
         },
     });
+}
+
+function formatExpiryDateTime(expiredAt: string): string {
+    const parsed = new Date(expiredAt);
+
+    if (Number.isNaN(parsed.getTime())) {
+        return expiredAt;
+    }
+
+    return parsed.toLocaleString("en-CA", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+    });
+}
+
+export async function sendOtpEmail(to: string, code: string) {
+    const transporter = buildTransporter();
 
     const subject = "Your login verification code";
 
@@ -31,18 +51,12 @@ If you did not try to log in, you can ignore this email.`;
 export async function sendSurvey(
     to: string[],
     surveyLink: string,
-    surveyName: string
+    surveyName: string,
+    expiredAt: string,
 ) {
-    const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || "smtp.gmail.com",
-        port: Number(process.env.SMTP_PORT || 587),
-        secure: false,
-        auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-        },
-    });
+    const transporter = buildTransporter();
 
+    const formattedExpiry = formatExpiryDateTime(expiredAt);
     const subject = `You're invited to complete ${surveyName}`;
 
     const text = `Hello,
@@ -51,6 +65,11 @@ You're invited to complete ${surveyName}.
 
 Please click the survey link below to access and submit your response:
 ${surveyLink}
+
+This survey will close on:
+${formattedExpiry}
+
+Please make sure to submit your response before the expiry date and time.
 
 Thank you for your participation.`;
 

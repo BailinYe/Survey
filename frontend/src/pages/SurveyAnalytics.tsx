@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {useNavigate, useParams} from "react-router-dom";
-
-import {useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import type { AdminLayoutContext } from "@/components/layout/AdminLayout";
 
 import { parseDate } from "@/utils/date";
@@ -13,26 +11,65 @@ import RatingResults from "@/components/survey-results/RatingResults";
 import ShortAnswerResults from "@/components/survey-results/ShortAnswerResults";
 import SurveyInfoCard from "@/components/survey-results/SurveyInfoCard";
 
-import { toast } from "sonner"
+import { toast } from "sonner";
 
 import { AnswerValue, QuestionDTO, ResponseDTO, SurveyDTO } from "@shared/models/dtos";
 import { SurveyStatus } from "@shared/models/dtos/enums/SurveyStatus";
 import { QuestionType } from "@shared/models/dtos/enums/QuestionType";
 
-import { MessageSquareText, MessageCircle, CalendarMinus2, Link2, Lock, Trash2, LockOpen } from "lucide-react";
+import {
+    MessageSquareText,
+    MessageCircle,
+    CalendarMinus2,
+    Link2,
+    Lock,
+    Trash2,
+    LockOpen,
+    CalendarClock,
+} from "lucide-react";
 import { auth } from "@/firebase/firebase";
 import PopupWindow from "@/components/PopupWindow";
 
-export default function SurveyAnalytics() {
+function formatExpiredAt(expiredAt: SurveyDTO["expiredAt"]): string {
+    if (!expiredAt) {
+        return "Not set";
+    }
 
+    const parsed = new Date(expiredAt);
+    if (Number.isNaN(parsed.getTime())) {
+        return "Invalid date";
+    }
+
+    return parsed.toLocaleString("en-CA", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
+}
+
+function formatExpiredTime(expiredAt: SurveyDTO["expiredAt"]): string {
+    if (!expiredAt) {
+        return "";
+    }
+
+    const parsed = new Date(expiredAt);
+    if (Number.isNaN(parsed.getTime())) {
+        return "";
+    }
+
+    return parsed.toLocaleString("en-CA", {
+        hour: "numeric",
+        minute: "2-digit",
+    });
+}
+
+export default function SurveyAnalytics() {
     const { refreshSurveys } = useOutletContext<AdminLayoutContext>();
 
     const navigate = useNavigate();
 
-    // Retrieves SurveyId
     const { surveyId } = useParams<{ surveyId: string }>();
 
-    // State Data
     const [survey, setSurvey] = useState<SurveyDTO | null>(null);
     const [responses, setResponses] = useState<ResponseDTO[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -40,13 +77,11 @@ export default function SurveyAnalytics() {
 
     const [showDeletePopup, setShowDeletePopup] = useState(false);
 
-    // Retrieves questions from Survey in Ascending Order
     const questions: QuestionDTO[] = useMemo(() => {
         if (!survey?.questions) return [];
         return [...survey.questions].sort((a, b) => a.position - b.position);
     }, [survey]);
 
-    // Fetches Surveys from Backend using SurveyId
     useEffect(() => {
         async function fetchSurveyAnalytics() {
             if (!surveyId) {
@@ -102,67 +137,61 @@ export default function SurveyAnalytics() {
                 setIsLoading(false);
             }
         }
-        fetchSurveyAnalytics();
+
+        void fetchSurveyAnalytics();
     }, [surveyId]);
 
-    // Renders view when loading
     if (isLoading) {
         return (
-            <div className="flex flex-col w-full px-6 lg:px-10 py-6 gap-6">
+            <div className="flex flex-col w-full px-6 py-6 gap-6 lg:px-10">
                 <h1 className="text-3xl font-semibold tracking-tight">Survey Analytics</h1>
                 <p className="text-muted-foreground">Loading analytics...</p>
             </div>
         );
     }
 
-    // Renders view when an error is encountered
     if (error) {
         return (
-            <div className="flex flex-col w-full px-6 lg:px-10 py-6 gap-6">
+            <div className="flex flex-col w-full px-6 py-6 gap-6 lg:px-10">
                 <h1 className="text-3xl font-semibold tracking-tight">Survey Analytics</h1>
                 <p className="text-red-500">{error}</p>
             </div>
         );
     }
 
-    // Renders view when the survey is not found
     if (!survey) {
         return (
-            <div className="flex flex-col w-full px-6 lg:px-10 py-6 gap-6">
+            <div className="flex flex-col w-full px-6 py-6 gap-6 lg:px-10">
                 <h1 className="text-3xl font-semibold tracking-tight">Survey Analytics</h1>
                 <p className="text-muted-foreground">Survey not found.</p>
             </div>
         );
     }
 
-    // Renders view when the Survey has no questions
     if (questions.length === 0) {
         return (
-            <div className="flex flex-col w-full px-6 lg:px-10 py-6 gap-6">
+            <div className="flex flex-col w-full px-6 py-6 gap-6 lg:px-10">
                 <h1 className="text-3xl font-semibold tracking-tight">Survey Analytics</h1>
                 <p className="text-muted-foreground">No questions found for this survey.</p>
             </div>
         );
     }
 
-    // Get Survey Link Helper
     async function handleCopyLink() {
         if (!surveyId) return;
 
-        const surveyLink = `${window.location.origin}/survey/${surveyId}`;
+        const surveyLink = `${globalThis.location.origin}/survey/${surveyId}`;
 
         try {
             await navigator.clipboard.writeText(surveyLink);
             toast.success("Survey link copied to clipboard", { position: "top-center" });
-        } catch (error) {
-            console.error("Failed to copy survey link:", error);
-            toast.error("Failed to copy survey link.");
+        } catch (copyError) {
+            console.error("Failed to copy survey link:", copyError);
+            toast.error("Failed to copy survey link.", { position: "top-center" });
         }
     }
 
-    // Set Status to Close Helper
     async function handleCloseSurvey() {
-
         if (!surveyId) return;
 
         try {
@@ -196,14 +225,15 @@ export default function SurveyAnalytics() {
             );
             toast.success("Survey closed successfully.", { position: "top-center" });
             await refreshSurveys();
-        } catch (error) {
-            console.error("Error closing survey:", error);
-            toast.error(error instanceof Error ? error.message : "Failed to close survey.");
+        } catch (closeError) {
+            console.error("Error closing survey:", closeError);
+            toast.error(closeError instanceof Error ? closeError.message : "Failed to close survey.", {
+                position: "top-center",
+            });
         }
     }
 
     async function handleOpenSurvey() {
-
         if (!surveyId) return;
 
         try {
@@ -238,13 +268,14 @@ export default function SurveyAnalytics() {
 
             toast.success("Survey opened successfully.", { position: "top-center" });
             await refreshSurveys();
-        } catch (error) {
-            console.error("Error opening survey:", error);
-            toast.error(error instanceof Error ? error.message : "Failed to open survey.");
+        } catch (openError) {
+            console.error("Error opening survey:", openError);
+            toast.error(openError instanceof Error ? openError.message : "Failed to open survey.", {
+                position: "top-center",
+            });
         }
     }
 
-    // Delete Survey Helpers
     async function confirmDeleteSurvey() {
         if (!surveyId) return;
 
@@ -273,10 +304,12 @@ export default function SurveyAnalytics() {
             navigate("/admin-dashboard");
             toast.warning("Survey deleted successfully.", { position: "top-center" });
             await refreshSurveys();
-        } catch (error) {
-            console.error("Error deleting survey:", error);
+        } catch (deleteError) {
+            console.error("Error deleting survey:", deleteError);
             setShowDeletePopup(false);
-            toast.error(error instanceof Error ? error.message : "Failed to delete survey.");
+            toast.error(deleteError instanceof Error ? deleteError.message : "Failed to delete survey.", {
+                position: "top-center",
+            });
         }
     }
 
@@ -289,49 +322,60 @@ export default function SurveyAnalytics() {
         setShowDeletePopup(true);
     }
 
+    const expiryValue = (
+        <div className="leading-tight">
+            <div>{formatExpiredAt(survey.expiredAt)}</div>
+            <div>{formatExpiredTime(survey.expiredAt)}</div>
+        </div>
+    );
+
     return (
         <div className="flex w-full flex-col gap-6 px-6 py-6 lg:flex-1 lg:border-l lg:border-border lg:px-10">
             <div className="border-b pb-4">
                 <h1 className="text-3xl font-semibold tracking-tight">{survey.title}</h1>
-                <p className="text-sm text-muted-foreground mt-1">{survey.description}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{survey.description}</p>
             </div>
 
-            <div className="flex  flex-col flex-wrap sm:flex-row gap-3 justify-start">
+            <div className="flex flex-col flex-wrap justify-start gap-3 sm:flex-row">
                 <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="analytics-action-btn analytics-action-neutral"                >
+                    className="analytics-action-btn analytics-action-neutral"
+                >
                     <Link2 className="h-4 w-4" />
                     Copy Responder Link
                 </button>
-                {survey.status === "Active"?
+                {survey.status === "Active" ? (
                     <button
                         type="button"
                         onClick={handleCloseSurvey}
-                        className="analytics-action-btn analytics-action-open"                    >
+                        className="analytics-action-btn analytics-action-open"
+                    >
                         <LockOpen className="h-4 w-4" />
                         Survey Open
                     </button>
-                    :
+                ) : (
                     <button
                         type="button"
                         onClick={handleOpenSurvey}
-                        className="analytics-action-btn analytics-action-closed"                    >
+                        className="analytics-action-btn analytics-action-closed"
+                    >
                         <Lock className="h-4 w-4" />
                         Survey Closed
                     </button>
-                }
+                )}
 
                 <button
                     type="button"
                     onClick={handleDeleteSurvey}
-                    className="analytics-action-btn analytics-action-danger"                >
+                    className="analytics-action-btn analytics-action-danger"
+                >
                     <Trash2 className="h-4 w-4" />
                     Delete Survey
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                 <SurveyInfoCard
                     title="Responses"
                     value={responses.length}
@@ -354,6 +398,14 @@ export default function SurveyAnalytics() {
                     icon={CalendarMinus2}
                     iconClassName="text-orange-600 dark:text-orange-300"
                     iconContainerClassName="bg-orange-100 dark:bg-orange-950/50"
+                />
+
+                <SurveyInfoCard
+                    title="Expiry Date & Time"
+                    value={expiryValue}
+                    icon={CalendarClock}
+                    iconClassName="text-emerald-600 dark:text-emerald-300"
+                    iconContainerClassName="bg-emerald-100 dark:bg-emerald-950/50"
                 />
             </div>
 
@@ -391,11 +443,11 @@ export default function SurveyAnalytics() {
                         );
 
                         return (
-                            <Card key={question.questionId} className="w-full !max-w-none p-6 max-h-fit">
+                            <Card key={question.questionId} className="w-full !max-w-none max-h-fit p-6">
                                 <div className="mb-4">
                                     <h2 className="text-lg font-semibold">{question.prompt}</h2>
                                     {question.description && (
-                                        <p className="text-sm text-muted-foreground mt-1">
+                                        <p className="mt-1 text-sm text-muted-foreground">
                                             {question.description}
                                         </p>
                                     )}
@@ -430,6 +482,7 @@ export default function SurveyAnalytics() {
                     })}
                 </div>
             )}
+
             {showDeletePopup && (
                 <PopupWindow
                     text={
