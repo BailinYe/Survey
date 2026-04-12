@@ -164,7 +164,7 @@ export default function AdminLayout() {
                 onBackToDashboard={backToDashboardHandler ?? undefined}
             />
 
-            <main className="flex-1 px-6 py-6 pt-24 sm:pt-2 lg:ml-72 lg:pt-6">
+            <main className="flex-1 px-6 py-6 pt-2 sm:pt-2 lg:ml-72 lg:pt-6">
                 <Toaster />
                 <Outlet
                     context={{

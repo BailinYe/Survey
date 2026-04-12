@@ -46,7 +46,7 @@ export default function CreateSurveyActionsBar(props: Props) {
 
     return (
         <>
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-end">
                 <Button
                     type="button"
                     variant="outline"

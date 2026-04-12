@@ -35,7 +35,7 @@ export default function SurveyHeaderCard({
                         id="survey-description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Describe what this survey is about..."
+                        placeholder="Survey description..."
                         rows={1}
                         className="resize-none border-0 border-b border-border bg-transparent px-0
                                    text-base outline-none ring-0 placeholder:text-muted-foreground focus-visible:ring-0
