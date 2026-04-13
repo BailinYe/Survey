@@ -1,4 +1,16 @@
-# Survey Project
+# SurveyNest - GitPushPray team
+
+## Contributors
+
+| Name                | Student ID |
+| ------------------- | ---------- |
+| Carlos Gonzalez       | 40204811   |
+| Fouad Meida         | 40249310   |
+| Noemie Corneillier      | 40284815   |
+| Bailin Ye        | 40192743   |
+| Maesha Mahmud        | 40281586   |
+
+## Project Overview
 
 A survey application system with separated frontend and backend architecture.
 
