@@ -394,7 +394,7 @@ export default function SurveyAnalytics() {
 
                 <SurveyInfoCard
                     title="Last Edited"
-                    value={parseDate(survey.updatedAt)}
+                    value={parseDate(survey.updatedAt).toLocaleString("en-CA")}
                     icon={CalendarMinus2}
                     iconClassName="text-orange-600 dark:text-orange-300"
                     iconContainerClassName="bg-orange-100 dark:bg-orange-950/50"

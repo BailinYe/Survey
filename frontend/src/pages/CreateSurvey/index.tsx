@@ -141,8 +141,8 @@ export default function CreateSurvey() {
                 <PublishSurveyPopup
                     surveyLink={
                         surveyId
-                            ? `http://localhost:5173/survey/${surveyId}`
-                            : "http://localhost:5173/survey/"
+                            ? `${globalThis.location.origin}/survey/${surveyId}`
+                            : `${globalThis.location.origin}/survey/`
                     }
                     onBack={() => setShowPublishPopup(false)}
                     onPublish={handlePublish}

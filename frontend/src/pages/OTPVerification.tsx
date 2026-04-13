@@ -46,6 +46,7 @@ const OTP_BOX_IDS = [
 
 export default function OTPVerification() {
     const navigate = useNavigate();
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
     const [code, setCode] = useState("");
     const [error, setError] = useState("");
@@ -80,7 +81,7 @@ export default function OTPVerification() {
         try {
             setLoading(true);
 
-            const res = await fetch("http://localhost:3000/api/auth/verify-otp", {
+            const res = await fetch(`${apiUrl}/api/auth/verify-otp`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -118,7 +119,7 @@ export default function OTPVerification() {
         try {
             setResending(true);
 
-            const res = await fetch("http://localhost:3000/api/auth/send-otp", {
+            const res = await fetch(`${apiUrl}/api/auth/send-otp`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -210,8 +211,8 @@ export default function OTPVerification() {
                                 <p className="mt-3 text-sm leading-6 text-muted-foreground">
                                     A verification code has been sent to{" "}
                                     <span className="font-medium text-foreground">
-                    {maskedEmail || "your email"}
-                  </span>
+                                        {maskedEmail || "your email"}
+                                    </span>
                                     . Enter the code below to continue.
                                 </p>
                             </div>
@@ -267,9 +268,9 @@ export default function OTPVerification() {
                                     )}
 
                                     <div className="text-center">
-                    <span className="text-sm text-muted-foreground">
-                      No code received?{" "}
-                    </span>
+                                        <span className="text-sm text-muted-foreground">
+                                            No code received?{" "}
+                                        </span>
                                         <button
                                             type="button"
                                             onClick={handleResendCode}

@@ -12,19 +12,19 @@ await connectToFirestore();
 const { port } = configuration.server;
 const server = http.createServer(app);
 
-server.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-  console.log(`Environment: ${configuration.env}`);
+server.listen(port, "0.0.0.0", () => {
+    console.log(`Server is running on http://localhost:${port}`);
+    console.log(`Environment: ${configuration.env}`);
 });
 
 // Graceful shutdown
 const shutdown = async () => {
-  console.log("\nShutting down gracefully...");
-  server.close(() => {
-    console.log("HTTP server closed");
-  });
-  await closeFirestore();
-  process.exit(0);
+    console.log("\nShutting down gracefully...");
+    server.close(() => {
+        console.log("HTTP server closed");
+    });
+    await closeFirestore();
+    process.exit(0);
 };
 
 process.on("SIGINT", shutdown);

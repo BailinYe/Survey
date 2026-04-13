@@ -13,22 +13,6 @@ function buildTransporter() {
     });
 }
 
-function formatExpiryDateTime(expiredAt: string): string {
-    const parsed = new Date(expiredAt);
-
-    if (Number.isNaN(parsed.getTime())) {
-        return expiredAt;
-    }
-
-    return parsed.toLocaleString("en-CA", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-    });
-}
-
 export async function sendOtpEmail(to: string, code: string) {
     const transporter = buildTransporter();
 
@@ -52,11 +36,10 @@ export async function sendSurvey(
     to: string[],
     surveyLink: string,
     surveyName: string,
-    expiredAt: string,
+    expiryText: string,
 ) {
     const transporter = buildTransporter();
 
-    const formattedExpiry = formatExpiryDateTime(expiredAt);
     const subject = `You're invited to complete ${surveyName}`;
 
     const text = `Hello,
@@ -67,7 +50,7 @@ Please click the survey link below to access and submit your response:
 ${surveyLink}
 
 This survey will close on:
-${formattedExpiry}
+${expiryText}
 
 Please make sure to submit your response before the expiry date and time.
 

@@ -8,6 +8,7 @@ export const Survey: SurveyDTO = {
     authorId: "user_123",
     createdAt: new Date("2026-03-20T18:00:00Z"),
     updatedAt: new Date("2026-03-20T18:30:00Z"),
+    expiredAt: new Date("2026-03-25T23:59:00Z"),
     title: "Customer Satisfaction Survey",
     description: "A survey to collect feedback about the event experience.",
     status: SurveyStatus.Active,
