@@ -99,11 +99,6 @@ cd frontend
 npm run build
 ```
 
-## API Endpoints
-
-- `GET /` - Service information
-- `GET /health` - Health check
-
 ## Development Guide
 
 1. Install dependencies after cloning the repository
@@ -119,7 +114,7 @@ npm run build
 
 - We use a shared TypeScript DTO contract in the root `shared/` directory to maintain consistency between frontend and backend.
 
-<img src="./docs/shared-dtos.jpg" width="600">
+<img src="docs/shared-dtos-new.jpg" width="600">
 
 ### Enums
 - `QuestionType` → `MultipleChoice` | `CheckBox` | `ShortAnswer` | `Rating`
