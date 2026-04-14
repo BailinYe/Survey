@@ -62,6 +62,8 @@ Survey/
 
 ## Getting Started
 
+**Note:** This section is no longer valid anymore. It's kept for reference only, since it was mainly used for running the web app locally during development and while building new features before deployment.
+
 ### Install Dependencies
 
 ```bash
