@@ -12,53 +12,145 @@
 
 ## Project Overview
 
-A survey application system with separated frontend and backend architecture.
+SurveyNest is a full-stack survey management application. Authenticated users can create, publish, and analyze surveys from an admin dashboard. Published surveys are accessible via a shareable public link — no login required for respondents. Results are aggregated in real-time on a per-survey analytics page.
+
+## Deployed Application using Google Cloud Run
+
+[SurveyNest](https://survey-dfe77.web.app) - Release v.1
 
 
-## Live Demo
 
-Deployed application: [SurveyNest](https://survey-dfe77.web.app)
 
 ## App Preview
 
-<img src="./docs/home.png" width="300">
-<img src="./docs/login.png" width="300">
-<img src="./docs/signup.png" width="300">
-<img src="./docs/admin-dashboard.png" width="300">
-<img src="./docs/new-survey.png" width="300">
-<img src="./docs/publish-survey.png" width="300">
-<img src="./docs/survey-analytics.png" width="300">
-<img src="./docs/survey-respond.png" width="300">
+<table>
+  <tr>
+    <td><img src="./docs/home.png" width="500"></td>
+    <td><img src="./docs/login.png" width=500"></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/signup.png" width="500"></td>
+    <td><img src="./docs/admin-dashboard.png" width="500"></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/new-survey.png" width="500"></td>
+    <td><img src="./docs/publish-survey.png" width="500"></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/survey-analytics.png" width="500"></td>
+    <td><img src="./docs/survey-respond.png" width="500"></td>
+  </tr>
+</table>
 
 
 ## Project Structure
 
 ```
 Survey/
-├── backend/          # Backend service (Node.js + Express + TypeScript)
-├── frontend/         # Frontend application (React + Vite + TypeScript)
-├── shared/           # Shared TypeScript DTOs/contracts
+├── backend/
+│   ├── src/
+│   │   ├── db/
+│   │   ├── middleware/
+│   │   ├── routes/
+│   │   ├── scripts/
+│   │   ├── utils/
+│   │   ├── app.ts
+│   │   └── config.ts
+│   ├── index.ts
+│   ├── package-lock.json
+│   ├── package.json
+│   └── tsconfig.json
+├── docs/
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── api/
+│   │   │   └── surveys.ts
+│   │   ├── assets/
+│   │   ├── components/
+│   │   │   ├── common/
+│   │   │   ├── layout/
+│   │   │   ├── survey-results/
+│   │   │   ├── ui/
+│   │   │   ├── utils/
+│   │   │   ├── PopupWindow.tsx
+│   │   │   ├── ProtectedRoute.tsx
+│   │   │   └── PublishSurveyPopup.tsx
+│   │   ├── context/
+│   │   ├── css/
+│   │   │   ├── App.css
+│   │   │   └── index.css
+│   │   ├── firebase/
+│   │   ├── lib/
+│   │   ├── mocks/
+│   │   ├── pages/
+│   │   │   ├── CreateSurvey/
+│   │   │   ├── RespondSurvey/
+│   │   │   ├── AdminDashboard.tsx
+│   │   │   ├── ForgotPassword.tsx
+│   │   │   ├── Home.tsx
+│   │   │   ├── Login.tsx
+│   │   │   ├── OTPVerification.tsx
+│   │   │   ├── PageNotFound.tsx
+│   │   │   ├── Signup.tsx
+│   │   │   ├── SurveyAnalytics.tsx
+│   │   │   └── SurveySubmitted.tsx
+│   │   ├── utils/
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   └── vite-env.d.ts
+│   ├── components.json
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
+├── shared/
+│   ├── src/
+│       ├── models/
+│       │   ├── dtos/
+│       │       ├── enums/
+│       │       │   ├── QuestionType.ts
+│       │       │   └── SurveyStatus.ts
+│       │       ├── types/
+│       │       │   ├── QuestionDTO.ts
+│       │       │   ├── ResponseDTO.ts
+│       │       │   └── SurveyDTO.ts
+│       │       ├── utils/
+│       │       │   └── validateResponse.ts
+│       │       └── index.ts
+│       └── index.ts
+├── LICENSE
 └── README.md
+
 ```
 
 ## Tech Stack
 
 ### Backend
-
 - Node.js
 - Express.js
 - TypeScript
-- tsx (Development runtime)
+- firebase-admin (Auth token verification + Firestore)
+- Nodemailer (SMTP email — OTP and survey invites)
+- tsx (development runtime)
 
 ### Frontend
-
-- React
-- Vite
+- React 19
+- Vite 7
 - TypeScript
-- Tailwind CSS
-- shadcn/ui
+- React Router 7
+- Firebase (client-side auth)
+- Tailwind CSS 4
+- shadcn/ui + Radix UI
 - Lucide React
-- tw-animate-css
+
+  
+### Shared
+- TypeScript DTOs shared between frontend and backend via the `shared/` package
 
 ## Getting Started
 
@@ -128,11 +220,11 @@ npm run build
 
 - We use a shared TypeScript DTO contract in the root `shared/` directory to maintain consistency between frontend and backend.
 
-<img src="docs/shared-dtos-new.jpg" width="600">
+<img src="docs/shared-dtos-new.jpg" width="1000">
 
 ### Enums
 - `QuestionType` → `MultipleChoice` | `CheckBox` | `ShortAnswer` | `Rating`
-- `SurveyStatus` → `active` | `closed`
+- `SurveyStatus` → `New` | `Active` | `Closed`
 
 ### DTOs
 - `SurveyDTO` → stores survey-level metadata such as id, author, title, description, status, timestamps, and question count
@@ -164,7 +256,7 @@ The app uses React Router with two access tiers. The entire app is wrapped in Au
 ### Public routes
 No login required
 
-<img src="./docs/public-routes.png" width="400">
+<img src="./docs/public-routes.png" width="800">
 
 
 ### Protected routes
@@ -172,7 +264,7 @@ Require an active Firebase session. Redirect to /auth/login otherwise.
 
 All nested under AdminLayout (shared sidebar + navbar via <Outlet>).
 
-<img src="./docs/protected-routes.png" width="400">
+<img src="./docs/protected-routes.png" width="800">
 
 ## License
 
